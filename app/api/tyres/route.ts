@@ -1,0 +1,1 @@
+export async function GET(req:Request){const u=new URL(req.url);const size=u.searchParams.get("size")||"";return Response.json({query:size,results:size?[{name:"MOTEVRA Touring Pro",size,price:89,compatible:true}]:[],note:"Compatibility rules should be backed by vehicle/tyre-size database in production."});}
