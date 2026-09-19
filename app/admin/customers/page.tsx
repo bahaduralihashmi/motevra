@@ -1,0 +1,10 @@
+import { db } from "@/lib/db";
+
+export default async function AdminCustomersPage() {
+  let customers = [] as Array<{ id: string; name: string | null; email: string; role: string; createdAt: Date; _count: { orders: number } }>;
+  if (process.env.DATABASE_URL) {
+    try { customers = await db.user.findMany({ where: { role: "CUSTOMER" }, select: { id: true, name: true, email: true, role: true, createdAt: true, _count: { select: { orders: true } } }, orderBy: { createdAt: "desc" }, take: 100 }); } catch { customers = []; }
+  }
+
+  return <div><div className="mb-8"><p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#f97316]">Admin</p><h1 className="mt-3 text-4xl font-black tracking-[-0.06em] text-slate-900">Customers</h1></div>{!process.env.DATABASE_URL ? <div className="rounded-[1.75rem] border border-amber-200 bg-amber-50 p-5 text-sm text-amber-800">Connect PostgreSQL to view customers.</div> : customers.length ? <div className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-sm"><table className="min-w-full text-left text-sm text-slate-700"><thead className="bg-slate-50 text-xs uppercase tracking-[0.18em] text-slate-500"><tr><th className="px-5 py-4">Name</th><th className="px-5 py-4">Email</th><th className="px-5 py-4">Orders</th><th className="px-5 py-4">Joined</th></tr></thead><tbody>{customers.map((customer) => <tr key={customer.id} className="border-t border-slate-200"><td className="px-5 py-4 font-semibold text-slate-900">{customer.name ?? "Unnamed customer"}</td><td className="px-5 py-4">{customer.email}</td><td className="px-5 py-4">{customer._count.orders}</td><td className="px-5 py-4">{customer.createdAt.toLocaleDateString("en-GB")}</td></tr>)}</tbody></table></div> : <div className="rounded-[1.75rem] border border-dashed border-slate-300 bg-white p-10 text-center text-slate-600">No customers found.</div>}</div>;
+}
