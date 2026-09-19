@@ -1,9 +1,10 @@
-import { PrismaNeon } from "@prisma/adapter-neon";
+import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "./generated/client";
 
 const url = process.env.DATABASE_URL;
 if (!url) throw new Error("DATABASE_URL is not configured.");
-const prisma = new PrismaClient({ adapter: new PrismaNeon({ connectionString: url }) });
+
+const prisma = new PrismaClient({ adapter: new PrismaPg({ connectionString: url }) });
 
 async function main() {
   const tyreCategory = await prisma.category.upsert({ where:{slug:"tyres"}, update:{}, create:{name:"Tyres",slug:"tyres"} });
