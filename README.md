@@ -1,46 +1,18 @@
 # MOTEVRA
+Premium international automotive marketplace.
 
-Premium automotive marketplace built with Next.js, TypeScript, Tailwind CSS, Prisma, and PostgreSQL.
+## Implemented foundation
+- Phase 1: premium responsive storefront, navigation, hero, tyre finder, categories, products, global shipping section and footer.
+- Phase 2: product/catalog routes, cart persistence, tyre API, Prisma/PostgreSQL schema for products, tyres, vehicles and orders.
+- Phase 3: account, checkout, order/tracking/returns routes and order API foundation.
+- Phase 4: admin dashboard foundation for products, orders, customers, inventory, warehouses, payments, shipping, reviews, coupons, blog and analytics.
+- Phase 5: country/currency choices and architecture for taxes, warehouses and destination-based shipping.
+- Phase 6/7: metadata, Open Graph, canonical structure and content routes.
 
-## Local development
-
-Install dependencies, then create a PostgreSQL database named `motevra`.
-
-Create `.env.local` in the project root:
-
-```env
-NEXTAUTH_URL=http://localhost:3000
-NEXTAUTH_SECRET=replace-with-a-long-random-secret
-DATABASE_URL=postgresql://postgres:YOUR_POSTGRES_PASSWORD@localhost:5432/motevra
-NEXT_PUBLIC_APP_URL=http://localhost:3000
-```
-
-Run the database setup from PowerShell or Command Prompt:
-
-```text
-npm run db:generate
-npm run db:migrate
-npm run db:seed
-```
-
-Start the app:
-
-```text
-npm run dev
-```
-
-The seed creates the initial brands, categories, products, tyre specifications, product images, and two development users:
-
-- Admin: `admin@motevra.com` / `Admin123!`
-- Customer: `driver@motevra.com` / `Driver123!`
-
-Change these credentials before using a shared or deployed environment.
+## Production activation
+This repository is dependency-light and runnable immediately. For real commerce, connect PostgreSQL using prisma/schema.prisma, then add managed authentication, payment gateways (Pakistan first: COD/bank transfer/Easypaisa/JazzCash), email, object storage, search and shipping providers. Never put secrets in client code. Demo checkout does not create live orders.
 
 ## Validation
-
-```text
+npm run dev
 npm run lint
 npm run build
-```
-
-Without `DATABASE_URL`, the app intentionally uses clearly scoped demo fallback data. Checkout does not claim to place orders until PostgreSQL is configured.
