@@ -9,7 +9,8 @@ export default async function OrdersPage() {
   const s = await auth();
   if (!s?.user?.email) redirect("/signin");
 
-  let orders: any[] = [];
+  type OrderWithItems = Awaited<ReturnType<ReturnType<typeof getPrisma>["order"]["findMany"]>>[number];
+  let orders: OrderWithItems[] = [];
   let databaseError = false;
   try {
     if (!process.env.DATABASE_URL) databaseError = true;
