@@ -2,47 +2,75 @@
 
 MOTEVRA is a modern automotive marketplace for tyres, wheels, auto parts, accessories, batteries and car care.
 
-## Phase status
+## Phase B — Database + authentication
 
-### Phase A — Storefront foundation
 Implemented on `motevra-all-phases`:
-- Real MOTEVRA homepage instead of the Create Next App starter
-- Reusable site header, footer and category-page components
-- Dedicated App Router pages for primary catalog categories
-- Responsive desktop/tablet/mobile design system
-- MOTEVRA metadata, canonical URL, Open Graph foundation and robots rules
-- Clean sitemap foundation
-- International-ready storefront messaging without hard-coding the business model to one country
-- `.env.example` reserved for the database/authentication phase
 
-### Phase B — Database + authentication
-Planned:
-- Neon PostgreSQL
-- Prisma
-- Auth.js / NextAuth
-- Products, categories, brands, inventory and customer accounts
-- Seed data and real APIs
+- Prisma ORM 7 foundation
+- Neon PostgreSQL configuration with pooled runtime URL and direct migration URL
+- Prisma generated-client configuration
+- Auth.js / NextAuth integration
+- Prisma authentication adapter
+- Google OAuth sign-in foundation
+- Database-backed sessions
+- Protected account/orders/admin route matcher
+- Database health endpoint at `/api/health`
+- Initial database seed for a MOTEVRA category, brand and demo tyre
+- Environment template with secrets kept out of source code
 
-### Later phases
-Payments, checkout, shipping, tyre/vehicle compatibility, admin, reviews, international taxes/currencies, analytics and production hardening.
+The Neon database itself is **not provisioned or migrated by this repository commit**, because the real Neon connection string and OAuth credentials belong in your deployment environment.
 
-## Architecture rule
+## Phase B setup
 
-Phase A intentionally does **not** wire database, authentication, payments or live commerce. The storefront is being established first so the later services can plug into a stable route and component system.
-
-For authentication, the planned choice is Auth.js (commonly called NextAuth.js). For PostgreSQL, the planned hosted provider is Neon.
-
-## Environment
-
-Copy `.env.example` to `.env.local` when beginning Phase B. Never commit real secrets.
-
-## Validation
-
-Run locally:
+1. Create a Neon PostgreSQL project.
+2. Copy `.env.example` to `.env.local`.
+3. Put the Neon pooled connection in `DATABASE_URL`.
+4. Put the Neon direct connection in `DIRECT_URL`.
+5. Create a Google OAuth application and set `AUTH_GOOGLE_ID` and `AUTH_GOOGLE_SECRET`.
+6. Generate a strong `AUTH_SECRET`.
+7. Install dependencies and generate Prisma:
 
 ```bash
 npm install
-npm run dev
+npm run db:validate
+npm run db:generate
+```
+
+8. Create/apply the first migration:
+
+```bash
+npm run db:migrate -- --name init
+npm run db:seed
+```
+
+For deployment migrations:
+
+```bash
+npm run db:deploy
+```
+
+## Important
+
+Do not commit `.env.local`, Neon passwords, OAuth client secrets, or Auth.js secrets.
+
+The current Google provider is an authentication foundation. Customer profiles, addresses, saved vehicles, orders, inventory, checkout and role-based admin operations will be connected in later phases.
+
+## Architecture
+
+- Next.js App Router
+- React + TypeScript
+- Tailwind CSS
+- Auth.js / NextAuth
+- Prisma ORM 7
+- Neon PostgreSQL
+- Vercel-ready server runtime
+- International-ready country/currency architecture
+
+## Validation
+
+```bash
 npm run lint
+npm run db:validate
+npm run db:generate
 npm run build
 ```
