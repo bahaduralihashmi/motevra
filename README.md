@@ -18,7 +18,7 @@ Implemented on `motevra-all-phases`:
 - Initial database seed for a MOTEVRA category, brand and demo tyre
 - Environment template with secrets kept out of source code
 
-The Neon database itself is **not provisioned or migrated by this repository commit**, because the real Neon connection string and OAuth credentials belong in your deployment environment.
+The Neon database itself is not provisioned or migrated by this repository commit because the real Neon connection string and OAuth credentials belong in your deployment environment.
 
 ## Phase B setup
 
@@ -28,43 +28,23 @@ The Neon database itself is **not provisioned or migrated by this repository com
 4. Put the Neon direct connection in `DIRECT_URL`.
 5. Create a Google OAuth application and set `AUTH_GOOGLE_ID` and `AUTH_GOOGLE_SECRET`.
 6. Generate a strong `AUTH_SECRET`.
-7. Install dependencies and generate Prisma:
+7. Run:
 
 ```bash
 npm install
 npm run db:validate
 npm run db:generate
-```
-
-8. Create/apply the first migration:
-
-```bash
 npm run db:migrate -- --name init
 npm run db:seed
 ```
 
-For deployment migrations:
-
-```bash
-npm run db:deploy
-```
-
-## Important
+For deployment migrations use `npm run db:deploy`.
 
 Do not commit `.env.local`, Neon passwords, OAuth client secrets, or Auth.js secrets.
 
-The current Google provider is an authentication foundation. Customer profiles, addresses, saved vehicles, orders, inventory, checkout and role-based admin operations will be connected in later phases.
-
 ## Architecture
 
-- Next.js App Router
-- React + TypeScript
-- Tailwind CSS
-- Auth.js / NextAuth
-- Prisma ORM 7
-- Neon PostgreSQL
-- Vercel-ready server runtime
-- International-ready country/currency architecture
+Next.js App Router · React · TypeScript · Tailwind CSS · Auth.js / NextAuth · Prisma ORM 7 · Neon PostgreSQL · Vercel-ready server runtime · International-ready commerce architecture.
 
 ## Validation
 
