@@ -1,0 +1,2 @@
+export async function GET(){return Response.json({orders:[],source:"demo-fallback"});}
+export async function POST(req:Request){const body=await req.json();return Response.json({accepted:false,message:"Demo mode: configure PostgreSQL, authentication, payment and shipping providers before live order creation.",received:body},{status:202});}
