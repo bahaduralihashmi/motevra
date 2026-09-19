@@ -7,7 +7,6 @@
   --line: #dedbd3;
   --surface: #ffffff;
   --dark: #111111;
-  --dark-soft: #1b1b1b;
 }
 
 @theme inline {
@@ -39,7 +38,7 @@ a:focus-visible, button:focus-visible { outline: 3px solid #111; outline-offset:
 .hero h1, .page-hero h1 { max-width: 850px; margin: 0; font-size: clamp(52px, 8vw, 108px); line-height: .88; letter-spacing: -.075em; font-weight: 850; }
 .hero-copy { max-width: 700px; margin: 28px 0 0; font-size: 18px; line-height: 1.65; color: var(--muted); }
 .hero-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 32px; }
-.button { min-height: 48px; display: inline-flex; align-items: center; justify-content: center; padding: 0 20px; border: 1px solid var(--foreground); font-size: 13px; font-weight: 750; transition: transform .18s ease, opacity .18s ease; }
+.button { min-height: 48px; display: inline-flex; align-items: center; justify-content: center; padding: 0 20px; border: 1px solid var(--foreground); font-size: 13px; font-weight: 750; transition: transform .18s ease, opacity .18s ease; cursor: pointer; }
 .button:hover { transform: translateY(-2px); }
 .button-dark { background: var(--dark); color: white; }
 .button-light { background: transparent; }
@@ -73,6 +72,8 @@ a:focus-visible, button:focus-visible { outline: 3px solid #111; outline-offset:
 .empty-state span { font-size: 11px; font-weight: 800; letter-spacing: .14em; color: var(--muted); }
 .empty-state h2 { margin: 15px 0 10px; font-size: 42px; letter-spacing: -.05em; }
 .empty-state p { max-width: 680px; color: var(--muted); line-height: 1.7; }
+.auth-card { max-width: 520px; margin-top: 40px; padding: 28px; border: 1px solid var(--line); background: var(--surface); display: grid; gap: 16px; }
+.auth-card p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.6; }
 .site-footer { padding: 70px 0 25px; background: #e9e7e1; }
 .footer-grid { width: min(1180px, calc(100% - 40px)); margin: 0 auto 60px; display: grid; grid-template-columns: 2fr repeat(3, 1fr); gap: 40px; }
 .footer-grid > div { display: flex; flex-direction: column; gap: 10px; font-size: 13px; }
