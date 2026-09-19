@@ -1,15 +1,16 @@
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
+import { getPrisma } from "@/lib/prisma";
 
-export default function ShopPage() {
-  return (
-    <>
-      <SiteHeader />
-      <main>
-        <section className="page-hero"><div className="container narrow"><p className="eyebrow">MOTEVRA SHOP</p><h1>Automotive products, one place.</h1><p className="hero-copy">The catalog foundation is ready for real product, category, brand and inventory data in the next phase.</p></div></section>
-        <section className="section"><div className="container"><div className="empty-state"><span>CATALOG</span><h2>Product catalog is being connected.</h2><p>Phase A focuses on the production-ready storefront foundation. Demo product data and commerce APIs remain isolated until the database phase.</p></div></div></section>
-      </main>
-      <SiteFooter />
-    </>
-  );
+export const runtime = "nodejs";
+export const metadata = { title: "Shop | MOTEVRA", description: "Shop the MOTEVRA automotive catalogue." };
+
+export default async function ShopPage() {
+  const products = await getPrisma().product.findMany({
+    where: { status: "ACTIVE" },
+    include: { brand: true, category: true, tyre: { include: { size: true } } },
+    orderBy: { createdAt: "desc" },
+    take: 24,
+  });
+  return <><SiteHeader /><main><section className="page-hero"><div className="container narrow"><p className="eyebrow">MOTEVRA SHOP</p><h1>Automotive products, one place.</h1><p className="hero-copy">Browse the live database catalogue. Product inventory and compatibility are connected through Prisma.</p></div></section><section className="section"><div className="container"><div className="product-grid">{products.map(product => <a className="product-card" href={`/product/${product.slug}`} key={product.id}><span className="product-type">{product.productType}</span><h3>{product.name}</h3><p>{product.tyre?.size.label ?? product.category?.name ?? "Automotive product"}</p><strong>{product.currency} {Number(product.salePrice ?? product.price).toLocaleString()}</strong></a>)}</div>{!products.length && <div className="empty-state"><span>CATALOG</span><h2>No products yet.</h2><p>Run the Phase C database migration and seed command to load development catalogue data.</p></div>}</div></section></main><SiteFooter /></>;
 }
