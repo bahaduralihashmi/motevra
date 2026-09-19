@@ -1,44 +1,34 @@
 import type { Metadata } from "next";
-import { Inter, Manrope } from "next/font/google";
-import { AppSessionProvider } from "@/components/providers/session-provider";
+import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
-const inter = Inter({
-  variable: "--font-body",
-  subsets: ["latin"],
-});
-
-const manrope = Manrope({
-  variable: "--font-display",
-  subsets: ["latin"],
-});
+const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
+const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "MOTEVRA | Premium tyres and automotive essentials",
-  description:
-    "MOTEVRA is a premium automotive marketplace for tyres, wheels, accessories, and future mobility essentials.",
-  metadataBase: new URL("https://motevra.example.com"),
+  metadataBase: new URL("https://motevra.com"),
+  title: {
+    default: "MOTEVRA | Automotive Marketplace",
+    template: "%s | MOTEVRA",
+  },
+  description: "MOTEVRA is a modern automotive marketplace for tyres, wheels, auto parts, accessories and car care.",
+  applicationName: "MOTEVRA",
+  keywords: ["MOTEVRA", "tyres", "tires", "wheels", "auto parts", "car accessories", "automotive marketplace"],
+  alternates: { canonical: "/" },
   openGraph: {
-    title: "MOTEVRA",
-    description: "Premium international automotive marketplace",
+    title: "MOTEVRA | Automotive Marketplace",
+    description: "Everything your drive needs.",
+    url: "https://motevra.com",
+    siteName: "MOTEVRA",
     type: "website",
   },
-  twitter: {
-    card: "summary_large_image",
-    title: "MOTEVRA",
-    description: "Premium tyres and automotive accessories",
-  },
+  robots: { index: true, follow: true },
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html
-      lang="en"
-      className={`${inter.variable} ${manrope.variable} h-full antialiased`}
-    >
-      <body className="min-h-full bg-white text-slate-900">
-        <AppSessionProvider>{children}</AppSessionProvider>
-      </body>
+    <html lang="en" className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+      <body>{children}</body>
     </html>
   );
 }
