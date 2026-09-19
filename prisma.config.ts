@@ -8,6 +8,8 @@ export default defineConfig({
     seed: "tsx prisma/seed.ts",
   },
   datasource: {
+    // Prisma Postgres direct TCP connection for migrations and Prisma CLI.
+    // Set DIRECT_URL in Vercel/local envs to the direct db.prisma.io URL.
     url: env("DIRECT_URL"),
   },
 });
