@@ -1,1 +1,0 @@
-export async function GET(){return Response.json({name:"MOTEVRA",status:"ready",version:"0.2.0",mode:"storefront-foundation"});}
