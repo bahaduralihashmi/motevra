@@ -24,3 +24,5 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+.page-head{padding:90px 5vw 60px;background:#e7e4dc}.page-head h1{font-size:clamp(48px,7vw,90px);letter-spacing:-5px;margin:0 0 15px}.page-head p:last-child{max-width:650px;color:#555;line-height:1.6}.simple,.checkout{max-width:800px;background:#fff;padding:35px}.row{display:flex;justify-content:space-between;border-bottom:1px solid #ddd;padding:18px 0}.checkout{display:grid;gap:12px}.checkout input,.checkout select{padding:15px;border:1px solid #ddd}.dashboard{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.dash-card{background:#fff;padding:25px;min-height:160px;display:flex;flex-direction:column;gap:10px}.dash-card span{color:#777;font-size:13px}.dash-card a{font-size:12px;font-weight:700;margin-top:auto}.notice{position:fixed;right:20px;bottom:20px;background:#111;color:#fff;padding:15px 20px}@media(max-width:900px){.dashboard{grid-template-columns:1fr 1fr}}
