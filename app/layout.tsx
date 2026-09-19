@@ -6,7 +6,7 @@ const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://motevra.com"),
+  metadataBase: new URL("https://www.motevra.com"),
   title: {
     default: "MOTEVRA | Automotive Marketplace",
     template: "%s | MOTEVRA",
@@ -18,7 +18,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "MOTEVRA | Automotive Marketplace",
     description: "Everything your drive needs.",
-    url: "https://motevra.com",
+    url: "https://www.motevra.com",
     siteName: "MOTEVRA",
     type: "website",
   },
