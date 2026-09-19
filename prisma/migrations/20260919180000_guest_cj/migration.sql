@@ -1,0 +1,15 @@
+ALTER TABLE "Order" ALTER COLUMN "userId" DROP NOT NULL;
+ALTER TABLE "Order" ADD COLUMN "guestEmail" TEXT;
+ALTER TABLE "Order" ADD COLUMN "guestName" TEXT;
+ALTER TABLE "Order" ADD COLUMN "guestPhone" TEXT;
+ALTER TABLE "Product" ADD COLUMN "source" TEXT NOT NULL DEFAULT 'MOTEVRA';
+ALTER TABLE "Product" ADD COLUMN "cjProductId" TEXT;
+ALTER TABLE "Product" ADD COLUMN "cjProductSku" TEXT;
+ALTER TABLE "Product" ADD COLUMN "cjSyncedAt" TIMESTAMP(3);
+CREATE UNIQUE INDEX "Product_cjProductId_key" ON "Product"("cjProductId");
+CREATE TABLE "ProductVariant" ("id" TEXT NOT NULL, "productId" TEXT NOT NULL, "cjVariantId" TEXT, "sku" TEXT NOT NULL, "name" TEXT, "price" DECIMAL(12,2), "stock" INTEGER NOT NULL DEFAULT 0, "options" JSONB, CONSTRAINT "ProductVariant_pkey" PRIMARY KEY ("id"));
+CREATE UNIQUE INDEX "ProductVariant_cjVariantId_key" ON "ProductVariant"("cjVariantId");
+CREATE INDEX "ProductVariant_productId_idx" ON "ProductVariant"("productId");
+ALTER TABLE "ProductVariant" ADD CONSTRAINT "ProductVariant_productId_fkey" FOREIGN KEY ("productId") REFERENCES "Product"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "OrderItem" ADD COLUMN "variantId" TEXT;
+ALTER TABLE "OrderItem" ADD CONSTRAINT "OrderItem_variantId_fkey" FOREIGN KEY ("variantId") REFERENCES "ProductVariant"("id") ON DELETE SET NULL ON UPDATE CASCADE;
