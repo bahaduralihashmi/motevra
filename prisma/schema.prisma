@@ -7,210 +7,225 @@ datasource db {
   provider = "postgresql"
 }
 
-enum UserRole {
-  CUSTOMER
-  ADMIN
-  STAFF
-}
-
-enum ProductStatus {
-  DRAFT
-  ACTIVE
-  ARCHIVED
-}
-
-enum OrderStatus {
-  PENDING
-  CONFIRMED
-  PROCESSING
-  PACKED
-  SHIPPED
-  OUT_FOR_DELIVERY
-  DELIVERED
-  CANCELLED
-  RETURNED
-}
+enum UserRole { CUSTOMER ADMIN STAFF }
+enum ProductStatus { DRAFT ACTIVE ARCHIVED }
+enum OrderStatus { PENDING CONFIRMED PROCESSING PACKED SHIPPED OUT_FOR_DELIVERY DELIVERED CANCELLED RETURNED }
+enum VehicleBodyType { SEDAN HATCHBACK SUV COUPE WAGON PICKUP VAN MPV OTHER }
+enum TyreSeason { SUMMER WINTER ALL_SEASON }
+enum ProductType { TYRE WHEEL ACCESSORY AUTO_PART BATTERY ELECTRONICS CAR_CARE OTHER }
 
 model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String?   @unique
+  id String @id @default(cuid())
+  name String?
+  email String? @unique
   emailVerified DateTime?
-  image         String?
-  role          UserRole  @default(CUSTOMER)
-  addresses     Address[]
-  vehicles      Vehicle[]
-  orders        Order[]
-  accounts      Account[]
-  sessions      Session[]
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-}
-
-model Account {
-  id                String  @id @default(cuid())
-  userId            String
-  type              String
-  provider          String
-  providerAccountId String
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
-  expires_at        Int?
-  token_type        String?
-  scope             String?
-  id_token          String? @db.Text
-  session_state     String?
-  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([provider, providerAccountId])
-  @@index([userId])
-}
-
-model Session {
-  id           String   @id @default(cuid())
-  sessionToken String   @unique
-  userId       String
-  expires      DateTime
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-}
-
-model VerificationToken {
-  identifier String
-  token      String   @unique
-  expires    DateTime
-
-  @@unique([identifier, token])
-}
-
-model Address {
-  id         String   @id @default(cuid())
-  userId     String
-  label      String?
-  country    String
-  region     String?
-  city       String
-  line1      String
-  line2      String?
-  postalCode String?
-  phone      String?
-  isDefault  Boolean  @default(false)
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-
-  @@index([userId])
-}
-
-model Vehicle {
-  id        String   @id @default(cuid())
-  userId    String
-  make      String
-  model     String
-  year      Int
-  engine    String?
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  image String?
+  role UserRole @default(CUSTOMER)
+  addresses Address[]
+  vehicles UserVehicle[]
+  orders Order[]
+  accounts Account[]
+  sessions Session[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
+}
+model Account {
+  id String @id @default(cuid())
+  userId String
+  type String
+  provider String
+  providerAccountId String
+  refresh_token String? @db.Text
+  access_token String? @db.Text
+  expires_at Int?
+  token_type String?
+  scope String?
+  id_token String? @db.Text
+  session_state String?
+  user User @relation(fields:[userId], references:[id], onDelete:Cascade)
+  @@unique([provider,providerAccountId])
   @@index([userId])
 }
-
+model Session {
+  id String @id @default(cuid())
+  sessionToken String @unique
+  userId String
+  expires DateTime
+  user User @relation(fields:[userId], references:[id], onDelete:Cascade)
+  @@index([userId])
+}
+model VerificationToken {
+  identifier String
+  token String @unique
+  expires DateTime
+  @@unique([identifier,token])
+}
+model Address {
+  id String @id @default(cuid())
+  userId String
+  label String?
+  country String
+  region String?
+  city String
+  line1 String
+  line2 String?
+  postalCode String?
+  phone String?
+  isDefault Boolean @default(false)
+  user User @relation(fields:[userId], references:[id], onDelete:Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@index([userId])
+}
+model UserVehicle {
+  id String @id @default(cuid())
+  userId String
+  vehicleVariantId String
+  nickname String?
+  user User @relation(fields:[userId], references:[id], onDelete:Cascade)
+  vehicleVariant VehicleVariant @relation(fields:[vehicleVariantId], references:[id], onDelete:Cascade)
+  createdAt DateTime @default(now())
+  @@index([userId])
+}
+model VehicleMake {
+  id String @id @default(cuid())
+  name String @unique
+  slug String @unique
+  models VehicleModel[]
+}
+model VehicleModel {
+  id String @id @default(cuid())
+  makeId String
+  name String
+  slug String
+  make VehicleMake @relation(fields:[makeId], references:[id], onDelete:Cascade)
+  variants VehicleVariant[]
+  @@unique([makeId,slug])
+  @@index([makeId])
+}
+model VehicleVariant {
+  id String @id @default(cuid())
+  modelId String
+  name String
+  slug String
+  yearFrom Int
+  yearTo Int?
+  engine String?
+  bodyType VehicleBodyType?
+  model VehicleModel @relation(fields:[modelId], references:[id], onDelete:Cascade)
+  fitments VehicleFitment[]
+  users UserVehicle[]
+  @@unique([modelId,slug])
+  @@index([modelId,yearFrom,yearTo])
+}
+model TyreSize {
+  id String @id @default(cuid())
+  width Int
+  aspectRatio Int
+  rimSize Int
+  label String @unique
+  tyres Tyre[]
+  fitments VehicleFitment[]
+  @@unique([width,aspectRatio,rimSize])
+}
+model VehicleFitment {
+  id String @id @default(cuid())
+  vehicleVariantId String
+  tyreSizeId String
+  position String?
+  isOriginal Boolean @default(true)
+  notes String?
+  vehicleVariant VehicleVariant @relation(fields:[vehicleVariantId], references:[id], onDelete:Cascade)
+  tyreSize TyreSize @relation(fields:[tyreSizeId], references:[id], onDelete:Cascade)
+  @@unique([vehicleVariantId,tyreSizeId,position])
+  @@index([tyreSizeId])
+}
 model Brand {
-  id        String    @id @default(cuid())
-  name      String    @unique
-  slug      String    @unique
-  products  Product[]
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  id String @id @default(cuid())
+  name String @unique
+  slug String @unique
+  products Product[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
-
 model Category {
-  id        String    @id @default(cuid())
-  name      String    @unique
-  slug      String    @unique
-  products  Product[]
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  id String @id @default(cuid())
+  name String @unique
+  slug String @unique
+  products Product[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
-
 model Product {
-  id          String        @id @default(cuid())
-  sku         String        @unique
-  slug        String        @unique
-  name        String
-  description String?       @db.Text
-  price       Decimal       @db.Decimal(12, 2)
-  salePrice   Decimal?      @db.Decimal(12, 2)
-  status      ProductStatus @default(DRAFT)
-  stock       Int           @default(0)
-  weight      Float?
-  brandId     String?
-  categoryId  String?
-  brand       Brand?        @relation(fields: [brandId], references: [id], onDelete: SetNull)
-  category    Category?     @relation(fields: [categoryId], references: [id], onDelete: SetNull)
-  tyre        Tyre?
-  images      ProductImage[]
-  orderItems  OrderItem[]
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-
+  id String @id @default(cuid())
+  sku String @unique
+  slug String @unique
+  name String
+  description String? @db.Text
+  productType ProductType @default(OTHER)
+  price Decimal @db.Decimal(12,2)
+  salePrice Decimal? @db.Decimal(12,2)
+  currency String @default("PKR")
+  status ProductStatus @default(DRAFT)
+  stock Int @default(0)
+  weight Float?
+  brandId String?
+  categoryId String?
+  brand Brand? @relation(fields:[brandId], references:[id], onDelete:SetNull)
+  category Category? @relation(fields:[categoryId], references:[id], onDelete:SetNull)
+  tyre Tyre?
+  images ProductImage[]
+  orderItems OrderItem[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
   @@index([brandId])
   @@index([categoryId])
-  @@index([status])
+  @@index([status,productType])
 }
-
 model ProductImage {
-  id        String  @id @default(cuid())
-  url       String
-  alt       String?
-  position  Int     @default(0)
+  id String @id @default(cuid())
+  url String
+  alt String?
+  position Int @default(0)
   productId String
-  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
-
-  @@index([productId, position])
+  product Product @relation(fields:[productId], references:[id], onDelete:Cascade)
+  @@index([productId,position])
 }
-
 model Tyre {
-  id          String  @id @default(cuid())
-  productId   String  @unique
-  product    Product @relation(fields: [productId], references: [id], onDelete: Cascade)
-  width       Int
-  aspectRatio Int
-  rimSize     Int
-  loadIndex   Int?
+  id String @id @default(cuid())
+  productId String @unique
+  tyreSizeId String
+  product Product @relation(fields:[productId], references:[id], onDelete:Cascade)
+  size TyreSize @relation(fields:[tyreSizeId], references:[id])
+  loadIndex Int?
   speedRating String?
-  season      String?
-  runFlat     Boolean @default(false)
-  warranty    String?
+  season TyreSeason?
+  runFlat Boolean @default(false)
+  warranty String?
+  @@index([tyreSizeId])
 }
-
 model Order {
-  id        String      @id @default(cuid())
-  number    String      @unique
-  userId    String
-  status    OrderStatus @default(PENDING)
-  currency  String      @default("PKR")
-  total     Decimal     @db.Decimal(12, 2)
-  user      User        @relation(fields: [userId], references: [id])
-  items     OrderItem[]
-  createdAt DateTime    @default(now())
-  updatedAt DateTime    @updatedAt
-
-  @@index([userId, createdAt])
+  id String @id @default(cuid())
+  number String @unique
+  userId String
+  status OrderStatus @default(PENDING)
+  currency String @default("PKR")
+  total Decimal @db.Decimal(12,2)
+  user User @relation(fields:[userId], references:[id])
+  items OrderItem[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@index([userId,createdAt])
   @@index([status])
 }
-
 model OrderItem {
-  id        String  @id @default(cuid())
-  orderId   String
+  id String @id @default(cuid())
+  orderId String
   productId String
-  quantity  Int
-  price     Decimal @db.Decimal(12, 2)
-  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  product   Product @relation(fields: [productId], references: [id])
-
+  quantity Int
+  price Decimal @db.Decimal(12,2)
+  order Order @relation(fields:[orderId], references:[id], onDelete:Cascade)
+  product Product @relation(fields:[productId], references:[id])
   @@index([orderId])
   @@index([productId])
 }

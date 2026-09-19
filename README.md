@@ -1,56 +1,30 @@
 # MOTEVRA
 
-MOTEVRA is a modern automotive marketplace for tyres, wheels, auto parts, accessories, batteries and car care.
+International-ready automotive e-commerce platform.
 
-## Phase B — Database + authentication
+## Phase C — Automotive catalogue & tyre finder
 
 Implemented on `motevra-all-phases`:
+- Prisma automotive catalogue models for products, brands, categories and tyre sizes
+- Vehicle make → model → variant → year structure
+- Vehicle-to-tyre fitment relations
+- Real database-backed product, brand and category APIs
+- Database-backed tyre search API
+- Vehicle-aware tyre finder UI
+- Product detail route
+- Development seed data for Toyota Corolla and 205/55 R16
+- Currency is stored per product/order; the seed uses USD to avoid hard-coding Pakistan into the product domain
 
-- Prisma ORM 7 foundation
-- Neon PostgreSQL configuration with pooled runtime URL and direct migration URL
-- Prisma generated-client configuration
-- Auth.js / NextAuth integration
-- Prisma authentication adapter
-- Google OAuth sign-in foundation
-- Database-backed sessions
-- Protected account/orders/admin route matcher
-- Database health endpoint at `/api/health`
-- Initial database seed for a MOTEVRA category, brand and demo tyre
-- Environment template with secrets kept out of source code
+The compatibility data is development/demo data only. Production fitment data should be imported from a verified automotive data provider or maintained by MOTEVRA administrators.
 
-The Neon database itself is not provisioned or migrated by this repository commit because the real Neon connection string and OAuth credentials belong in your deployment environment.
+## Local setup
 
-## Phase B setup
+1. Copy `.env.example` to `.env`.
+2. Configure Neon `DATABASE_URL`, `DIRECT_URL`, and Auth.js variables.
+3. Install dependencies with `npm install`.
+4. Generate Prisma client: `npm run db:generate`.
+5. Create the first migration against your Neon database: `npm run db:migrate -- --name init`.
+6. Seed development data: `npm run db:seed`.
+7. Start: `npm run dev`.
 
-1. Create a Neon PostgreSQL project.
-2. Copy `.env.example` to `.env.local`.
-3. Put the Neon pooled connection in `DATABASE_URL`.
-4. Put the Neon direct connection in `DIRECT_URL`.
-5. Create a Google OAuth application and set `AUTH_GOOGLE_ID` and `AUTH_GOOGLE_SECRET`.
-6. Generate a strong `AUTH_SECRET`.
-7. Run:
-
-```bash
-npm install
-npm run db:validate
-npm run db:generate
-npm run db:migrate -- --name init
-npm run db:seed
-```
-
-For deployment migrations use `npm run db:deploy`.
-
-Do not commit `.env.local`, Neon passwords, OAuth client secrets, or Auth.js secrets.
-
-## Architecture
-
-Next.js App Router · React · TypeScript · Tailwind CSS · Auth.js / NextAuth · Prisma ORM 7 · Neon PostgreSQL · Vercel-ready server runtime · International-ready commerce architecture.
-
-## Validation
-
-```bash
-npm run lint
-npm run db:validate
-npm run db:generate
-npm run build
-```
+Phase C does not claim that a database has been provisioned or that migrations/build/lint have been executed in this environment.
