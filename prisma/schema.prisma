@@ -3,7 +3,9 @@ generator client {
   output   = "./generated"
 }
 
-datasource db { provider = "postgresql" }
+datasource db {
+  provider = "postgresql"
+}
 
 enum UserRole { CUSTOMER ADMIN STAFF }
 enum ProductStatus { DRAFT ACTIVE ARCHIVED }
