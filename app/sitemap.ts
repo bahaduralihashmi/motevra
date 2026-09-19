@@ -7,6 +7,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/", "/shop", "/tyres", "/wheels", "/accessories", "/auto-parts",
     "/batteries", "/car-care", "/about", "/brands", "/deals",
     "/contact", "/shipping", "/blog",
+    "/blog/how-to-read-a-tyre-size",
+    "/blog/when-to-replace-car-tyres",
+    "/blog/tyre-pressure-guide",
+    "/blog/summer-vs-all-season-tyres",
   ];
 
   return paths.map((path) => ({
