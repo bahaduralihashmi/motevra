@@ -1,1 +1,17 @@
-import type {MetadataRoute} from "next"; export default function sitemap():MetadataRoute.Sitemap{return ["/","/shop","/tyres","/wheels","/accessories","/auto-parts","/batteries","/car-care","/brands","/deals","/about","/contact","/shipping","/blog"].map(path=>({url:"https://motevra.com"+path,lastModified:new Date()}));}
+import type { MetadataRoute } from "next";
+
+const baseUrl = "https://motevra.com";
+
+export default function sitemap(): MetadataRoute.Sitemap {
+  const paths = [
+    "/", "/shop", "/tyres", "/wheels", "/accessories", "/auto-parts",
+    "/batteries", "/car-care", "/about", "/brands", "/deals",
+    "/contact", "/shipping", "/blog",
+  ];
+
+  return paths.map((path) => ({
+    url: `${baseUrl}${path}`,
+    changeFrequency: "weekly",
+    priority: path === "/" ? 1 : 0.7,
+  }));
+}

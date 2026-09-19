@@ -1,18 +1,48 @@
 # MOTEVRA
-Premium international automotive marketplace.
 
-## Implemented foundation
-- Phase 1: premium responsive storefront, navigation, hero, tyre finder, categories, products, global shipping section and footer.
-- Phase 2: product/catalog routes, cart persistence, tyre API, Prisma/PostgreSQL schema for products, tyres, vehicles and orders.
-- Phase 3: account, checkout, order/tracking/returns routes and order API foundation.
-- Phase 4: admin dashboard foundation for products, orders, customers, inventory, warehouses, payments, shipping, reviews, coupons, blog and analytics.
-- Phase 5: country/currency choices and architecture for taxes, warehouses and destination-based shipping.
-- Phase 6/7: metadata, Open Graph, canonical structure and content routes.
+MOTEVRA is a modern automotive marketplace for tyres, wheels, auto parts, accessories, batteries and car care.
 
-## Production activation
-This repository is dependency-light and runnable immediately. For real commerce, connect PostgreSQL using prisma/schema.prisma, then add managed authentication, payment gateways (Pakistan first: COD/bank transfer/Easypaisa/JazzCash), email, object storage, search and shipping providers. Never put secrets in client code. Demo checkout does not create live orders.
+## Phase status
+
+### Phase A — Storefront foundation
+Implemented on `motevra-all-phases`:
+- Real MOTEVRA homepage instead of the Create Next App starter
+- Reusable site header, footer and category-page components
+- Dedicated App Router pages for primary catalog categories
+- Responsive desktop/tablet/mobile design system
+- MOTEVRA metadata, canonical URL, Open Graph foundation and robots rules
+- Clean sitemap foundation
+- International-ready storefront messaging without hard-coding the business model to one country
+- `.env.example` reserved for the database/authentication phase
+
+### Phase B — Database + authentication
+Planned:
+- Neon PostgreSQL
+- Prisma
+- Auth.js / NextAuth
+- Products, categories, brands, inventory and customer accounts
+- Seed data and real APIs
+
+### Later phases
+Payments, checkout, shipping, tyre/vehicle compatibility, admin, reviews, international taxes/currencies, analytics and production hardening.
+
+## Architecture rule
+
+Phase A intentionally does **not** wire database, authentication, payments or live commerce. The storefront is being established first so the later services can plug into a stable route and component system.
+
+For authentication, the planned choice is Auth.js (commonly called NextAuth.js). For PostgreSQL, the planned hosted provider is Neon.
+
+## Environment
+
+Copy `.env.example` to `.env.local` when beginning Phase B. Never commit real secrets.
 
 ## Validation
+
+Run locally:
+
+```bash
+npm install
 npm run dev
 npm run lint
 npm run build
+```
