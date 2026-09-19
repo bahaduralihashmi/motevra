@@ -7,6 +7,6 @@ export default function robots(): MetadataRoute.Robots {
       allow: "/",
       disallow: ["/api/", "/admin/", "/account/", "/cart/", "/checkout/"],
     },
-    sitemap: "https://motevra.com/sitemap.xml",
+    sitemap: "https://www.motevra.com/sitemap.xml",
   };
 }
