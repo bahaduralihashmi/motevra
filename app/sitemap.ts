@@ -1,0 +1,1 @@
+import type {MetadataRoute} from "next"; export default function sitemap():MetadataRoute.Sitemap{return ["/","/shop","/tyres","/wheels","/accessories","/auto-parts","/batteries","/car-care","/brands","/deals","/about","/contact","/shipping","/blog"].map(path=>({url:"https://motevra.com"+path,lastModified:new Date()}));}
