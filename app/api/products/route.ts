@@ -1,0 +1,1 @@
+export async function GET(){return Response.json({products:["MOTEVRA Touring Pro","MOTEVRA Sport X","RoadMaster All Season","UrbanGrip EV"],source:"demo-fallback",next:"Connect Prisma/PostgreSQL for production data"});}
