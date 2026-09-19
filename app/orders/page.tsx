@@ -9,7 +9,9 @@ export default async function OrdersPage() {
   const s = await auth();
   if (!s?.user?.email) redirect("/signin");
 
-  type OrderWithItems = Awaited<ReturnType<ReturnType<typeof getPrisma>["order"]["findMany"]>>[number];
+  type OrderWithItems = Awaited<ReturnType<ReturnType<typeof getPrisma>["order"]["findMany"]>>[number] & {
+    items: Array<{ quantity: number; product: { name: string } }>;
+  };
   let orders: OrderWithItems[] = [];
   let databaseError = false;
   try {
