@@ -1,3 +1,3 @@
 import Link from "next/link";
-const nav=[["Tyres","/tyres"],["Wheels & Rims","/wheels"],["Accessories","/accessories"],["Auto Parts","/auto-parts"],["Batteries","/batteries"],["Car Care","/car-care"],["Deals","/deals"]] as const;
+const nav=[["Tyres","/tyres"],["Wheels & Rims","/wheels"],["Accessories","/accessories"],["Auto Parts","/auto-parts"],["Batteries","/batteries"],["Car Care","/car-care"]] as const;
 export function SiteHeader(){return <header className="site-header"><div className="header-inner"><button className="mobile-menu" aria-label="Open menu">☰</button><Link href="/" className="brand">MOTEVRA</Link><nav className="desktop-nav" aria-label="Primary navigation">{nav.map(([label,href])=><Link key={href} href={href}>{label}</Link>)}</nav><div className="header-actions"><Link href="/shop">⌕ Search</Link><Link href="/account">Account</Link><Link href="/cart">Cart</Link></div></div></header>}
