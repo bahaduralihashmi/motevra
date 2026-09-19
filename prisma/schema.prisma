@@ -7,15 +7,15 @@ datasource db {
   provider = "postgresql"
 }
 
-enum UserRole { CUSTOMER ADMIN STAFF }
-enum ProductStatus { DRAFT ACTIVE ARCHIVED }
-enum OrderStatus { PENDING CONFIRMED PROCESSING PACKED SHIPPED OUT_FOR_DELIVERY DELIVERED CANCELLED RETURNED }
-enum VehicleBodyType { SEDAN HATCHBACK SUV COUPE WAGON PICKUP VAN MPV OTHER }
-enum TyreSeason { SUMMER WINTER ALL_SEASON }
-enum ProductType { TYRE WHEEL ACCESSORY AUTO_PART BATTERY ELECTRONICS CAR_CARE OTHER }
-enum PaymentMethod { COD BANK_TRANSFER ONLINE }
-enum PaymentStatus { PENDING PAID FAILED REFUNDED }
-enum CartStatus { ACTIVE CONVERTED ABANDONED }
+enum UserRole {\n  CUSTOMER\n  ADMIN\n  STAFF\n}
+enum ProductStatus {\n  DRAFT\n  ACTIVE\n  ARCHIVED\n}
+enum OrderStatus {\n  PENDING\n  CONFIRMED\n  PROCESSING\n  PACKED\n  SHIPPED\n  OUT_FOR_DELIVERY\n  DELIVERED\n  CANCELLED\n  RETURNED\n}
+enum VehicleBodyType {\n  SEDAN\n  HATCHBACK\n  SUV\n  COUPE\n  WAGON\n  PICKUP\n  VAN\n  MPV\n  OTHER\n}
+enum TyreSeason {\n  SUMMER\n  WINTER\n  ALL_SEASON\n}
+enum ProductType {\n  TYRE\n  WHEEL\n  ACCESSORY\n  AUTO_PART\n  BATTERY\n  ELECTRONICS\n  CAR_CARE\n  OTHER\n}
+enum PaymentMethod {\n  COD\n  BANK_TRANSFER\n  ONLINE\n}
+enum PaymentStatus {\n  PENDING\n  PAID\n  FAILED\n  REFUNDED\n}
+enum CartStatus {\n  ACTIVE\n  CONVERTED\n  ABANDONED\n}
 
 model User {
   id String @id @default(cuid())
