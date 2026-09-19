@@ -215,6 +215,19 @@ model Category {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+model ProductVariant {
+  id String @id @default(cuid())
+  productId String
+  cjVariantId String? @unique
+  sku String
+  name String?
+  price Decimal? @db.Decimal(12,2)
+  stock Int @default(0)
+  options Json?
+  product Product @relation(fields:[productId], references:[id], onDelete:Cascade)
+  orderItems OrderItem[]
+  @@index([productId])
+}
 model Product {
   id String @id @default(cuid())
   sku String @unique
@@ -227,6 +240,11 @@ model Product {
   currency String @default("USD")
   status ProductStatus @default(DRAFT)
   stock Int @default(0)
+  source String @default("MOTEVRA")
+  cjProductId String? @unique
+  cjProductSku String?
+  cjSyncedAt DateTime?
+  variants ProductVariant[]
   weight Float?
   brandId String?
   categoryId String?
@@ -289,7 +307,10 @@ model CartItem {
 model Order {
   id String @id @default(cuid())
   number String @unique
-  userId String
+  userId String?
+  guestEmail String?
+  guestName String?
+  guestPhone String?
   status OrderStatus @default(PENDING)
   paymentMethod PaymentMethod @default(COD)
   paymentStatus PaymentStatus @default(PENDING)
@@ -306,7 +327,7 @@ model Order {
   shippingLine1 String
   shippingLine2 String?
   shippingPostalCode String?
-  user User @relation(fields:[userId], references:[id])
+  user User? @relation(fields:[userId], references:[id], onDelete:SetNull)
   items OrderItem[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -317,10 +338,12 @@ model OrderItem {
   id String @id @default(cuid())
   orderId String
   productId String
+  variantId String?
   quantity Int
   price Decimal @db.Decimal(12,2)
   order Order @relation(fields:[orderId], references:[id], onDelete:Cascade)
   product Product @relation(fields:[productId], references:[id])
+  variant ProductVariant? @relation(fields:[variantId], references:[id], onDelete:SetNull)
   @@index([orderId])
   @@index([productId])
 }
