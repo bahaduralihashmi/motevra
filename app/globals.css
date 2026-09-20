@@ -123,43 +123,35 @@ button,a,input,select,textarea{touch-action:manipulation}
 }
 
 
-/* MOTEVRA / Nike-inspired edge system + cinematic sticky header */
+/* MOTEVRA / full-bleed hero video + cinematic sticky header */
 :root{--page-gutter:48px}
 .container,.footer-grid,.footer-bottom{width:min(1400px,calc(100% - (var(--page-gutter) * 2)))}
 .header-inner{width:min(1400px,calc(100% - (var(--page-gutter) * 2)))}
 
-/* Hero video plays once after every fresh page load, then holds on its final frame. */
-.hero-video{object-position:72% center}
-.hero-visual{min-height:calc(100vh - 72px);min-height:clamp(620px,calc(100vh - 72px),860px)}
+/* Full-width hero frame: the video reaches both viewport edges with no side gutter. */
+.hero{padding:0 0 78px}
+.hero-visual{width:100vw;max-width:none;margin-left:calc(50% - 50vw);min-height:clamp(620px,calc(100vh - 72px),860px);border-radius:0}
+.hero-video{position:absolute;inset:0;width:100%;height:100%;max-width:none;object-fit:cover;object-position:72% center}
 
-/* The header overlays the hero at the top, then becomes the original white navigation after scrolling. */
+/* The header overlays the hero, then becomes the original white navigation after scrolling. */
 .site-header{position:fixed;inset:0 0 auto 0;width:100%;background:transparent;border-bottom-color:transparent;backdrop-filter:none;transition:background-color .28s ease,border-color .28s ease,box-shadow .28s ease,color .28s ease}
 .site-header:not(.is-scrolled){color:#fff}
-.site-header:not(.is-scrolled) .brand,
-.site-header:not(.is-scrolled) .desktop-nav a,
-.site-header:not(.is-scrolled) .header-actions a,
-.site-header:not(.is-scrolled) .mobile-menu{color:#fff}
+.site-header:not(.is-scrolled) .brand,.site-header:not(.is-scrolled) .desktop-nav a,.site-header:not(.is-scrolled) .header-actions a,.site-header:not(.is-scrolled) .mobile-menu{color:#fff}
 .site-header.is-scrolled{background:rgba(255,255,255,.96);border-bottom:1px solid var(--line);backdrop-filter:blur(18px);box-shadow:0 4px 24px rgba(0,0,0,.05);color:var(--ink)}
-.site-header.is-scrolled .brand,
-.site-header.is-scrolled .desktop-nav a,
-.site-header.is-scrolled .header-actions a,
-.site-header.is-scrolled .mobile-menu{color:var(--ink)}
+.site-header.is-scrolled .brand,.site-header.is-scrolled .desktop-nav a,.site-header.is-scrolled .header-actions a,.site-header.is-scrolled .mobile-menu{color:var(--ink)}
 .site-header.is-scrolled .desktop-nav a:hover,.site-header.is-scrolled .header-actions a:hover{color:var(--accent)}
 main{position:relative}
 
-/* Keep the storefront edge rhythm consistent on every viewport. */
 @media(max-width:1000px){
   :root{--page-gutter:32px}
+  .hero{padding-top:0}
   .hero-visual{min-height:calc(100vh - 64px)}
+  .hero-video{object-position:70% center}
 }
 @media(max-width:640px){
   :root{--page-gutter:20px}
   .container,.footer-grid,.footer-bottom,.header-inner{width:calc(100% - (var(--page-gutter) * 2))}
+  .hero{padding-bottom:48px}
   .hero-visual{min-height:calc(100svh - 64px)}
   .hero-video{object-position:68% center}
-}
-
-/* On reduced-motion devices the video is intentionally replaced by the existing fallback. */
-@media(prefers-reduced-motion:reduce){
-  .hero-video{display:none}
 }
