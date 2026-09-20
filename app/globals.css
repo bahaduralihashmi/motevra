@@ -105,3 +105,19 @@ button,a,input,select,textarea{touch-action:manipulation}
 .ad-slot{min-height:90px;margin:40px auto;max-width:970px;display:grid;place-items:center;overflow:hidden}.ad-slot>span{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#777}.ad-slot .adsbygoogle{width:100%;min-height:90px}
 
 .admin-dashboard{margin:32px 0}.admin-tabs,.admin-filters{display:flex;gap:10px;flex-wrap:wrap;margin:0 0 20px}.admin-message{padding:12px 14px;border:1px solid #ddd;background:#fafafa}.admin-inline{width:100px;padding:8px;border:1px solid #ddd}.button-small{padding:8px 12px;font-size:12px}.admin-table{overflow-x:auto}.admin-table .admin-row{min-width:900px}.admin-form{margin-top:48px}.admin-dashboard select{padding:9px;border:1px solid #ddd;background:#fff}
+
+/* MOTEVRA homepage hero video */
+.hero-visual{isolation:isolate;background:#050505;position:relative;overflow:hidden}
+.hero-video{position:absolute;inset:0;width:100%;height:100%;max-width:none;object-fit:cover;object-position:72% center;z-index:0}
+.hero-visual:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(0,0,0,.74),rgba(0,0,0,.18));z-index:1;pointer-events:none}
+.hero-content{position:relative;z-index:2}
+@media(max-width:1000px){
+  .hero-video{object-position:70% center}
+}
+@media(max-width:640px){
+  .hero-video{object-position:68% center}
+}
+@media (prefers-reduced-motion:reduce){
+  .hero-video{display:none}
+  .hero-visual{background:linear-gradient(90deg,rgba(0,0,0,.72),rgba(0,0,0,.16)),#111}
+}
