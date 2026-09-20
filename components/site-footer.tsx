@@ -7,7 +7,7 @@ export function SiteFooter() {
         <div>
           <Link href="/" className="brand">MOTEVRA</Link>
           <p>Everything your drive needs.</p>
-          <p className="muted">A modern automotive marketplace for tyres, wheels, parts and future accessories.</p>
+          <p className="muted">A modern automotive marketplace for tyres, wheels, parts and accessories — built in Pakistan with a global outlook.</p>
         </div>
         <div>
           <h3>Shop</h3>
@@ -36,7 +36,7 @@ export function SiteFooter() {
       </div>
       <div className="footer-bottom">
         <span>© {new Date().getFullYear()} MOTEVRA. All rights reserved.</span>
-        <span>Pakistan first · International expansion planned</span>
+        <span>Built in Pakistan · Global expansion ahead</span>
       </div>
     </footer>
   );
