@@ -22,7 +22,7 @@ const products = [
 export default function Home() {
   return <><SiteHeader/><main>
     <section className="hero"><div className="container"><div className="hero-visual">
-      <video className="hero-video" autoPlay muted loop playsInline preload="metadata" aria-hidden="true">
+      <video className="hero-video" autoPlay muted playsInline preload="metadata" aria-hidden="true">
         <source src="/videos/Motevra_Homepage_Hero_15s_Clean.mp4" type="video/mp4" />
       </video>
       <div className="hero-content">
