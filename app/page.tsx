@@ -22,7 +22,9 @@ const products = [
 export default function Home() {
   return <><SiteHeader/><main>
     <section className="hero"><div className="container"><div className="hero-visual">
-      <Image className="hero-image" src="https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&w=1800&q=85" alt="Performance car on the road" fill priority sizes="100vw" />
+      <video className="hero-video" autoPlay muted loop playsInline preload="metadata" aria-hidden="true">
+        <source src="/videos/Motevra_Homepage_Hero_15s_Clean.mp4" type="video/mp4" />
+      </video>
       <div className="hero-content">
         <p className="eyebrow">MOTEVRA · INTERNATIONAL AUTOMOTIVE MARKETPLACE</p><h1>Everything your drive needs.</h1>
         <p className="hero-copy">Premium tyres, wheels, parts and accessories — brought together in one modern automotive marketplace, designed for drivers everywhere.</p>
