@@ -20,6 +20,13 @@ const products = [
   { name:"MOTEVRA Trail AT", type:"All-terrain tyre", size:"265/65 R17", price:149, image:"https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?auto=format&fit=crop&w=900&q=85" },
 ];
 
+const accessories = [
+  { name:"MOTEVRA Drive Phone Mount", type:"Interior accessory", detail:"Dashboard & vent mount", price:29, image:"https://images.unsplash.com/photo-1601918774946-25832a4be0d6?auto=format&fit=crop&w=900&q=85" },
+  { name:"MOTEVRA LED Interior Kit", type:"Interior lighting", detail:"Ambient LED lighting", price:39, image:"https://images.unsplash.com/photo-1493238792000-8113da705763?auto=format&fit=crop&w=900&q=85" },
+  { name:"MOTEVRA Premium Floor Mats", type:"Interior accessory", detail:"All-weather protection", price:59, image:"https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&w=900&q=85" },
+  { name:"MOTEVRA Emergency Road Kit", type:"Safety & emergency", detail:"Essential roadside tools", price:49, image:"https://images.unsplash.com/photo-1486006920555-c77dcf18193c?auto=format&fit=crop&w=900&q=85" },
+];
+
 export default function Home() {
   return <><SiteHeader/><main>
     <section className="hero"><div className="container"><div className="hero-visual">
@@ -44,6 +51,10 @@ export default function Home() {
 
     <section className="section section-dark"><div className="container finder"><div><p className="eyebrow">Tyre finder</p><h2>Find the right tyre for your vehicle.</h2><p>Search by vehicle or tyre size to narrow down compatible options. As the MOTEVRA catalogue grows, fitment data will make product discovery even easier.</p></div>
       <div className="finder-panel"><div className="finder-tabs"><button className="finder-tab active">By vehicle</button><button className="finder-tab">By size</button></div><div className="finder-fields"><select defaultValue="" aria-label="Vehicle make"><option value="" disabled>Make</option><option>Toyota</option><option>Honda</option><option>BMW</option></select><select defaultValue="" aria-label="Vehicle model"><option value="" disabled>Model</option><option>Corolla</option><option>Civic</option><option>3 Series</option></select><select defaultValue="" aria-label="Vehicle year"><option value="" disabled>Year</option><option>2024</option><option>2023</option><option>2022</option></select></div><Link className="button button-accent" style={{marginTop:14,width:"100%"}} href="/tyres">Find compatible tyres</Link></div>
+    </div></section>
+
+    <section className="section"><div className="container"><div className="section-heading"><div><p className="eyebrow">Featured accessories</p><h2>Upgrade the drive, inside and out.</h2></div><Link href="/accessories">Show more →</Link></div>
+      <div className="product-grid">{accessories.map(p=><article className="product-card" key={p.name}><div className="product-visual"><Image src={p.image} alt={p.name + ", " + p.type} fill sizes="(max-width: 640px) 100vw, (max-width: 1000px) 50vw, 25vw" /><span className="product-badge">ACCESSORY</span></div><div className="product-info"><span className="product-brand">MOTEVRA</span><h3>{p.name}</h3><p className="product-meta">{p.type} · {p.detail}</p><div className="product-price">From <CurrencyPrice amount={p.price} /></div><div className="product-actions"><Link className="mini-button" href="/accessories">View details</Link><Link className="mini-button primary" href="/accessories">Shop</Link></div></div></article>)}</div>
     </div></section>
 
     <section className="global-strip"><div className="container split-section"><div><p className="eyebrow">Global by design</p><h2>One automotive store. Built to grow across markets.</h2></div><div><p>MOTEVRA is being built with the foundations for multiple countries, currencies, payment methods, warehouses and shipping options — so the storefront can evolve as the business expands.</p><div className="country-row"><span className="country">🇵🇰 Pakistan · PKR</span><span className="country">🇦🇪 UAE · AED</span><span className="country">🇸🇦 Saudi Arabia · SAR</span><span className="country">🇬🇧 UK · GBP</span><span className="country">🇺🇸 USA · USD</span><span className="country">🇪🇺 Europe · EUR</span></div></div></div></section>
