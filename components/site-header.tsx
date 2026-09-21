@@ -88,6 +88,7 @@ export function SiteHeader() {
   const closeMenus = () => {
     setOpen(false);
     setHovered(null);
+    setCurrencyOpen(false);
   };
 
   return (
