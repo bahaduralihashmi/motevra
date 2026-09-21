@@ -27,6 +27,13 @@ const accessories = [
   { name:"MOTEVRA Emergency Road Kit", type:"Safety & emergency", detail:"Essential roadside tools", price:49, image:"https://images.unsplash.com/photo-1486006920555-c77dcf18193c?auto=format&fit=crop&w=900&q=85" },
 ];
 
+const hotSelling = [
+  { name:"MOTEVRA RoadGrip X", type:"All-season tyre", detail:"205/55 R16 · Daily driving", price:99, image:"https://images.unsplash.com/photo-1578844251758-2f71da64c6e6?auto=format&fit=crop&w=900&q=85" },
+  { name:"MOTEVRA Performance GT", type:"Performance tyre", detail:"225/45 R17 · Sport driving", price:129, image:"https://images.unsplash.com/photo-1617531653332-bd46c24f2068?auto=format&fit=crop&w=900&q=85" },
+  { name:"MOTEVRA Touring Shield", type:"Touring tyre", detail:"215/60 R17 · Long journeys", price:109, image:"https://images.unsplash.com/photo-1544829099-b9a0c07fad1a?auto=format&fit=crop&w=900&q=85" },
+  { name:"MOTEVRA SUV Trail", type:"All-terrain tyre", detail:"265/65 R17 · SUV & 4x4", price:159, image:"https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?auto=format&fit=crop&w=900&q=85" },
+];
+
 export default function Home() {
   return <><SiteHeader/><main>
     <section className="hero"><div className="container"><div className="hero-visual">
@@ -57,7 +64,16 @@ export default function Home() {
       <div className="product-grid">{accessories.map(p=><article className="product-card" key={p.name}><div className="product-visual"><Image src={p.image} alt={p.name + ", " + p.type} fill sizes="(max-width: 640px) 100vw, (max-width: 1000px) 50vw, 25vw" /><span className="product-badge">ACCESSORY</span></div><div className="product-info"><span className="product-brand">MOTEVRA</span><h3>{p.name}</h3><p className="product-meta">{p.type} · {p.detail}</p><div className="product-price">From <CurrencyPrice amount={p.price} /></div><div className="product-actions"><Link className="mini-button" href="/accessories">View details</Link><Link className="mini-button primary" href="/accessories">Shop</Link></div></div></article>)}</div>
     </div></section>
 
-    <section className="global-strip"><div className="container split-section"><div><p className="eyebrow">Global by design</p><h2>One automotive store. Built to grow across markets.</h2></div><div><p>MOTEVRA is being built with the foundations for multiple countries, currencies, payment methods, warehouses and shipping options — so the storefront can evolve as the business expands.</p><div className="country-row"><span className="country">🇵🇰 Pakistan · PKR</span><span className="country">🇦🇪 UAE · AED</span><span className="country">🇸🇦 Saudi Arabia · SAR</span><span className="country">🇬🇧 UK · GBP</span><span className="country">🇺🇸 USA · USD</span><span className="country">🇪🇺 Europe · EUR</span></div></div></div></section>
+    <section className="section video-showcase"><div className="container"><div className="video-showcase-frame">
+      <video className="video-showcase-media" autoPlay muted loop playsInline preload="metadata" aria-hidden="true">
+        <source src="/videos/Motevra_Homepage_Hero_15s_Clean.mp4" type="video/mp4" />
+      </video>
+      <div className="video-showcase-overlay"><p className="eyebrow">MOTEVRA · BUILT FOR THE DRIVE</p><h2>Parts, performance and everything between.</h2><Link className="button button-light" href="/shop">Explore the range</Link></div>
+    </div></div></section>
+
+    <section className="section"><div className="container"><div className="section-heading"><div><p className="eyebrow">Hot selling</p><h2>What drivers are reaching for.</h2></div><Link href="/shop">Show more →</Link></div>
+      <div className="product-grid">{hotSelling.map(p=><article className="product-card" key={p.name}><div className="product-visual"><Image src={p.image} alt={p.name + ", " + p.type} fill sizes="(max-width: 640px) 100vw, (max-width: 1000px) 50vw, 25vw" /><span className="product-badge">HOT SELLING</span></div><div className="product-info"><span className="product-brand">MOTEVRA</span><h3>{p.name}</h3><p className="product-meta">{p.type} · {p.detail}</p><div className="product-price">From <CurrencyPrice amount={p.price} /></div><div className="product-actions"><Link className="mini-button" href="/shop">View details</Link><Link className="mini-button primary" href="/shop">Shop</Link></div></div></article>)}</div>
+    </div></section>
 
     <section className="section"><div className="container"><div className="trust-grid"><div className="trust-item"><strong>Fitment-focused</strong><span>Clear vehicle and tyre information to help shoppers choose with confidence.</span></div><div className="trust-item"><strong>Global-ready</strong><span>Commerce foundations designed to support new markets as MOTEVRA grows.</span></div><div className="trust-item"><strong>Secure checkout</strong><span>A checkout experience designed for convenient local and international payments.</span></div><div className="trust-item"><strong>Driver-first</strong><span>Fast discovery, useful product details and a responsive shopping experience.</span></div></div></div></section>
   </main><SiteFooter/></>;
