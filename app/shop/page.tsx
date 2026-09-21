@@ -2,6 +2,7 @@ import Link from "next/link";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { getPrisma } from "@/lib/prisma";
+import { CurrencyPrice } from "@/components/currency-price";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -50,7 +51,7 @@ export default async function ShopPage() {
             <div className="product-visual" style={{ backgroundImage: "url(\"" + image + "\")" }}><span className="product-badge">{product.productType.replace("_", " ")}</span></div>
             <div className="product-info"><span className="product-brand">{product.brand?.name || "MOTEVRA"}</span><h3>{product.name}</h3>
               <p className="product-meta">{product.tyre?.size.label || product.category?.name || "Automotive product"} · {product.stock > 0 ? "In stock" : "Out of stock"}</p>
-              <div className="product-price">{product.currency} {Number(product.salePrice ?? product.price).toLocaleString()}</div>
+              <div className="product-price"><CurrencyPrice amount={Number(product.salePrice ?? product.price)} from={product.currency} /></div>
               <div className="product-actions"><span className="mini-button">View details</span><span className="mini-button primary">Buy now</span></div>
             </div>
           </Link>;
