@@ -11,13 +11,13 @@ export const metadata = {
 
 const aboutImages = {
   hero:
-    "https://images.unsplash.com/photo-1627478954859-dcb93429a174?auto=format&fit=crop&w=1800&q=88",
+    "https://images.unsplash.com/photo-1755387257889-01f1765f2924?auto=format&fit=crop&w=1800&q=88",
   tyres:
-    "https://images.unsplash.com/photo-LoX_E3jjpNM?auto=format&fit=crop&w=1200&q=88",
+    "https://images.unsplash.com/photo-1585252522525-4f9ad48a24ea?auto=format&fit=crop&w=1200&q=88",
   wheels:
-    "https://images.unsplash.com/photo-4dNGik9Itfg?auto=format&fit=crop&w=1200&q=88",
+    "https://images.unsplash.com/photo-1655952885313-3cc79bf4a23c?auto=format&fit=crop&w=1200&q=88",
   detail:
-    "https://images.unsplash.com/photo-5SmPnmCjwcU?auto=format&fit=crop&w=1200&q=88",
+    "https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&w=1200&q=88",
 };
 
 export default function AboutPage() {
@@ -28,7 +28,7 @@ export default function AboutPage() {
         <section className="about-hero">
           <Image
             src={aboutImages.hero}
-            alt="Premium automotive wheel and tyre close-up for MOTEVRA automotive marketplace"
+            alt="Close-up of a premium alloy wheel and Continental car tyre on a performance vehicle"
             fill
             priority
             sizes="100vw"
@@ -71,11 +71,14 @@ export default function AboutPage() {
           </div>
         </section>
 
-        <section className="about-image-grid" aria-label="MOTEVRA automotive product categories">
+        <section
+          className="about-image-grid"
+          aria-label="MOTEVRA tyre and wheel categories"
+        >
           <figure>
             <Image
               src={aboutImages.tyres}
-              alt="Close-up of a performance car tyre and tread for MOTEVRA tyre shopping"
+              alt="Detailed wet tyre tread showing automotive grip and tread pattern"
               fill
               sizes="(max-width: 640px) 100vw, 50vw"
             />
@@ -83,7 +86,7 @@ export default function AboutPage() {
           <figure>
             <Image
               src={aboutImages.wheels}
-              alt="Black and silver alloy wheel for MOTEVRA wheels and rims collection"
+              alt="Black and silver alloy wheel mounted on a passenger car"
               fill
               sizes="(max-width: 640px) 100vw, 50vw"
             />
@@ -140,7 +143,7 @@ export default function AboutPage() {
             <div className="about-story-image">
               <Image
                 src={aboutImages.detail}
-                alt="Professional automotive interior detailing for MOTEVRA car care products"
+                alt="Modern performance car representing MOTEVRA automotive care and driving lifestyle"
                 fill
                 sizes="(max-width: 1000px) 100vw, 50vw"
               />
