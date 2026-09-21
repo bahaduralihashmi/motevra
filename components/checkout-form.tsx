@@ -1,10 +1,10 @@
 "use client";
-import{useState}from"react";
+import{useState}from"react";import{CurrencyPrice}from"@/components/currency-price";
 export function CheckoutForm({total,currency,guest}:{total:number;currency:string;guest:boolean}){
  const[status,setStatus]=useState("");const[busy,setBusy]=useState(false);
  async function submit(e:React.FormEvent<HTMLFormElement>){e.preventDefault();setBusy(true);setStatus("Placing order…");const data=Object.fromEntries(new FormData(e.currentTarget));const res=await fetch("/api/orders",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(data)});const json=await res.json();if(res.ok){window.location.href=guest?"/order-success?number="+encodeURIComponent(json.order.number):"/orders";return}setStatus(json.error??"Unable to place order.");setBusy(false)}
  return <form className="checkout-form" onSubmit={submit}>
-  <p className="hero-copy">Order total: {currency} {total.toLocaleString()}</p>
+  <p className="hero-copy">Order total: <CurrencyPrice amount={total} from={currency}/></p>
   {guest&&<input name="email" type="email" placeholder="Email address" required/>}
   <input name="name" placeholder="Full name" required/><input name="phone" placeholder="Phone" required/>
   <input name="country" placeholder="Country" defaultValue="Pakistan" required/><input name="region" placeholder="State / region"/>
