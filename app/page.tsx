@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
+import { CurrencyPrice } from "@/components/currency-price";
 
 const categories = [
   ["Tyres", "/tyres", "Everyday, performance, touring and all-season tyres.", "https://images.unsplash.com/photo-1511919884226-fd3cad34687c?auto=format&fit=crop&w=1000&q=80"],
@@ -13,10 +14,10 @@ const categories = [
 ];
 
 const products = [
-  { name:"MOTEVRA Touring Pro", type:"All-season tyre", size:"205/55 R16", price:"$89", image:"https://images.unsplash.com/photo-1578844251758-2f71da64c6e6?auto=format&fit=crop&w=900&q=85" },
-  { name:"MOTEVRA Sport X", type:"Performance tyre", size:"225/45 R17", price:"$119", image:"https://images.unsplash.com/photo-1617531653332-bd46c24f2068?auto=format&fit=crop&w=900&q=85" },
-  { name:"MOTEVRA Urban GT", type:"Touring tyre", size:"215/60 R17", price:"$105", image:"https://images.unsplash.com/photo-1544829099-b9a0c07fad1a?auto=format&fit=crop&w=900&q=85" },
-  { name:"MOTEVRA Trail AT", type:"All-terrain tyre", size:"265/65 R17", price:"$149", image:"https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?auto=format&fit=crop&w=900&q=85" },
+  { name:"MOTEVRA Touring Pro", type:"All-season tyre", size:"205/55 R16", price:89, image:"https://images.unsplash.com/photo-1578844251758-2f71da64c6e6?auto=format&fit=crop&w=900&q=85" },
+  { name:"MOTEVRA Sport X", type:"Performance tyre", size:"225/45 R17", price:119, image:"https://images.unsplash.com/photo-1617531653332-bd46c24f2068?auto=format&fit=crop&w=900&q=85" },
+  { name:"MOTEVRA Urban GT", type:"Touring tyre", size:"215/60 R17", price:105, image:"https://images.unsplash.com/photo-1544829099-b9a0c07fad1a?auto=format&fit=crop&w=900&q=85" },
+  { name:"MOTEVRA Trail AT", type:"All-terrain tyre", size:"265/65 R17", price:149, image:"https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?auto=format&fit=crop&w=900&q=85" },
 ];
 
 export default function Home() {
@@ -38,7 +39,7 @@ export default function Home() {
     </div></section>
 
     <section className="section"><div className="container"><div className="section-heading"><div><p className="eyebrow">Featured range</p><h2>Popular tyre options, clearly presented.</h2></div><Link href="/shop">Shop all →</Link></div>
-      <div className="product-grid">{products.map(p=><article className="product-card" key={p.name}><div className="product-visual"><Image src={p.image} alt={p.name + ", " + p.type + ", size " + p.size} fill sizes="(max-width: 640px) 100vw, (max-width: 1000px) 50vw, 25vw" /><span className="product-badge">FEATURED</span></div><div className="product-info"><span className="product-brand">MOTEVRA</span><h3>{p.name}</h3><p className="product-meta">{p.type} · {p.size}</p><div className="product-price">From {p.price}</div><div className="product-actions"><Link className="mini-button" href="/shop">View details</Link><Link className="mini-button primary" href="/shop">Shop</Link></div></div></article>)}</div>
+      <div className="product-grid">{products.map(p=><article className="product-card" key={p.name}><div className="product-visual"><Image src={p.image} alt={p.name + ", " + p.type + ", size " + p.size} fill sizes="(max-width: 640px) 100vw, (max-width: 1000px) 50vw, 25vw" /><span className="product-badge">FEATURED</span></div><div className="product-info"><span className="product-brand">MOTEVRA</span><h3>{p.name}</h3><p className="product-meta">{p.type} · {p.size}</p><div className="product-price">From <CurrencyPrice amount={p.price} /></div><div className="product-actions"><Link className="mini-button" href="/shop">View details</Link><Link className="mini-button primary" href="/shop">Shop</Link></div></div></article>)}</div>
     </div></section>
 
     <section className="section section-dark"><div className="container finder"><div><p className="eyebrow">Tyre finder</p><h2>Find the right tyre for your vehicle.</h2><p>Search by vehicle or tyre size to narrow down compatible options. As the MOTEVRA catalogue grows, fitment data will make product discovery even easier.</p></div>
