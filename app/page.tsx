@@ -34,8 +34,10 @@ const hotSelling = [
   {name:"MOTEVRA SUV Trail",type:"All-terrain tyre",detail:"265/65 R17 · SUV & 4x4",price:159,image:"https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?auto=format&fit=crop&w=900&q=85"},
 ];
 
-function ProductRail({items,badge,href}: {items: typeof products; badge:string; href:string}) {
-  return <div className="product-rail-wrap"><div className="product-rail">{[...items,...items].map((p,i)=><article className="product-card" key={p.name+i}><div className="product-visual"><Image src={p.image} alt={p.name+", "+p.type} fill sizes="(max-width: 640px) 82vw, (max-width: 1000px) 45vw, 25vw" /><span className="product-badge">{badge}</span></div><div className="product-info"><span className="product-brand">MOTEVRA</span><h3>{p.name}</h3><p className="product-meta">{p.type} · {("size" in p ? p.size : p.detail)}</p><div className="product-price">From <CurrencyPrice amount={p.price} /></div><div className="product-actions"><Link className="mini-button" href={href}>View details</Link><Link className="mini-button primary" href={href}>Shop</Link></div></div></article>)}</div></div>;
+type ProductRailItem = {name:string; type:string; size?:string; detail?:string; price:number; image:string};
+
+function ProductRail({items,badge,href}: {items: ProductRailItem[]; badge:string; href:string}) {
+  return <div className="product-rail-wrap"><div className="product-rail">{[...items,...items].map((p,i)=><article className="product-card" key={p.name+i}><div className="product-visual"><Image src={p.image} alt={p.name+", "+p.type} fill sizes="(max-width: 640px) 82vw, (max-width: 1000px) 45vw, 25vw" /><span className="product-badge">{badge}</span></div><div className="product-info"><span className="product-brand">MOTEVRA</span><h3>{p.name}</h3><p className="product-meta">{p.type} · {p.size ?? p.detail}</p><div className="product-price">From <CurrencyPrice amount={p.price} /></div><div className="product-actions"><Link className="mini-button" href={href}>View details</Link><Link className="mini-button primary" href={href}>Shop</Link></div></div></article>)}</div></div>;
 }
 
 export default function Home() {
