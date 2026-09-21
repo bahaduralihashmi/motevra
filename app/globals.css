@@ -255,3 +255,18 @@ html,body{max-width:100%;overflow-x:hidden}
  .mobile-category-links a{padding:8px 0;color:var(--muted);font-size:12px}
 }
 @media(prefers-reduced-motion:reduce){.mega-menu,.nav-chevron{transition:none}}
+
+/* MOTEVRA currency selector */
+.currency-picker{position:relative;display:flex;align-items:center}
+.currency-trigger{border:0;background:transparent;color:inherit;font:inherit;font-size:11px;font-weight:700;padding:8px 0;cursor:pointer;display:flex;align-items:center;gap:5px}
+.currency-trigger:hover{color:var(--accent)}
+.currency-menu{position:absolute;right:0;top:calc(100% + 9px);width:245px;background:#fff;border:1px solid var(--line);box-shadow:0 18px 45px rgba(0,0,0,.14);padding:7px;opacity:0;visibility:hidden;pointer-events:none;transform:translateY(-5px);transition:opacity .18s ease,transform .18s ease,visibility .18s ease;z-index:140}
+.currency-menu.is-open{opacity:1;visibility:visible;pointer-events:auto;transform:translateY(0)}
+.currency-menu button{width:100%;display:grid;grid-template-columns:24px 1fr auto;align-items:center;gap:8px;border:0;background:transparent;text-align:left;padding:10px 9px;color:#222;cursor:pointer;font-size:12px}
+.currency-menu button:hover,.currency-menu button.active{background:#f0f0eb}.currency-menu button strong{font-size:10px;letter-spacing:.08em;color:var(--muted)}
+.mobile-currency-row{display:none}
+@media(max-width:1000px){.currency-picker{display:none}}
+@media(max-width:640px){
+ .mobile-currency-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:15px 0;border-bottom:1px solid var(--line);font-size:12px;font-weight:700}
+ .mobile-currency-row select{border:1px solid var(--line);background:#fff;padding:8px;font-size:12px;max-width:190px}
+}
