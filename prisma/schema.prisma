@@ -218,7 +218,6 @@ model Category {
 model ProductVariant {
   id String @id @default(cuid())
   productId String
-  cjVariantId String? @unique
   sku String
   name String?
   price Decimal? @db.Decimal(12,2)
@@ -241,9 +240,6 @@ model Product {
   status ProductStatus @default(DRAFT)
   stock Int @default(0)
   source String @default("MOTEVRA")
-  cjProductId String? @unique
-  cjProductSku String?
-  cjSyncedAt DateTime?
   variants ProductVariant[]
   weight Float?
   brandId String?
