@@ -230,3 +230,28 @@ h3{letter-spacing:-.04em}
  html{scroll-behavior:auto}.hero-video{display:none}.hero-visual{background:#111}
 }
 html,body{max-width:100%;overflow-x:hidden}
+
+/* MOTEVRA desktop category mega menu */
+.nav-mega-item{position:static;height:72px;display:flex;align-items:center}
+.nav-mega-trigger{display:inline-flex;align-items:center;gap:5px;height:72px;white-space:nowrap}
+.nav-chevron{font-size:11px;line-height:1;opacity:.45;transform:translateY(-1px);transition:transform .2s ease,opacity .2s ease}
+.nav-mega-item:hover .nav-chevron,.nav-mega-trigger[aria-expanded="true"] .nav-chevron{transform:rotate(180deg);opacity:1}
+.mega-menu{position:absolute;left:0;right:0;top:72px;background:rgba(247,247,244,.98);border-top:1px solid var(--line);border-bottom:1px solid var(--line);box-shadow:0 24px 45px rgba(0,0,0,.12);opacity:0;visibility:hidden;pointer-events:none;transform:translateY(-7px);transition:opacity .18s ease,transform .18s ease,visibility .18s ease}
+.mega-menu.is-open{opacity:1;visibility:visible;pointer-events:auto;transform:translateY(0)}
+.mega-menu-inner{width:min(var(--max),calc(100% - (var(--page-gutter) * 2)));margin:auto;padding:30px 0 34px;display:grid;grid-template-columns:1.25fr repeat(3,1fr);gap:34px}
+.mega-menu-intro{display:flex;flex-direction:column;align-items:flex-start;border-right:1px solid var(--line);padding-right:28px}
+.mega-kicker,.mega-group>span{font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);font-weight:700;margin-bottom:12px}
+.mega-menu-intro strong{font-family:'Space Grotesk';font-size:32px;letter-spacing:-.055em;margin-bottom:18px}
+.mega-menu-intro a{font-size:12px;font-weight:700;margin-top:auto}
+.mega-menu-intro a:hover,.mega-group a:hover{color:var(--accent)}
+.mega-group{display:flex;flex-direction:column;align-items:flex-start}
+.mega-group a{font-size:12px;padding:5px 0;color:#292925}
+.mobile-category-links{display:none}
+@media(max-width:1000px){.mega-menu{display:none}}
+@media(max-width:640px){
+ .mobile-category{border-bottom:1px solid var(--line)}
+ .mobile-category>a{border-bottom:0!important}
+ .mobile-category-links{display:grid;grid-template-columns:1fr 1fr;padding:0 0 12px;gap:0 14px}
+ .mobile-category-links a{padding:8px 0;color:var(--muted);font-size:12px}
+}
+@media(prefers-reduced-motion:reduce){.mega-menu,.nav-chevron{transition:none}}
