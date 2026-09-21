@@ -30,7 +30,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-      <body><CurrencyProvider>{process.env.NEXT_PUBLIC_ADSENSE_CLIENT ? <Script async src={"https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client="+process.env.NEXT_PUBLIC_ADSENSE_CLIENT} crossOrigin="anonymous" strategy="afterInteractive" /> : null}{children}</body>
+      <body><CurrencyProvider>{process.env.NEXT_PUBLIC_ADSENSE_CLIENT ? <Script async src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${process.env.NEXT_PUBLIC_ADSENSE_CLIENT}`} crossOrigin="anonymous" strategy="afterInteractive" /> : null}{children}</body>
     </html>
   );
 }
