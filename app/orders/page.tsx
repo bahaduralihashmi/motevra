@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { getPrisma } from "@/lib/prisma";
+import { CurrencyPrice } from "@/components/currency-price";
 
 export const runtime = "nodejs";
 export default async function OrdersPage() {
@@ -26,6 +27,6 @@ export default async function OrdersPage() {
   return <><SiteHeader /><main><section className="page-hero"><div className="container narrow">
     <p className="eyebrow">YOUR ORDERS</p><h1>Order history.</h1>
     {databaseError ? <p className="hero-copy">Order history is temporarily unavailable while the commerce database is being connected.</p> :
-      <div className="order-list">{orders.map(o => <article className="order-card" key={o.id}><strong>{o.number}</strong><span>{o.status.replaceAll("_", " ")} · {o.currency} {Number(o.total).toLocaleString()}</span><small>{o.items.map(i => `${i.product.name} × ${i.quantity}`).join(" · ")}</small></article>)}{!orders.length && <p className="hero-copy">No orders yet.</p>}</div>}
+      <div className="order-list">{orders.map(o => <article className="order-card" key={o.id}><strong>{o.number}</strong><span>{o.status.replaceAll("_", " ")} · <CurrencyPrice amount={Number(o.total)} from={o.currency} /></span><small>{o.items.map(i => `${i.product.name} × ${i.quantity}`).join(" · ")}</small></article>)}{!orders.length && <p className="hero-copy">No orders yet.</p>}</div>}
   </div></section></main><SiteFooter /></>;
 }
