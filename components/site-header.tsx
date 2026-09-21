@@ -139,7 +139,19 @@ export function SiteHeader() {
         <div className="header-actions">
           <Link href="/shop" aria-label="Search products">⌕ <span className="header-action-label">Search</span></Link>
           <Link className="desktop-account" href="/account">Account</Link>
-          <Link href="/cart">Cart</Link>\n          <div className="currency-picker" onMouseLeave={() => setCurrencyOpen(false)}>\n            <button className="currency-trigger" type="button" aria-haspopup="listbox" aria-expanded={currencyOpen} onClick={() => setCurrencyOpen((value) => !value)}>\n              {currency} <span>⌄</span>\n            </button>\n            <div className={`currency-menu${currencyOpen ? " is-open" : ""}`} role="listbox" aria-label="Choose currency">\n              {currencies.map((item) => (\n                <button key={item.code} type="button" role="option" aria-selected={currency === item.code} className={currency === item.code ? "active" : ""} onClick={() => { setCurrency(item.code as CurrencyCode); setCurrencyOpen(false); }}>\n                  <span>{item.flag}</span><span>{item.name}</span><strong>{item.code}</strong>\n                </button>\n              ))}\n            </div>\n          </div>
+          <Link href="/cart">Cart</Link>
+          <div className="currency-picker" onMouseLeave={() => setCurrencyOpen(false)}>
+            <button className="currency-trigger" type="button" aria-haspopup="listbox" aria-expanded={currencyOpen} onClick={() => setCurrencyOpen((value) => !value)}>
+              {currency} <span>⌄</span>
+            </button>
+            <div className={`currency-menu${currencyOpen ? " is-open" : ""}`} role="listbox" aria-label="Choose currency">
+              {currencies.map((item) => (
+                <button key={item.code} type="button" role="option" aria-selected={currency === item.code} className={currency === item.code ? "active" : ""} onClick={() => { setCurrency(item.code as CurrencyCode); setCurrencyOpen(false); }}>
+                  <span>{item.flag}</span><span>{item.name}</span><strong>{item.code}</strong>
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
 
@@ -161,7 +173,8 @@ export function SiteHeader() {
             </div>
           ))}
         </nav>
-        <div className="mobile-currency-row"><span>Currency</span><select value={currency} onChange={(event) => setCurrency(event.target.value as CurrencyCode)} aria-label="Choose currency">{currencies.map((item) => <option key={item.code} value={item.code}>{item.flag} {item.code} — {item.name}</option>)}</select></div>\n        <div className="mobile-nav-secondary">
+        <div className="mobile-currency-row"><span>Currency</span><select value={currency} onChange={(event) => setCurrency(event.target.value as CurrencyCode)} aria-label="Choose currency">{currencies.map((item) => <option key={item.code} value={item.code}>{item.flag} {item.code} — {item.name}</option>)}</select></div>
+        <div className="mobile-nav-secondary">
           <Link href="/shop" onClick={() => setOpen(false)}>Search products</Link>
           <Link href="/account" onClick={() => setOpen(false)}>Account</Link>
           <Link href="/orders" onClick={() => setOpen(false)}>Orders</Link>
