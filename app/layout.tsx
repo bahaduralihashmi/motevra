@@ -28,9 +28,23 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  const adsenseClient = process.env.NEXT_PUBLIC_ADSENSE_CLIENT;
+
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-      <body><CurrencyProvider>{process.env.NEXT_PUBLIC_ADSENSE_CLIENT ? <Script async src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${process.env.NEXT_PUBLIC_ADSENSE_CLIENT}`} crossOrigin="anonymous" strategy="afterInteractive" /> : null}{children}</body>
+      <body>
+        <CurrencyProvider>
+          {adsenseClient ? (
+            <Script
+              async
+              src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adsenseClient}`}
+              crossOrigin="anonymous"
+              strategy="afterInteractive"
+            />
+          ) : null}
+          {children}
+        </CurrencyProvider>
+      </body>
     </html>
   );
 }
