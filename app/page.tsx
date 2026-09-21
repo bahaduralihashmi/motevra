@@ -3,6 +3,7 @@ import Link from "next/link";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { CurrencyPrice } from "@/components/currency-price";
+import { TyreFinder } from "@/components/tyre-finder";
 
 const categories = [
   ["Tyres","/tyres","Everyday, performance, touring and all-season tyres.","https://images.unsplash.com/photo-1511919884226-fd3cad34687c?auto=format&fit=crop&w=1000&q=80"],
@@ -48,7 +49,7 @@ export default function Home() {
 
     <section className="section product-rail-section"><div className="container"><div className="section-heading"><div><p className="eyebrow">Featured range</p><h2>Popular tyre options, clearly presented.</h2></div><Link href="/shop">Shop all →</Link></div><ProductRail items={products} badge="FEATURED" href="/shop"/></div></section>
 
-    <section className="section section-dark"><div className="container finder"><div><p className="eyebrow">Tyre finder</p><h2>Find the right tyre for your vehicle.</h2><p>Search by vehicle or tyre size to narrow down compatible options. As the MOTEVRA catalogue grows, fitment data will make product discovery even easier.</p></div><div className="finder-panel"><div className="finder-tabs"><button className="finder-tab active">By vehicle</button><button className="finder-tab">By size</button></div><div className="finder-fields"><select defaultValue="" aria-label="Vehicle make"><option value="" disabled>Make</option><option>Toyota</option><option>Honda</option><option>BMW</option></select><select defaultValue="" aria-label="Vehicle model"><option value="" disabled>Model</option><option>Corolla</option><option>Civic</option><option>3 Series</option></select><select defaultValue="" aria-label="Vehicle year"><option value="" disabled>Year</option><option>2024</option><option>2023</option><option>2022</option></select></div><Link className="button button-accent" href="/tyres">Find compatible tyres</Link></div></div></section>
+    <section className="section section-dark"><div className="container finder"><div><p className="eyebrow">Tyre finder</p><h2>Find the right tyre for your vehicle.</h2><p>Search by vehicle or tyre size to narrow down compatible options. As the MOTEVRA catalogue grows, fitment data will make product discovery even easier.</p></div><TyreFinder /></div></section>
 
     <section className="section product-rail-section"><div className="container"><div className="section-heading"><div><p className="eyebrow">Featured accessories</p><h2>Upgrade the drive, inside and out.</h2></div><Link href="/accessories">Show more →</Link></div><ProductRail items={accessories} badge="ACCESSORY" href="/accessories"/></div></section>
 
