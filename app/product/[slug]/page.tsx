@@ -5,6 +5,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { getPrisma } from "@/lib/prisma";
 import { AddToCartButton } from "@/components/add-to-cart-button";
 import { CurrencyPrice } from "@/components/currency-price";
+import { ProductReviews } from "@/components/product-reviews";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -12,7 +13,7 @@ const fallback = "https://images.unsplash.com/photo-1578844251758-2f71da64c6e6?a
 
 export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
   if (!process.env.DATABASE_URL) {
-    return <><SiteHeader /><main><section className="section"><div className="container narrow"><div className="empty-state"><span>PRODUCT</span><h2>Product catalogue is not connected.</h2><p>Configure the production database to load product details.</p><Link className="button button-dark" href="/shop">Back to shop</Link></div></div></section></main><SiteFooter /></>;
+    return <><SiteHeader /><main><section className="section"><div className="container narrow"><div className="empty-state"><span>PRODUCT</span><h2>Product catalogue is not connected.</h2><p>Configure the production database to load product details.</p><Link className="button button-dark" href="/shop">Back to shop</Link></div></div><ProductReviews productId={product.id} /></section></main><SiteFooter /></>;
   }
   const { slug } = await params;
   try {
