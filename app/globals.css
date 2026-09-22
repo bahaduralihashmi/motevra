@@ -168,3 +168,18 @@ html,body{max-width:100%;overflow-x:hidden}
 .quick-shop-item>b{margin-left:auto;font-size:20px;font-weight:400}
 @keyframes motevra-quick-shop{from{transform:translate3d(0,0,0)}to{transform:translate3d(-50%,0,0)}}
 @media(max-width:640px){.quick-shop-section{margin:-42px 0 0;padding:0 20px}.quick-shop-track{border-radius:14px;padding:5px}.quick-shop-loop{animation-duration:28s}.quick-shop-item{min-width:230px;flex-basis:230px;min-height:76px;padding:14px}.quick-shop-image{flex-basis:56px;width:56px;height:56px}.quick-shop-item strong{font-size:14px}.category-card:hover .category-image-primary,.product-card:hover .product-visual .product-image-primary{opacity:1}.category-card:hover .category-image-secondary,.product-card:hover .product-visual .product-image-secondary{opacity:0}}
+
+
+.review-form{display:grid;gap:14px;margin-top:28px;padding:28px;border:1px solid var(--line);border-radius:18px;background:#fff}
+.review-form h2{margin:0 0 4px}
+.review-form input,.review-form textarea{width:100%;border:1px solid var(--line);padding:13px 14px;border-radius:10px;background:#fff;font:inherit}
+.review-form textarea{min-height:150px;resize:vertical}
+.review-stars{display:flex;gap:4px}
+.review-stars button{border:0;background:transparent;font-size:32px;line-height:1;color:#bbb;cursor:pointer;padding:2px}
+.review-stars button.active{color:#111}
+.review-success{margin-top:28px;padding:28px;border:1px solid var(--line);border-radius:18px;background:#fff}
+.review-summary{display:flex;align-items:center;gap:12px;margin:18px 0}
+.review-summary strong{font-size:24px}
+.review-card{padding:22px 0;border-top:1px solid var(--line)}
+.review-card .stars{letter-spacing:2px}
+.review-card small{color:var(--muted)}
