@@ -196,7 +196,7 @@ html,body{max-width:100%;overflow-x:hidden}
 .newest-product-copy{display:flex;flex-direction:column;justify-content:center;padding:clamp(35px,5vw,75px)}
 .newest-product-copy h3{font-size:clamp(38px,4.8vw,68px);line-height:.96;letter-spacing:-.065em;margin:10px 0 20px}
 .newest-product-description{font-size:15px;line-height:1.7;color:var(--muted);max-width:560px;margin:0}
-.newest-product-meta{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:30px;padding-top:20px;border-top:1px solid var(--line)}
+.newest-product-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:30px;padding-top:20px;border-top:1px solid var(--line)}
 .newest-product-meta span{display:grid;gap:7px}
 .newest-product-meta small{font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:800}
 .newest-product-meta strong{font-family:'Space Grotesk';font-size:17px}
