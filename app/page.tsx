@@ -113,8 +113,8 @@ async function getHomepageData(): Promise<HomepageData> {
     }));
 
     const dbRailProducts = dbProducts.map(toRail).filter((p) => p.image);
-    const dbAccessories = dbRailProducts.filter((p) => ["ACCESSORY", "ELECTRONICS", "CAR_CARE"].some((t) => p.type.toUpperCase().includes(t.replaceAll("_", " "))));
-    const dbTyres = dbRailProducts.filter((p) => p.type.toUpperCase().includes("TYRE"));
+    const dbAccessories = dbProducts.filter((p) => ["ACCESSORY", "ELECTRONICS", "CAR_CARE"].includes(p.productType)).map(toRail).filter((p) => p.image);
+    const dbTyres = dbProducts.filter((p) => p.productType === "TYRE").map(toRail).filter((p) => p.image);
     const dbHot = orderedHot.map(toRail).filter((p) => p.image);
 
     return {
