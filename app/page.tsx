@@ -4,6 +4,7 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { CurrencyPrice } from "@/components/currency-price";
 import { TyreFinder } from "@/components/tyre-finder";
+import { getPrisma } from "@/lib/prisma";
 
 const categories = [
   ["Tyres","/tyres","Everyday, performance, touring and all-season tyres.","https://images.unsplash.com/photo-1511919884226-fd3cad34687c?auto=format&fit=crop&w=1000&q=80"],
@@ -37,6 +38,27 @@ const hotSelling = [
 
 type ProductRailItem = {name:string; type:string; size?:string; detail?:string; price:number; image:string; image2?:string};
 
+type QuickShopItem = { name: string; href: string; image: string; type: "Category" | "Hot selling" };
+
+async function getQuickShopItems(): Promise<QuickShopItem[]> {
+  const prisma = getPrisma();
+  const [categories, topSales] = await Promise.all([
+    prisma.category.findMany({
+      orderBy: { name: "asc" },
+      include: { products: { where: { status: "ACTIVE" }, orderBy: { createdAt: "desc" }, take: 1, include: { images: { orderBy: { position: "asc" }, take: 1 } } } },
+    }),
+    prisma.orderItem.groupBy({ by: ["productId"], _sum: { quantity: true }, orderBy: { _sum: { quantity: "desc" } }, take: 8 }),
+  ]);
+  const hotProductIds = topSales.map((item) => item.productId);
+  const hotProducts = hotProductIds.length ? await prisma.product.findMany({ where: { id: { in: hotProductIds }, status: "ACTIVE" }, include: { images: { orderBy: { position: "asc" }, take: 1 } } }) : [];
+  const hotById = new Map(hotProducts.map((product) => [product.id, product]));
+  const hotSelling = hotProductIds.map((id) => hotById.get(id)).filter((product): product is (typeof hotProducts)[number] => Boolean(product));
+  const categoryItems: QuickShopItem[] = categories.filter((category) => category.products[0]?.images[0]?.url).map((category) => ({ name: category.name, href: "/shop?category=" + encodeURIComponent(category.slug), image: category.products[0].images[0].url, type: "Category" }));
+  const productItems: QuickShopItem[] = hotSelling.filter((product) => product.images[0]?.url).map((product) => ({ name: product.name, href: "/product/" + product.slug, image: product.images[0].url, type: "Hot selling" }));
+  return [...categoryItems, ...productItems];
+}
+
+
 function ProductRail({items,badge,href}: {items: ProductRailItem[]; badge:string; href:string}) {
   return <div className="product-rail-wrap"><div className="product-rail">{[...items,...items].map((p,i)=><article className="product-card" key={p.name+i}><div className="product-visual"><Image className="product-image-primary" src={p.image} alt={p.name+", "+p.type} fill sizes="(max-width: 640px) 82vw, (max-width: 1000px) 45vw, 25vw" />{p.image2 && <Image className="product-image-secondary" src={p.image2} alt="" fill sizes="(max-width: 640px) 82vw, (max-width: 1000px) 45vw, 25vw" aria-hidden="true" />}<span className="product-badge">{badge}</span></div><div className="product-info"><span className="product-brand">MOTEVRA</span><h3>{p.name}</h3><p className="product-meta">{p.type} · {p.size ?? p.detail}</p><div className="product-price">From <CurrencyPrice amount={p.price} /></div><div className="product-actions"><Link className="mini-button" href={href}>View details</Link><Link className="mini-button primary" href={href}>Shop</Link></div></div></article>)}</div></div>;
 }
@@ -44,7 +66,7 @@ function ProductRail({items,badge,href}: {items: ProductRailItem[]; badge:string
 export default function Home() {
   return <><SiteHeader/><main>
     <section className="hero"><div className="container"><div className="hero-visual"><video className="hero-video" autoPlay muted playsInline preload="metadata" aria-hidden="true"><source src="/videos/Motevra_Homepage_Hero_15s_Clean.mp4" type="video/mp4" /></video><div className="hero-content"><p className="eyebrow">MOTEVRA · MODERN AUTOMOTIVE MARKETPLACE</p><h1>Everything your drive needs.</h1><p className="hero-copy">Shop tyres, wheels, parts and accessories in one focused automotive marketplace — built for simple discovery today and global expansion tomorrow.</p><div className="hero-actions"><Link className="button button-dark" href="/shop">Shop the range</Link><Link className="button button-light" href="/tyres">Find my tyres</Link></div></div></div></div></section>
-    <section className="quick-shop-section" aria-label="Quick shop categories and hot selling products"><div className="quick-shop-track">{[...categories.map(([name,href,,image])=>({name,href,image,type:"Category"})),...hotSelling.map(p=>({name:p.name,href:"/shop",image:p.image,type:"Hot selling"}))].map((item,i)=><Link href={item.href} className="quick-shop-item" key={item.name+i}><span className="quick-shop-image"><Image src={item.image} alt="" fill sizes="44px" /></span><span><small>{item.type}</small><strong>{item.name}</strong></span><b>→</b></Link>)}</div></section>
+    <section className="quick-shop-section" aria-label="Quick shop categories and hot selling products"><div className="quick-shop-track">{(await getQuickShopItems()).map((item,i)=><Link href={item.href} className="quick-shop-item" key={item.name+i}><span className="quick-shop-image"><Image src={item.image} alt="" fill sizes="44px" /></span><span><small>{item.type}</small><strong>{item.name}</strong></span><b>→</b></Link>)}</div></section>
 
     <section className="section"><div className="container"><div className="section-heading"><div><p className="eyebrow">Shop by category</p><h2>Start with what your vehicle needs.</h2></div><Link href="/shop">View all →</Link></div><div className="category-grid">{categories.map(([name,href,description,image,image2])=><Link href={href} className="category-card" key={href}><Image className="category-image category-image-primary" src={image} alt={name+" for cars and automotive shopping at MOTEVRA"} fill sizes="(max-width: 640px) 100vw, (max-width: 1000px) 50vw, 33vw" />{image2 && <Image className="category-image category-image-secondary" src={image2} alt="" fill sizes="(max-width: 640px) 100vw, (max-width: 1000px) 50vw, 33vw" aria-hidden="true" />}<span className="category-overlay"/><span className="category-mark">M</span><h3>{name}</h3><p>{description}</p><span className="arrow">Explore →</span></Link>)}</div></div></section>
 
