@@ -70,6 +70,11 @@ enum CartStatus {
   CONVERTED
   ABANDONED
 }
+enum ReviewStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
 
 model User {
   id String @id @default(cuid())
@@ -82,6 +87,7 @@ model User {
   vehicles UserVehicle[]
   carts Cart[]
   orders Order[]
+  reviews Review[]
   accounts Account[]
   sessions Session[]
   createdAt DateTime @default(now())
@@ -250,6 +256,8 @@ model Product {
   images ProductImage[]
   cartItems CartItem[]
   orderItems OrderItem[]
+  reviews Review[]
+  reviewRequests ReviewRequest[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   @@index([brandId])
@@ -325,6 +333,8 @@ model Order {
   shippingPostalCode String?
   user User? @relation(fields:[userId], references:[id], onDelete:SetNull)
   items OrderItem[]
+  reviews Review[]
+  reviewRequests ReviewRequest[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   @@index([userId,createdAt])
@@ -342,4 +352,41 @@ model OrderItem {
   variant ProductVariant? @relation(fields:[variantId], references:[id], onDelete:SetNull)
   @@index([orderId])
   @@index([productId])
+}
+
+
+model Review {
+  id String @id @default(cuid())
+  productId String
+  userId String?
+  orderId String
+  rating Int
+  title String?
+  comment String @db.Text
+  images Json?
+  status ReviewStatus @default(PENDING)
+  verifiedPurchase Boolean @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  product Product @relation(fields:[productId], references:[id], onDelete:Cascade)
+  user User? @relation(fields:[userId], references:[id], onDelete:SetNull)
+  order Order @relation(fields:[orderId], references:[id], onDelete:Cascade)
+  @@unique([orderId, productId])
+  @@index([productId,status,createdAt])
+  @@index([userId,createdAt])
+}
+
+model ReviewRequest {
+  id String @id @default(cuid())
+  token String @unique
+  orderId String
+  productId String
+  email String
+  expiresAt DateTime
+  usedAt DateTime?
+  createdAt DateTime @default(now())
+  order Order @relation(fields:[orderId], references:[id], onDelete:Cascade)
+  product Product @relation(fields:[productId], references:[id], onDelete:Cascade)
+  @@unique([orderId, productId])
+  @@index([email,expiresAt])
 }
