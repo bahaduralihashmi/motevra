@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 export function ReviewForm({token,productId,productName}:{token:string;productId:string;productName:string}){
  const [rating,setRating]=useState(5),[title,setTitle]=useState(""),[comment,setComment]=useState(""),[busy,setBusy]=useState(false),[done,setDone]=useState(false),[error,setError]=useState("");
  async function submit(e:React.FormEvent){e.preventDefault();setBusy(true);setError("");const r=await fetch("/api/reviews/token",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({token,productId,rating,title,comment})});const j=await r.json();if(!r.ok)setError(j.error||"Unable to submit review.");else setDone(true);setBusy(false)}
