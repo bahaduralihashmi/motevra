@@ -6,6 +6,7 @@ import { CurrencyPrice } from "@/components/currency-price";
 import { TyreFinder } from "@/components/tyre-finder";
 import { CategoryShuffleGrid } from "@/components/category-shuffle-grid";
 import { getPrisma } from "@/lib/prisma";
+import { NewestProductActions } from "@/components/newest-product-actions";
 
 const categories = [
   ["Tyres","/tyres","Everyday, performance, touring and all-season tyres.","https://images.unsplash.com/photo-1511919884226-fd3cad34687c?auto=format&fit=crop&w=1000&q=80"],
@@ -37,7 +38,7 @@ const hotSelling = [
   {name:"MOTEVRA SUV Trail",type:"All-terrain tyre",detail:"265/65 R17 · SUV & 4x4",price:159,image:"https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?auto=format&fit=crop&w=900&q=85"},
 ];
 
-type ProductRailItem = {name:string; type:string; size?:string; detail?:string; price:number; image:string; image2?:string; href?:string};
+type ProductRailItem = {id?:string; name:string; type:string; size?:string; detail?:string; price:number; image:string; image2?:string; href?:string};
 
 type QuickShopItem = { name: string; href: string; image: string; type: "Category" | "Hot selling" };
 
@@ -127,7 +128,7 @@ async function getHomepageData(): Promise<HomepageData> {
       accessories: dbAccessories.length ? dbAccessories : accessories as ProductRailItem[],
       hotSelling: dbHot.length ? dbHot : hotSelling as ProductRailItem[],
       quickShopItems: [...categoryItems, ...productItems],
-      newestProduct: newestProduct ? { name: newestProduct.name, type: newestProduct.category?.name ?? newestProduct.productType.replaceAll("_", " "), detail: newestProduct.description ?? undefined, price: Number(newestProduct.salePrice ?? newestProduct.price), image: newestProduct.images[0]?.url ?? "", image2: newestProduct.images[1]?.url, href: "/product/" + newestProduct.slug } : null,
+      newestProduct: newestProduct ? { id: newestProduct.id, name: newestProduct.name, type: newestProduct.category?.name ?? newestProduct.productType.replaceAll("_", " "), detail: newestProduct.description ?? undefined, price: Number(newestProduct.salePrice ?? newestProduct.price), image: newestProduct.images[0]?.url ?? "", image2: newestProduct.images[1]?.url, href: "/product/" + newestProduct.slug } : null,
     };
   } catch {
     return staticHomepageData();
@@ -150,7 +151,7 @@ export default async function Home() {
 
     <section className="section"><div className="container"><div className="section-heading"><div><p className="eyebrow">Shop by category</p><h2>Start with what your vehicle needs.</h2></div><Link href="/shop">View all →</Link></div><CategoryShuffleGrid items={data.categories.map(([name,href,description,image,image2]) => ({ name, href, description, image, image2 }))} /></div></section>
 
-    {data.newestProduct && <section className="section newest-product-section"><div className="newest-product-wrap"><div className="section-heading newest-product-heading"><div><p className="eyebrow">Just added</p><h2>Our newest product.</h2></div></div><div className="newest-product-card"><div className="newest-product-image"><Image src={data.newestProduct.image} alt={data.newestProduct.name} fill sizes="(max-width: 900px) 100vw, 58vw" /></div><div className="newest-product-copy"><span className="product-brand">NEW · MOTEVRA</span><h3>{data.newestProduct.name}</h3><p className="newest-product-description">{data.newestProduct.detail || "Newly added to the MOTEVRA collection. Explore the latest automotive product and its available options."}</p><div className="newest-product-meta"><span><small>Category</small><strong>{data.newestProduct.type}</strong></span><span><small>Price</small><strong><CurrencyPrice amount={data.newestProduct.price} /></strong></span></div><div className="newest-product-actions"><Link className="button button-dark" href={data.newestProduct.href ?? "/shop"}>Buy now</Link><Link className="button button-light" href={data.newestProduct.href ?? "/shop"}>View product</Link></div></div></div></div></section>}
+    {data.newestProduct && <section className="section newest-product-section"><div className="newest-product-wrap"><div className="section-heading newest-product-heading"><div><p className="eyebrow">Just added</p><h2>Our newest product.</h2></div></div><div className="newest-product-card"><div className="newest-product-image"><Image src={data.newestProduct.image} alt={data.newestProduct.name} fill sizes="(max-width: 900px) 100vw, 58vw" /></div><div className="newest-product-copy"><span className="product-brand">NEW · MOTEVRA</span><h3>{data.newestProduct.name}</h3><p className="newest-product-description">{data.newestProduct.detail || "Newly added to the MOTEVRA collection. Explore the latest automotive product and its available options."}</p><div className="newest-product-meta"><span><small>Category</small><strong>{data.newestProduct.type}</strong></span><span><small>Price</small><strong><CurrencyPrice amount={data.newestProduct.price} /></strong></span></div><NewestProductActions productId={data.newestProduct.id} href={data.newestProduct.href ?? "/shop"} /></div></div></div></section>}
 
     <section className="section product-rail-section"><div className="container"><div className="section-heading"><div><p className="eyebrow">Featured range</p><h2>Popular tyre options, clearly presented.</h2></div><Link href="/shop">Shop all →</Link></div><ProductRail items={data.products} badge="FEATURED" href="/shop"/></div></section>
 
