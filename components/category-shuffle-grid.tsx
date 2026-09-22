@@ -19,7 +19,7 @@ export function CategoryShuffleGrid({ items }: { items: CategoryItem[] }) {
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
-    if (items.length < 2) return;
+    if (items.length < 2 || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
     timerRef.current = setInterval(() => {
       const first = new Map<number, DOMRect>();
