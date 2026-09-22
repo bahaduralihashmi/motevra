@@ -362,3 +362,22 @@ img,video{display:block}
 @media(prefers-reduced-motion:reduce){
   .mobile-nav,.mobile-nav-backdrop,.newest-product-image img{transition:none}
 }
+
+
+/* Mobile header cart + dynamic category motion */
+.header-cart{display:inline-flex;align-items:center;gap:5px}
+.header-cart-icon{display:none;font-size:18px;line-height:1}
+@media(max-width:640px){
+  .header-cart-icon{display:inline-block}
+  .header-cart .header-action-label{display:none}
+  .header-actions .header-cart{min-width:40px;justify-content:center}
+  .header-actions>a:first-child{font-size:19px}
+  .category-shuffle-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:2px}
+  .category-shuffle-grid .category-card{min-height:330px}
+}
+@media(max-width:380px){
+  .category-shuffle-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .category-shuffle-grid .category-card{min-height:285px;padding:16px}
+  .category-shuffle-grid .category-card h3{font-size:23px}
+  .category-shuffle-grid .category-card p{font-size:11px;margin-bottom:12px}
+}
