@@ -7,6 +7,7 @@ const staticPaths = [
   "/",
   "/shop",
   "/tyres",
+  "/tyres/chinese-tyre-brands",
   "/wheels",
   "/accessories",
   "/auto-parts",
