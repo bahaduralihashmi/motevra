@@ -416,3 +416,20 @@ img,video{display:block}
 .autogrip-info p{font-size:14px;line-height:1.7;color:var(--muted);margin:0}
 @media(max-width:900px){.brand-product-grid{grid-template-columns:repeat(2,1fr)}.autogrip-info{grid-template-columns:1fr}.autogrip-hero{padding:125px 0 70px}}
 @media(max-width:640px){.autogrip-hero{padding:110px 0 60px}.autogrip-hero h1{font-size:64px}.autogrip-hero-copy{font-size:15px}.brand-product-section{padding-top:55px}.brand-product-toolbar{align-items:flex-start;flex-direction:column}.brand-product-grid{grid-template-columns:1fr}.brand-product-copy{padding:18px}.autogrip-info{margin-top:55px}.autogrip-info article{padding:25px;min-height:0}}
+
+/* Autogrip premium brand experience */
+.autogrip-range-section{background:#f5f5f2;padding-top:75px;padding-bottom:75px}
+.autogrip-range-head{display:grid;grid-template-columns:1.1fr .9fr;gap:60px;align-items:end;margin-bottom:34px}
+.autogrip-range-head h2{font-size:clamp(40px,6vw,76px);line-height:.9;letter-spacing:-.07em;margin:10px 0 0}
+.autogrip-range-head>p{max-width:500px;color:var(--muted);font-size:15px;line-height:1.7;margin:0}
+.autogrip-model-cloud{display:flex;flex-wrap:wrap;gap:5px}
+.autogrip-model-cloud span{background:#fff;border:1px solid var(--line);padding:12px 15px;font-family:'Space Grotesk';font-size:12px;font-weight:700;transition:transform .2s ease,background .2s ease,color .2s ease}
+.autogrip-model-cloud span:hover{background:#111;color:#fff;transform:translateY(-2px)}
+.autogrip-benefits{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;background:var(--ink);margin-top:80px}
+.autogrip-benefits article{background:#fff;padding:38px;min-height:260px}
+.autogrip-benefits span{font-size:9px;letter-spacing:.16em;color:var(--accent);font-weight:800}
+.autogrip-benefits h3{font-size:28px;line-height:1;margin:70px 0 12px;letter-spacing:-.04em}
+.autogrip-benefits p{font-size:13px;line-height:1.7;color:var(--muted);margin:0}
+.autogrip-info article h3{letter-spacing:-.04em}
+@media(max-width:900px){.autogrip-range-head{grid-template-columns:1fr;gap:20px}.autogrip-benefits{grid-template-columns:1fr}}
+@media(max-width:640px){.autogrip-range-section{padding-top:55px;padding-bottom:55px}.autogrip-range-head h2{font-size:46px}.autogrip-model-cloud span{padding:10px 12px}.autogrip-benefits{margin-top:55px}.autogrip-benefits article{padding:25px;min-height:0}.autogrip-benefits h3{margin-top:42px;font-size:25px}}
