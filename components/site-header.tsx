@@ -12,6 +12,7 @@ const nav = [
       { title: "Shop by brand", items: ["Autogrip", "Michelin", "Bridgestone", "Continental", "Goodyear", "Pirelli", "Yokohama"] },
       { title: "Shop by type", items: ["Summer Tyres", "All-Season Tyres", "Winter Tyres", "Performance Tyres", "SUV & 4x4 Tyres", "Run-Flat Tyres"] },
       { title: "Shop by size", items: ["14 inch", "15 inch", "16 inch", "17 inch", "18 inch", "19 inch+"] },
+      { title: "Tyre collections", items: ["Chinese Tyre Brands"] },
     ],
   },
   {
@@ -61,7 +62,7 @@ const nav = [
   },
 ] as const;
 
-const navItemHref = (categoryHref: string, item: string) => item === "Autogrip" ? "/brands/autogrip" : `${categoryHref}?filter=${encodeURIComponent(item)}`;
+const navItemHref = (categoryHref: string, item: string) => item === "Autogrip" ? "/brands/autogrip" : item === "Chinese Tyre Brands" ? "/tyres/chinese-tyre-brands" : `${categoryHref}?filter=${encodeURIComponent(item)}`;
 
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
