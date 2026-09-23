@@ -61,6 +61,8 @@ const nav = [
   },
 ] as const;
 
+const navItemHref = (categoryHref: string, item: string) => item === "Autogrip" ? "/brands/autogrip" : `${categoryHref}?filter=${encodeURIComponent(item)}`;
+
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -124,7 +126,7 @@ export function SiteHeader() {
                     <div className="mega-group" key={group.title}>
                       <span>{group.title}</span>
                       {group.items.map((item) => (
-                        <Link key={item} href={`${category.href}?filter=${encodeURIComponent(item)}`} onClick={closeMenus}>
+                        <Link key={item} href={navItemHref(category.href, item)} onClick={closeMenus}>
                           {item}
                         </Link>
                       ))}
@@ -167,7 +169,7 @@ export function SiteHeader() {
               </Link>
               <div className="mobile-category-links">
                 {category.groups.flatMap((group) => group.items.slice(0, 3)).map((item) => (
-                  <Link key={item} href={`${category.href}?filter=${encodeURIComponent(item)}`} onClick={() => setOpen(false)}>{item}</Link>
+                  <Link key={item} href={navItemHref(category.href, item)} onClick={() => setOpen(false)}>{item}</Link>
                 ))}
               </div>
             </div>
