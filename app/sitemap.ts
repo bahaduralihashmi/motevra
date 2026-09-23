@@ -26,6 +26,10 @@ const staticPaths = [
   "/blog/summer-vs-all-season-tyres",
 ];
 
+function sizeLabelToSlug(label: string) {
+  return label.toLowerCase().replace(/\s+/g, "").replace(/\//g, "-").replace(/r(?=\d)/, "-r");
+}
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticEntries = staticPaths.map((path) => ({
     url: `${baseUrl}${path}`,
@@ -36,14 +40,24 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   try {
     if (!process.env.DATABASE_URL) return staticEntries;
 
-    const products = await getPrisma().product.findMany({
-      where: { status: "ACTIVE" },
-      select: {
-        slug: true,
-        updatedAt: true,
-      },
-      orderBy: { updatedAt: "desc" },
-    });
+    const [products, tyreSizes] = await Promise.all([
+      getPrisma().product.findMany({
+        where: { status: "ACTIVE" },
+        select: { slug: true, updatedAt: true },
+        orderBy: { updatedAt: "desc" },
+      }),
+      getPrisma().tyreSize.findMany({
+        where: { tyres: { some: { product: { status: "ACTIVE" } } } },
+        select: { label: true },
+        orderBy: [{ rimSize: "asc" }, { width: "asc" }, { aspectRatio: "asc" }],
+      }),
+    ]);
+
+    const sizeEntries = tyreSizes.map((size) => ({
+      url: `${baseUrl}/shop?size=${sizeLabelToSlug(size.label)}`,
+      changeFrequency: "weekly" as const,
+      priority: 0.75,
+    }));
 
     const productEntries = products.map((product) => ({
       url: `${baseUrl}/product/${product.slug}`,
@@ -52,7 +66,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.8,
     }));
 
-    return [...staticEntries, ...productEntries];
+    return [...staticEntries, ...sizeEntries, ...productEntries];
   } catch {
     return staticEntries;
   }
