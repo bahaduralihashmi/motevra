@@ -68,7 +68,7 @@ export default async function AutogripBrandPage() {
           </div>
         </section>
 
-        <section className="section brand-product-section">
+        <section className="section autogrip-range-section"><div className="container"><div className="autogrip-range-head"><div><p className="eyebrow">EXPLORE THE RANGE</p><h2>One brand. Many road needs.</h2></div><p>Choose from familiar Autogrip model families, then select the exact size and specification for your vehicle.</p></div><div className="autogrip-model-cloud">{AUTOGRIP_MODELS.map((model) => <span key={model}>{model}</span>)}</div></div></section>\n\n        <section className="section brand-product-section">
           <div className="container">
             <div className="brand-product-toolbar">
               <div>
@@ -137,10 +137,10 @@ export default async function AutogripBrandPage() {
               </div>
             )}
 
-            <div className="autogrip-info">
+            <div className="autogrip-benefits"><article><span>01 / RANGE</span><h3>Broad fitment coverage.</h3><p>Autogrip is listed across many passenger-car sizes and also has SUV, 4×4, van and LTR-oriented products.</p></article><article><span>02 / SEASONS</span><h3>Built around your conditions.</h3><p>The range includes summer, winter and all-season patterns, making it easier to shop around the driving conditions you actually face.</p></article><article><span>03 / CHOICE</span><h3>More sizes. More options.</h3><p>Independent tyre catalogues list dozens of Autogrip model and size combinations, giving drivers more fitment options to explore.</p></article></div><div className="autogrip-info">
               <article>
                 <span>Brand profile</span>
-                <h3>Built under Fullrun.</h3>
+                <h3>China-born. Road focused.</h3>
                 <p>
                   Fullrun identifies AUTOGRIP as one of its international tyre brands.
                   Its official catalogue groups Autogrip products across HP, UHP, HT,
