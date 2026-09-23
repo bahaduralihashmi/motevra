@@ -9,10 +9,9 @@ const nav = [
     label: "Tyres",
     href: "/tyres",
     groups: [
-      { title: "Shop by brand", items: ["Autogrip", "Michelin", "Bridgestone", "Continental", "Goodyear", "Pirelli", "Yokohama"] },
+      { title: "Shop by brand", items: ["Autogrip", "Michelin", "Bridgestone", "Chinese Tyre Brands", "Continental", "Goodyear", "Pirelli", "Yokohama"] },
       { title: "Shop by type", items: ["Summer Tyres", "All-Season Tyres", "Winter Tyres", "Performance Tyres", "SUV & 4x4 Tyres", "Run-Flat Tyres"] },
       { title: "Shop by size", items: ["14 inch", "15 inch", "16 inch", "17 inch", "18 inch", "19 inch+"] },
-      { title: "Tyre collections", items: ["Chinese Tyre Brands"] },
     ],
   },
   {
@@ -169,7 +168,7 @@ export function SiteHeader() {
                 <span>{category.label}</span><span>→</span>
               </Link>
               <div className="mobile-category-links">
-                {category.groups.flatMap((group) => group.items.slice(0, 3)).map((item) => (
+                {category.groups.flatMap((group) => group.items.slice(0, category.label === "Tyres" ? 4 : 3)).map((item) => (
                   <Link key={item} href={navItemHref(category.href, item)} onClick={() => setOpen(false)}>{item}</Link>
                 ))}
               </div>
