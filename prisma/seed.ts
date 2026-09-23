@@ -9,6 +9,7 @@ const prisma = new PrismaClient({ adapter: new PrismaPg({ connectionString: url 
 async function main() {
   const tyreCategory = await prisma.category.upsert({ where:{slug:"tyres"}, update:{}, create:{name:"Tyres",slug:"tyres"} });
   const brand = await prisma.brand.upsert({ where:{slug:"motevra"}, update:{}, create:{name:"MOTEVRA",slug:"motevra"} });
+  await prisma.brand.upsert({ where:{slug:"autogrip"}, update:{name:"Autogrip"}, create:{name:"Autogrip",slug:"autogrip"} });
   const size = await prisma.tyreSize.upsert({ where:{label:"205/55 R16"}, update:{}, create:{width:205,aspectRatio:55,rimSize:16,label:"205/55 R16"} });
   await prisma.product.upsert({
     where:{slug:"motevra-touring-pro-205-55-r16"}, update:{},
