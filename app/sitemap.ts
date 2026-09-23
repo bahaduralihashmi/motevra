@@ -5,7 +5,7 @@ const baseUrl = "https://www.motevra.com";
 export default function sitemap(): MetadataRoute.Sitemap {
   const paths = [
     "/", "/shop", "/tyres", "/wheels", "/accessories", "/auto-parts",
-    "/batteries", "/car-care", "/about", "/brands", "/deals",
+    "/batteries", "/car-care", "/about", "/brands", "/brands/autogrip", "/deals",
     "/contact", "/shipping", "/blog",
     "/blog/how-to-read-a-tyre-size",
     "/blog/when-to-replace-car-tyres",
