@@ -9,7 +9,7 @@ const nav = [
     label: "Tyres",
     href: "/tyres",
     groups: [
-      { title: "Shop by brand", items: ["Michelin", "Bridgestone", "Continental", "Goodyear", "Pirelli", "Yokohama"] },
+      { title: "Shop by brand", items: ["Autogrip", "Michelin", "Bridgestone", "Continental", "Goodyear", "Pirelli", "Yokohama"] },
       { title: "Shop by type", items: ["Summer Tyres", "All-Season Tyres", "Winter Tyres", "Performance Tyres", "SUV & 4x4 Tyres", "Run-Flat Tyres"] },
       { title: "Shop by size", items: ["14 inch", "15 inch", "16 inch", "17 inch", "18 inch", "19 inch+"] },
     ],
