@@ -1,3 +1,5 @@
+export const metadata = { title: "Car Care Products in Pakistan | MOTEVRA", description: "Shop car care products in Pakistan for cleaning, detailing, tyre care, glass care, interior care and vehicle protection." };
+
 import { CategoryPage } from "@/components/category-page";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
