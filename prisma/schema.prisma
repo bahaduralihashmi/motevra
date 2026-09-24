@@ -333,6 +333,7 @@ model ProductVariant {
   options Json?
   product Product @relation(fields:[productId], references:[id], onDelete:Cascade)
   orderItems OrderItem[]
+  cartItems CartItem[]
   supplierVariants SupplierVariant[]
   @@index([productId])
   @@unique([sku])
