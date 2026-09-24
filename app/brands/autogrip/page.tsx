@@ -66,7 +66,7 @@ export default async function AutogripBrandPage() {
               <span className="autogrip-chip">All-season</span>
             </div>
           </div>
-          <div className="autogrip-pattern-strip" aria-hidden="true">
+          <div className="autogrip-pattern-visual" aria-hidden="true">
             <img
               src="https://omo-oss-image.thefastimg.com/portal-saas/pg2024083014125708609/cms/image/0b6c61f4-0569-40f0-8c62-3fb55b117675.jpg_640xaf.jpg"
               alt=""
