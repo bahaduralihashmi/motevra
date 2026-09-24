@@ -1,4 +1,4 @@
-export const metadata = { title: "Auto Parts in Pakistan | Car Spare Parts", description: "Find auto parts and car spare parts in Pakistan with MOTEVRA, including brakes, filters, suspension, engine and electrical components." };
+export const metadata = { title: "Auto Parts in Pakistan | Car Spare Parts", description: "Find auto parts and car spare parts in Pakistan with MOTEVRA, including brakes, filters, suspension, engine and electrical components." , alternates: { canonical: "/auto-parts" } };
 
 import { CategoryPage } from "@/components/category-page";
 import { SiteHeader } from "@/components/site-header";
