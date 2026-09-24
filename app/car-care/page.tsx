@@ -1,4 +1,4 @@
-export const metadata = { title: "Car Care Products in Pakistan | MOTEVRA", description: "Shop car care products in Pakistan for cleaning, detailing, tyre care, glass care, interior care and vehicle protection." };
+export const metadata = { title: "Car Care Products in Pakistan | MOTEVRA", description: "Shop car care products in Pakistan for cleaning, detailing, tyre care, glass care, interior care and vehicle protection." , alternates: { canonical: "/car-care" } };
 
 import { CategoryPage } from "@/components/category-page";
 import { SiteHeader } from "@/components/site-header";
