@@ -1,3 +1,5 @@
+export const metadata = { title: "Shipping & Delivery | MOTEVRA Pakistan", description: "Read MOTEVRA shipping and delivery information for automotive products ordered online in Pakistan." };
+
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 
