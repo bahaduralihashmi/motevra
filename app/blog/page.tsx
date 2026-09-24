@@ -1,14 +1,15 @@
-export const metadata = {
-  title: "MOTEVRA Automotive Guides | Tyre & Car Care Advice",
-  description: "Practical automotive guides from MOTEVRA covering tyre sizes, maintenance, tyre pressure and driving care.",
-  alternates: { canonical: "/blog" },
-};
-
 import Image from "next/image";
 import Link from "next/link";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { AdSlot } from "@/components/ad-slot";
+
+export const metadata = {
+  title: "MOTEVRA Automotive Guides | Tyre & Car Care Advice",
+  description:
+    "Practical automotive guides from MOTEVRA covering tyre sizes, maintenance, tyre pressure and driving care.",
+  alternates: { canonical: "/blog" },
+};
 
 const posts = [
   {slug:"how-to-read-a-tyre-size",title:"How to Read a Tyre Size",text:"Understand width, aspect ratio, rim diameter, load index and speed rating before choosing your next tyre.",category:"Tyre Basics",image:"https://images.unsplash.com/photo-1578844251758-2f71da64c6e6?auto=format&fit=crop&w=1200&q=88",alt:"Automotive tyre tread and sidewall details for understanding tyre size"},
@@ -16,11 +17,6 @@ const posts = [
   {slug:"tyre-pressure-guide",title:"Tyre Pressure: A Simple Driver's Guide",text:"A practical guide to correct tyre pressure, handling, braking, comfort and tyre wear.",category:"Maintenance",image:"https://images.unsplash.com/photo-1544829099-b9a0c07fad1a?auto=format&fit=crop&w=1200&q=88",alt:"Passenger car tyre used for a guide to correct tyre pressure"},
   {slug:"summer-vs-all-season-tyres",title:"Summer vs All-Season Tyres",text:"Compare tyre types and understand how climate, road conditions and driving needs affect your choice.",category:"Buying Guide",image:"https://images.unsplash.com/photo-1617531653332-bd46c24f2068?auto=format&fit=crop&w=1200&q=88",alt:"Performance car tyre representing summer and all-season tyre choices"}
 ];
-
-export const metadata = {
-  title:"MOTEVRA Blog | Tyre Guides, Maintenance & Automotive Advice",
-  description:"Explore MOTEVRA automotive guides covering tyre sizes, tyre pressure, tyre replacement, seasonal tyres and practical car maintenance advice."
-};
 
 export default function Blog(){
   return <><SiteHeader/>
