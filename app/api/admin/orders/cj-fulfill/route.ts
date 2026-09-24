@@ -280,7 +280,9 @@ export async function POST(req: NextRequest) {
       }
 
       const mapping = mappings[0];
-      const variants = mapping.variants.filter((v) => v.externalVariantId);
+      const variants = mapping.variants.filter(
+        (v) => v.externalVariantId && (!item.variantId || v.productVariantId === item.variantId),
+      );
       if (variants.length !== 1) {
         return NextResponse.json(
           {
