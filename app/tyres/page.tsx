@@ -10,8 +10,8 @@ export const dynamic = "force-dynamic";
 export const metadata = {
   title: "Tyres in Pakistan | Tyre Prices & Sizes",
   description:
-    "Find car tyres in Pakistan by tyre size or vehicle. Compare available tyre sizes, prices and active MOTEVRA products.",,
-  alternates: { canonical: "/tyres" }
+    "Find car tyres in Pakistan by tyre size or vehicle. Compare available tyre sizes, prices and active MOTEVRA products.",
+  alternates: { canonical: "/tyres" },
 };
 
 function sizeToSlug(label: string) {
