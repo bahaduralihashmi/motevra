@@ -33,7 +33,7 @@ export async function POST(req:NextRequest){
 
     const c=await cookies();
     const cartId=c.get("motevra_cart")?.value;
-    const include={items:{include:{product:{include:{supplierProducts:{where:{active:true},select:{supplierId:true,active:true,supplier:{select:{type:true}},variants:{select:{externalVariantId:true,productVariantId:true}},inventories:{where:{available:{gt:0}},select:{available:true,quantity:true,warehouse:{select:{countryCode:true}}}}}}}}}}};
+    const include={items:{include:{product:{include:{variants:true,supplierProducts:{where:{active:true},select:{supplierId:true,active:true,supplier:{select:{type:true}},variants:{select:{id:true,externalVariantId:true,productVariantId:true,supplierCost:true,supplierCurrency:true}},inventories:{where:{available:{gt:0}},select:{available:true,quantity:true,warehouse:{select:{countryCode:true}}}}}}}}}}};
     const cart=userId
       ? await p.cart.findFirst({where:{userId,status:"ACTIVE"},include})
       : cartId
@@ -42,7 +42,12 @@ export async function POST(req:NextRequest){
 
     if(!cart?.items.length)return NextResponse.json({error:"Cart is empty."},{status:400});
     for(const item of cart.items){
-      if(item.quantity>item.product.stock||item.product.status!=="ACTIVE"){
+      const selectedVariant=item.variantId ? item.product.variants.find(v=>v.id===item.variantId) : null;
+      const availableStock=selectedVariant?.stock ?? item.product.stock;
+      if(item.variantId && !selectedVariant){
+        return NextResponse.json({error:"Selected variant is unavailable for "+item.product.name},{status:409});
+      }
+      if(item.quantity>availableStock||item.product.status!=="ACTIVE"){
         return NextResponse.json({error:"Unavailable stock for "+item.product.name},{status:409});
       }
     }
@@ -50,12 +55,14 @@ export async function POST(req:NextRequest){
     const quote=await buildCheckoutQuote(
       cart.items.map(i=>({
         productId:i.productId,
+        variantId:i.variantId,
         quantity:i.quantity,
         unitPrice:Number(i.unitPrice),
         product:{
           shippingClass:i.product.shippingClass,
           weight:i.product.weight,
           supplierProducts:i.product.supplierProducts,
+          variant:i.variantId ? i.product.variants.find(v=>v.id===i.variantId) : undefined,
         },
       })),
       String(body.country).trim().toUpperCase(),
@@ -96,13 +103,26 @@ export async function POST(req:NextRequest){
           shippingPostalCode:String(body.postalCode??"").trim()||null,
           items:{create:cart.items.map(i=>({
             productId:i.productId,
+            variantId:i.variantId,
             quantity:i.quantity,
             price:Number(i.unitPrice),
             currency:quote.sourceCurrency,
+            supplierCost:(i.variantId
+              ? i.product.supplierProducts.flatMap(sp=>sp.variants).find(v=>v.productVariantId===i.variantId)?.supplierCost
+              : i.product.supplierProducts.flatMap(sp=>sp.variants).find(v=>v.externalVariantId)?.supplierCost) ?? null,
+            supplierCurrency:(i.variantId
+              ? i.product.supplierProducts.flatMap(sp=>sp.variants).find(v=>v.productVariantId===i.variantId)?.supplierCurrency
+              : i.product.supplierProducts.flatMap(sp=>sp.variants).find(v=>v.externalVariantId)?.supplierCurrency) ?? null,
           }))},
         },
       });
-      for(const i of cart.items)await tx.product.update({where:{id:i.productId},data:{stock:{decrement:i.quantity}}});
+      for(const i of cart.items){
+        if(i.variantId){
+          await tx.productVariant.update({where:{id:i.variantId},data:{stock:{decrement:i.quantity}}});
+        } else {
+          await tx.product.update({where:{id:i.productId},data:{stock:{decrement:i.quantity}}});
+        }
+      }
       await tx.cart.update({where:{id:cart.id},data:{status:"CONVERTED"}});
       return created;
     });
