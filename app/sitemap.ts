@@ -34,18 +34,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   try {
     if (!process.env.DATABASE_URL) return staticEntries;
 
-    const [products, tyreSizes] = await Promise.all([
-      getPrisma().product.findMany({
-        where: { status: "ACTIVE" },
-        select: { slug: true, updatedAt: true },
-        orderBy: { updatedAt: "desc" },
-      }),
-      getPrisma().tyreSize.findMany({
-        where: { tyres: { some: { product: { status: "ACTIVE" } } } },
-        select: { label: true },
-        orderBy: [{ rimSize: "asc" }, { width: "asc" }, { aspectRatio: "asc" }],
-      }),
-    ]);
+    const products = await getPrisma().product.findMany({
+      where: { status: "ACTIVE" },
+      select: { slug: true, updatedAt: true },
+      orderBy: { updatedAt: "desc" },
+    });
 
     const sizeEntries = tyreSizes.map((size) => ({
       url: `${baseUrl}/shop?size=${sizeLabelToSlug(size.label)}`,
