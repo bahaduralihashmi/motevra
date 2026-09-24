@@ -1,4 +1,4 @@
-export const metadata = { title: "Contact MOTEVRA | Automotive Store Pakistan", description: "Contact MOTEVRA for tyre, wheel, auto parts, battery, accessory and car care product enquiries in Pakistan." };
+export const metadata = { title: "Contact MOTEVRA | Automotive Store Pakistan", description: "Contact MOTEVRA for tyre, wheel, auto parts, battery, accessory and car care product enquiries in Pakistan." , alternates: { canonical: "/contact" } };
 
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
