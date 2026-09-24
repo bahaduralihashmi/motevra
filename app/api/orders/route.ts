@@ -33,7 +33,7 @@ export async function POST(req:NextRequest){
 
     const c=await cookies();
     const cartId=c.get("motevra_cart")?.value;
-    const include={items:{include:{product:{include:{supplierProducts:{where:{active:true},select:{supplierId:true,active:true}}}}}}};
+    const include={items:{include:{product:{include:{supplierProducts:{where:{active:true},select:{supplierId:true,active:true,supplier:{select:{type:true}},variants:{select:{externalVariantId:true,productVariantId:true}},inventories:{where:{available:{gt:0}},select:{available:true,quantity:true,warehouse:{select:{countryCode:true}}}}}}}}}}};
     const cart=userId
       ? await p.cart.findFirst({where:{userId,status:"ACTIVE"},include})
       : cartId
