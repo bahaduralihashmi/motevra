@@ -284,7 +284,7 @@ export async function POST(req: NextRequest) {
             externalOrderId: data.orderId,
             status: data.orderStatus || "CREATED",
             currency: "USD",
-            supplierTotal: Number(data.actualPayment ?? data.orderAmount ?? 0),
+            supplierTotal: Number(data.actualPayment ?? 0),
             shippingCost: Number(data.postageAmount ?? 0),
             items: {
               create: lines.map((line) => ({
