@@ -6,7 +6,7 @@ import { SiteFooter } from "@/components/site-footer";
 export const metadata = {
   title: "About MOTEVRA | Automotive Tyres, Wheels, Parts & Accessories",
   description:
-    "Learn about MOTEVRA, a modern automotive marketplace focused on tyres, wheels and rims, car accessories, auto parts, batteries and car care.",,
+    "Learn about MOTEVRA, a modern automotive marketplace focused on tyres, wheels and rims, car accessories, auto parts, batteries and car care.",
   alternates: { canonical: "/about" },
 };
 
