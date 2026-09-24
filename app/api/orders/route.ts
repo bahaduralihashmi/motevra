@@ -12,7 +12,7 @@ export async function GET(){
   const p=getPrisma();
   const u=await p.user.findUnique({where:{email:s.user.email},select:{id:true}});
   if(!u)return NextResponse.json({orders:[]});
-  return NextResponse.json({orders:await p.order.findMany({where:{userId:u.id},orderBy:{createdAt:"desc"},include:{items:{include:{product:true}}}})});
+  return NextResponse.json({orders:await p.order.findMany({where:{userId:u.id},orderBy:{createdAt:"desc"},include:{items:{include:{product:true,variant:true}},shipments:{include:{trackingEvents:true,supplierOrder:{include:{supplier:true}}}}}})});
 }
 
 export async function POST(req:NextRequest){
