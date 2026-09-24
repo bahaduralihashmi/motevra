@@ -8,7 +8,7 @@ const countryCurrency: Record<string, string> = {
   BR:"BRL", MX:"MXN", TH:"THB", ID:"IDR"
 };
 
-export const runtime = "edge";
+export const runtime = "nodejs";
 
 export async function GET(request: Request) {
   const country = (request.headers.get("x-vercel-ip-country") || request.headers.get("x-country") || "").toUpperCase();
