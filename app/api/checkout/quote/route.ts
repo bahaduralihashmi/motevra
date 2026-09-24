@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
     const cart = userId
       ? await prisma.cart.findFirst({
           where: { userId, status: "ACTIVE" },
-          include: { items: { include: { product: { include: { supplierProducts: { where: { active: true }, select: { supplierId: true, active: true } } } } } } },
+          include: { items: { include: { product: { include: { supplierProducts: { where: { active: true }, select: { supplierId: true, active: true, supplier: { select: { type: true } }, variants: { select: { externalVariantId: true, productVariantId: true } }, inventories: { where: { available: { gt: 0 } }, select: { available: true, quantity: true, warehouse: { select: { countryCode: true } } } } } } } } } } },
         })
       : cartId
         ? await prisma.cart.findFirst({
