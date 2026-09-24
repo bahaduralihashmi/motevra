@@ -273,6 +273,7 @@ model VehicleVariant {
   bodyType VehicleBodyType?
   model VehicleModel @relation(fields:[modelId], references:[id], onDelete:Cascade)
   fitments VehicleFitment[]
+  productFitments ProductFitment[]
   users UserVehicle[]
   @@unique([modelId,slug])
   @@index([modelId,yearFrom,yearTo])
@@ -298,7 +299,7 @@ model VehicleFitment {
   isOriginal Boolean @default(true)
   notes String?
   vehicleVariant VehicleVariant @relation(fields:[vehicleVariantId], references:[id], onDelete:Cascade)
-  tyreSize TyreSize @relation(fields:[tyreSizeId], references:[id], onDelete:Cascade)
+  tyreSize TyreSize @relation(fields:[tyreSizeId], references:[id])
   @@unique([vehicleVariantId,tyreSizeId,position])
   @@index([tyreSizeId])
 }
@@ -317,6 +318,7 @@ model Category {
   name String @unique
   slug String @unique
   products Product[]
+  priceRules PriceRule[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -352,7 +354,7 @@ model Product {
   fulfillmentMethod FulfillmentMethod @default(SELF)
   shippingClass ShippingClass @default(STANDARD)
   weight Float?
-  supplierProduct SupplierProduct?
+  supplierProducts SupplierProduct[]
   brandId String?
   categoryId String?
   brand Brand? @relation(fields:[brandId], references:[id], onDelete:SetNull)
@@ -486,6 +488,7 @@ model Supplier {
   products SupplierProduct[]
   warehouses SupplierWarehouse[]
   shippingMethods SupplierShippingMethod[]
+  shippingRules ShippingRule[]
   supplierOrders SupplierOrder[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -494,7 +497,7 @@ model Supplier {
 
 model SupplierProduct {
   id String @id @default(cuid())
-  productId String @unique
+  productId String
   supplierId String
   externalProductId String?
   externalSku String?
@@ -506,6 +509,7 @@ model SupplierProduct {
   supplier Supplier @relation(fields:[supplierId], references:[id], onDelete:Cascade)
   variants SupplierVariant[]
   inventories SupplierInventory[]
+  @@unique([supplierId,productId])
   @@index([supplierId,externalProductId])
   @@index([supplierId,externalSku])
 }
