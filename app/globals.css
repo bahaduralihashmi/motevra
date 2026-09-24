@@ -464,3 +464,10 @@ img,video{display:block}
 .chinese-tyres-guide .hero-copy{color:#aaa}
 @media(max-width:900px){.chinese-brand-index{grid-template-columns:repeat(2,1fr)}.chinese-tyres-hero{padding:125px 0 70px}}
 @media(max-width:640px){.chinese-tyres-hero{padding:108px 0 58px}.chinese-tyres-hero h1{font-size:58px}.chinese-tyres-hero-copy{font-size:15px}.chinese-tyres-meta{align-items:stretch}.chinese-tyres-meta span,.chinese-tyres-meta a{flex:1;text-align:center}.chinese-brand-index{grid-template-columns:1fr;margin-bottom:50px}.chinese-brand-index a{padding:20px}.chinese-brand-sections{gap:60px}.chinese-brand-heading{align-items:flex-start;flex-direction:column}.chinese-brand-heading h2{font-size:48px}.chinese-tyres-guide{padding-top:65px;padding-bottom:72px}}
+
+
+/* Autogrip tyre-pattern hero strip */
+.autogrip-pattern-strip{position:absolute;left:0;right:0;bottom:0;height:clamp(120px,17vw,220px);overflow:hidden;z-index:0;opacity:.9;mask-image:linear-gradient(to bottom,transparent 0%,#000 18%,#000 100%);-webkit-mask-image:linear-gradient(to bottom,transparent 0%,#000 18%,#000 100%)}
+.autogrip-pattern-strip img{width:100%;height:100%;display:block;object-fit:cover;object-position:center;filter:contrast(1.05) brightness(.72);transform:scale(1.02)}
+.autogrip-hero .container{z-index:2;padding-bottom:clamp(120px,17vw,220px)}
+@media(max-width:640px){.autogrip-pattern-strip{height:125px}.autogrip-hero .container{padding-bottom:105px}.autogrip-pattern-strip img{object-position:center center}}
