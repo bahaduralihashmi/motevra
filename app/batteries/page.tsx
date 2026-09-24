@@ -1,4 +1,4 @@
-export const metadata = { title: "Car Batteries in Pakistan | Battery Prices", description: "Explore car batteries in Pakistan by capacity, type, brand and vehicle compatibility with MOTEVRA." };
+export const metadata = { title: "Car Batteries in Pakistan | Battery Prices", description: "Explore car batteries in Pakistan by capacity, type, brand and vehicle compatibility with MOTEVRA." , alternates: { canonical: "/batteries" } };
 
 import { CategoryPage } from "@/components/category-page";
 import { SiteHeader } from "@/components/site-header";
