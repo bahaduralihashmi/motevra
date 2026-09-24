@@ -84,6 +84,125 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const orderId = String(body.orderId || "").trim();
+    const mode = String(body.mode || "").trim().toLowerCase();
+
+    if (mode === "sync") {
+      const syncOrders = await prisma.supplierOrder.findMany({
+        where: orderId ? { orderId } : {},
+        include: { supplier: true, shipments: true },
+        orderBy: { createdAt: "desc" },
+      });
+      const results = [];
+      for (const so of syncOrders) {
+        if (so.supplier.type !== "CJ_DROPSHIPPING" || !so.externalOrderId) continue;
+        const token = await getCJToken(so.supplierId);
+        if (!token) { results.push({ supplierOrderId: so.id, error: "CJ is not connected." }); continue; }
+
+        const response = await fetch(
+          "https://developers.cjdropshipping.com/api2.0/v1/shopping/order/getOrderDetail?orderId=" +
+            encodeURIComponent(so.externalOrderId),
+          { headers: { "CJ-Access-Token": token }, cache: "no-store" },
+        );
+        const json = await response.json().catch(() => null);
+        if (!response.ok || json?.code !== 200 || !json?.data) {
+          results.push({ supplierOrderId: so.id, error: json?.message || "CJ order detail failed." });
+          continue;
+        }
+
+        const d = json.data;
+        const trackingNumber = String(d.trackNumber || d.trackingNumber || d.cjTrackingNumber || "").trim() || null;
+        const carrier = String(d.trackingProvider || d.logisticName || "").trim() || null;
+        const trackingUrl = String(d.trackingUrl || "").trim() ||
+          (trackingNumber ? "https://www.17track.net/en?nums=" + encodeURIComponent(trackingNumber) : null);
+        const cjStatus = String(d.orderStatus || so.status || "").toUpperCase();
+
+        let shipmentStatus: "PENDING"|"LABEL_CREATED"|"SHIPPED"|"IN_TRANSIT"|"OUT_FOR_DELIVERY"|"DELIVERED"|"EXCEPTION"|"RETURNED"|"CANCELLED" = "PENDING";
+        if (cjStatus === "DELIVERED") shipmentStatus = "DELIVERED";
+        else if (cjStatus === "SHIPPED") shipmentStatus = "SHIPPED";
+        else if (cjStatus === "OUT_FOR_DELIVERY") shipmentStatus = "OUT_FOR_DELIVERY";
+        else if (cjStatus === "CANCELLED") shipmentStatus = "CANCELLED";
+        else if (trackingNumber) shipmentStatus = "IN_TRANSIT";
+        else if (cjStatus === "PROCESSING" || cjStatus === "UNSHIPPED" || cjStatus === "PAID") shipmentStatus = "LABEL_CREATED";
+
+        const shipment = await prisma.$transaction(async (tx) => {
+          await tx.supplierOrder.update({
+            where: { id: so.id },
+            data: { status: cjStatus || so.status, trackingNumber, trackingUrl },
+          });
+
+          let current = so.shipments[0];
+          if (!current) {
+            current = await tx.shipment.create({
+              data: {
+                orderId: so.orderId,
+                supplierOrderId: so.id,
+                status: shipmentStatus,
+                carrier,
+                serviceName: d.logisticName || null,
+                trackingNumber,
+                trackingUrl,
+                currency: "USD",
+              },
+            });
+          } else {
+            current = await tx.shipment.update({
+              where: { id: current.id },
+              data: {
+                status: shipmentStatus,
+                carrier,
+                serviceName: d.logisticName || current.serviceName,
+                trackingNumber,
+                trackingUrl,
+                shippedAt: (shipmentStatus === "SHIPPED" || shipmentStatus === "IN_TRANSIT") ? (current.shippedAt || new Date()) : current.shippedAt,
+                deliveredAt: shipmentStatus === "DELIVERED" ? (current.deliveredAt || new Date()) : current.deliveredAt,
+              },
+            });
+          }
+
+          if (trackingNumber) {
+            const tr = await fetch(
+              "https://developers.cjdropshipping.com/api2.0/v1/logistic/trackInfo?trackNumber=" +
+                encodeURIComponent(trackingNumber),
+              { headers: { "CJ-Access-Token": token }, cache: "no-store" },
+            );
+            const tj = await tr.json().catch(() => null);
+            if (tr.ok && tj?.code === 200 && Array.isArray(tj.data)) {
+              for (const ev of tj.data) {
+                const occurredAt = ev.deliveryTime ? new Date(ev.deliveryTime) : new Date();
+                if (Number.isNaN(occurredAt.getTime())) continue;
+                const status = String(ev.trackingStatus || shipmentStatus);
+                const exists = await tx.trackingEvent.findFirst({
+                  where: { shipmentId: current.id, occurredAt, status },
+                  select: { id: true },
+                });
+                if (!exists) {
+                  await tx.trackingEvent.create({
+                    data: {
+                      shipmentId: current.id,
+                      status,
+                      description: String(ev.lastMileCarrier || ev.trackingStatus || "CJ tracking update"),
+                      location: String(ev.trackingFrom && ev.trackingTo ? ev.trackingFrom + " → " + ev.trackingTo : ""),
+                      occurredAt,
+                    },
+                  });
+                }
+              }
+            }
+          }
+          return current;
+        });
+
+        results.push({
+          supplierOrderId: so.id,
+          externalOrderId: so.externalOrderId,
+          status: cjStatus || so.status,
+          trackingNumber: shipment.trackingNumber,
+          trackingUrl: shipment.trackingUrl,
+        });
+      }
+      return NextResponse.json({ ok: true, mode: "sync", orderId: orderId || null, results });
+    }
+
     if (!orderId) {
       return NextResponse.json({ error: "orderId is required." }, { status: 400 });
     }
