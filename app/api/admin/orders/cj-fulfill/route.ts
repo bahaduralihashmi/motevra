@@ -300,7 +300,7 @@ export async function POST(req: NextRequest) {
           data: {
             orderId: order.id,
             type: "SUPPLIER_COST",
-            amount: Number(data.actualPayment ?? data.orderAmount ?? 0),
+            amount: Number(data.actualPayment ?? 0),
             currency: "USD",
             description: "CJ supplier order " + data.orderId,
             referenceId: created.id,
