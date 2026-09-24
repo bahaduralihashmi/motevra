@@ -14,9 +14,7 @@ const staticPaths = [
   "/batteries",
   "/car-care",
   "/about",
-  "/brands",
   "/brands/autogrip",
-  "/deals",
   "/contact",
   "/shipping",
   "/blog",
@@ -25,10 +23,6 @@ const staticPaths = [
   "/blog/tyre-pressure-guide",
   "/blog/summer-vs-all-season-tyres",
 ];
-
-function sizeLabelToSlug(label: string) {
-  return label.toLowerCase().replace(/\s+/g, "").replace(/\//g, "-").replace(/r(?=\d)/, "-r");
-}
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticEntries = staticPaths.map((path) => ({
