@@ -19,6 +19,7 @@ async function getProduct(slug: string) {
       brand: true,
       category: true,
       images: { orderBy: { position: "asc" } },
+      variants: { orderBy: { sku: "asc" } },
       tyre: { include: { size: true } },
     },
   });
@@ -142,7 +143,18 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
                   </p>
                 )}
                 <p className="muted">{product.stock > 0 ? product.stock + " units available" : "Currently out of stock"}</p>
-                <AddToCartButton productId={product.id} stock={product.stock} />
+                <AddToCartButton
+                  productId={product.id}
+                  stock={product.stock}
+                  variants={product.variants.map((variant) => ({
+                    id: variant.id,
+                    name: variant.name,
+                    sku: variant.sku,
+                    price: variant.price != null ? Number(variant.price) : null,
+                    stock: variant.stock,
+                    options: variant.options,
+                  }))}
+                />
                 <div className="spec-grid">
                   <div className="spec"><span>Brand</span>{product.brand?.name || "MOTEVRA"}</div>
                   <div className="spec"><span>Category</span>{product.category?.name || "Automotive"}</div>
