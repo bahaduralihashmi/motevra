@@ -40,6 +40,10 @@ export const metadata: Metadata = {
     type: "website",
   },
   robots: { index: true, follow: true },
+  alternates: {
+    // Resolve the canonical URL against metadataBase for each route.
+    canonical: "./",
+  },
 };
 
 const structuredData = {
