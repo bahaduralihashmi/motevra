@@ -49,32 +49,25 @@ export default async function AutogripBrandPage() {
       <SiteHeader />
       <main>
         <section className="autogrip-hero">
-          <div className="container">
-            <p className="eyebrow">MOTEVRA / TYRE BRAND</p>
-            <h1>AUTOGRIP</h1>
+          <div className="autogrip-hero-tread" aria-hidden="true"></div>
+          <div className="container autogrip-hero-content">
+            <p className="eyebrow"><span className="autogrip-red-line"></span> PREMIUM TYRE BRAND</p>
+            <h1>AUTOGRIP<span className="autogrip-reg">®</span></h1>
+            <p className="autogrip-tagline">BUILT FOR A SAFER TOMORROW</p>
             <p className="autogrip-hero-copy">
-              Explore Autogrip tyres through MOTEVRA — a dedicated brand storefront for
-              available models, tyre sizes and fitment-ready products. Autogrip is a
-              Fullrun Tyre Corp. brand from Qingdao, China.
+              Autogrip delivers reliable performance, superior grip, and long-lasting
+              durability — for every journey, every season.
             </p>
-            <div className="autogrip-meta">
-              <span className="autogrip-chip">Passenger</span>
-              <span className="autogrip-chip">SUV & 4×4</span>
-              <span className="autogrip-chip">Van / LTR</span>
-              <span className="autogrip-chip">Summer</span>
-              <span className="autogrip-chip">Winter</span>
-              <span className="autogrip-chip">All-season</span>
+            <div className="autogrip-feature-row">
+              <div className="autogrip-feature"><span className="autogrip-feature-icon">◇</span><span>SUPERIOR<br/>GRIP</span></div>
+              <div className="autogrip-feature"><span className="autogrip-feature-icon">◉</span><span>LONGER<br/>LIFE</span></div>
+              <div className="autogrip-feature"><span className="autogrip-feature-icon">♧</span><span>ALL-WEATHER<br/>PERFORMANCE</span></div>
             </div>
-          </div>
-          <div className="autogrip-pattern-visual" aria-hidden="true">
-            <img
-              src="https://omo-oss-image.thefastimg.com/portal-saas/pg2024083014125708609/cms/image/0b6c61f4-0569-40f0-8c62-3fb55b117675.jpg_640xaf.jpg"
-              alt=""
-            />
+            <Link className="button autogrip-cta" href="#autogrip-products">EXPLORE AUTOGRIP <span>→</span></Link>
           </div>
         </section>
 
-        <section className="section autogrip-range-section"><div className="container"><div className="autogrip-range-head"><div><p className="eyebrow">EXPLORE THE RANGE</p><h2>One brand. Many road needs.</h2></div><p>Choose from familiar Autogrip model families, then select the exact size and specification for your vehicle.</p></div><div className="autogrip-model-cloud">{AUTOGRIP_MODELS.map((model) => <span key={model}>{model}</span>)}</div></div></section>\n\n        <section className="section brand-product-section">
+        <section className="section autogrip-range-section"><div className="container"><div className="autogrip-range-head"><div><p className="eyebrow">EXPLORE THE RANGE</p><h2>One brand. Many road needs.</h2></div><p>Choose from familiar Autogrip model families, then select the exact size and specification for your vehicle.</p></div><div className="autogrip-model-cloud">{AUTOGRIP_MODELS.map((model) => <span key={model}>{model}</span>)}</div></div></section>\n\n        <section id="autogrip-products" className="section brand-product-section">
           <div className="container">
             <div className="brand-product-toolbar">
               <div>
