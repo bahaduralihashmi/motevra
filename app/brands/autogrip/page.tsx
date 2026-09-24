@@ -66,6 +66,12 @@ export default async function AutogripBrandPage() {
               <span className="autogrip-chip">All-season</span>
             </div>
           </div>
+          <div className="autogrip-pattern-strip" aria-hidden="true">
+            <img
+              src="https://omo-oss-image.thefastimg.com/portal-saas/pg2024083014125708609/cms/image/0b6c61f4-0569-40f0-8c62-3fb55b117675.jpg_640xaf.jpg"
+              alt=""
+            />
+          </div>
         </section>
 
         <section className="section autogrip-range-section"><div className="container"><div className="autogrip-range-head"><div><p className="eyebrow">EXPLORE THE RANGE</p><h2>One brand. Many road needs.</h2></div><p>Choose from familiar Autogrip model families, then select the exact size and specification for your vehicle.</p></div><div className="autogrip-model-cloud">{AUTOGRIP_MODELS.map((model) => <span key={model}>{model}</span>)}</div></div></section>\n\n        <section className="section brand-product-section">
