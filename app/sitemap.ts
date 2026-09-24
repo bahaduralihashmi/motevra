@@ -40,12 +40,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       orderBy: { updatedAt: "desc" },
     });
 
-    const sizeEntries = tyreSizes.map((size) => ({
-      url: `${baseUrl}/shop?size=${sizeLabelToSlug(size.label)}`,
-      changeFrequency: "weekly" as const,
-      priority: 0.75,
-    }));
-
     const productEntries = products.map((product) => ({
       url: `${baseUrl}/product/${product.slug}`,
       lastModified: product.updatedAt,
@@ -53,7 +47,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.8,
     }));
 
-    return [...staticEntries, ...sizeEntries, ...productEntries];
+    return [...staticEntries, ...productEntries];
   } catch {
     return staticEntries;
   }
