@@ -11,14 +11,16 @@ export async function GET() {
     });
     if (!response.ok) throw new Error("Exchange-rate provider failed");
     const data = await response.json();
-    if (!data.rates?.PKR) throw new Error("PKR rate unavailable");
-
-    return NextResponse.json({
-      base: "USD",
-      rates: data.rates,
-      fetchedAt: data.time_last_update_utc ?? new Date().toISOString(),
-    }, { headers: { "Cache-Control": "public, s-maxage=1800, stale-while-revalidate=3600" } });
+    const rates = data?.rates && typeof data.rates === "object" ? data.rates : null;
+    if (!rates?.PKR) throw new Error("Exchange-rate data unavailable");
+    return NextResponse.json(
+      { base: "USD", rates: { USD: 1, ...rates }, fetchedAt: data.time_last_update_utc ?? new Date().toISOString() },
+      { headers: { "Cache-Control": "public, s-maxage=1800, stale-while-revalidate=3600" } }
+    );
   } catch {
-    return NextResponse.json({ base: "USD", rates: { USD: 1 }, error: "Exchange rates temporarily unavailable" }, { status: 503 });
+    return NextResponse.json(
+      { base: "USD", rates: { USD: 1 }, error: "Exchange rates temporarily unavailable" },
+      { status: 503 }
+    );
   }
 }
