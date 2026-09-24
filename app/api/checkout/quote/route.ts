@@ -43,12 +43,14 @@ export async function POST(req: NextRequest) {
     const quote = await buildCheckoutQuote(
       cart.items.map((item) => ({
         productId: item.productId,
+        variantId: item.variantId,
         quantity: item.quantity,
         unitPrice: Number(item.unitPrice),
         product: {
           shippingClass: item.product.shippingClass,
           weight: item.product.weight,
           supplierProducts: item.product.supplierProducts,
+          variant: item.variantId ? item.product.variants.find(v=>v.id===item.variantId) : undefined,
         },
       })),
       country,
