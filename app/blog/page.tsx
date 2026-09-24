@@ -1,3 +1,9 @@
+export const metadata = {
+  title: "MOTEVRA Automotive Guides | Tyre & Car Care Advice",
+  description: "Practical automotive guides from MOTEVRA covering tyre sizes, maintenance, tyre pressure and driving care.",
+  alternates: { canonical: "/blog" },
+};
+
 import Image from "next/image";
 import Link from "next/link";
 import { SiteHeader } from "@/components/site-header";
