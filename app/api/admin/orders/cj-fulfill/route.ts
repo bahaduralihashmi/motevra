@@ -114,7 +114,7 @@ export async function POST(req: NextRequest) {
             },
           },
         },
-        supplierOrders: true,
+        supplierOrders: { include: { supplier: true } },
       },
     });
 
