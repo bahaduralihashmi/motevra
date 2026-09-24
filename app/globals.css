@@ -467,7 +467,8 @@ img,video{display:block}
 
 
 /* Autogrip tyre-pattern hero strip */
-.autogrip-pattern-strip{position:absolute;left:0;right:0;bottom:0;height:clamp(120px,17vw,220px);overflow:hidden;z-index:0;opacity:.9;mask-image:linear-gradient(to bottom,transparent 0%,#000 18%,#000 100%);-webkit-mask-image:linear-gradient(to bottom,transparent 0%,#000 18%,#000 100%)}
-.autogrip-pattern-strip img{width:100%;height:100%;display:block;object-fit:cover;object-position:center;filter:contrast(1.05) brightness(.72);transform:scale(1.02)}
-.autogrip-hero .container{z-index:2;padding-bottom:clamp(120px,17vw,220px)}
-@media(max-width:640px){.autogrip-pattern-strip{height:125px}.autogrip-hero .container{padding-bottom:105px}.autogrip-pattern-strip img{object-position:center center}}
+.autogrip-pattern-visual{position:absolute;z-index:1;right:clamp(28px,6vw,100px);top:50%;width:min(52vw,680px);transform:translateY(-34%);pointer-events:none;opacity:.9}
+.autogrip-pattern-visual img{display:block;width:100%;height:auto;object-fit:contain;filter:contrast(1.05) brightness(.72);mix-blend-mode:screen}
+.autogrip-hero .container{z-index:2;max-width:var(--max)}
+@media(max-width:900px){.autogrip-pattern-visual{right:20px;width:min(58vw,520px);top:54%;transform:translateY(-20%);opacity:.72}.autogrip-hero .container{padding-right:40%}}
+@media(max-width:640px){.autogrip-pattern-visual{right:12px;width:88vw;top:auto;bottom:30px;transform:none;opacity:.6}.autogrip-hero .container{padding-right:20px;padding-bottom:155px}.autogrip-pattern-visual img{filter:contrast(1.05) brightness(.68)}}
