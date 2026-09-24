@@ -276,13 +276,57 @@ export async function POST(req: NextRequest) {
       }
 
       const data = json.data;
+
+      // CJ recommends creating with payType=3 and then completing balance payment.
+      // Confirm first, then pay the shipment order from the connected CJ balance.
+      const confirmResponse = await fetch(
+        "https://developers.cjdropshipping.com/api2.0/v1/shopping/order/confirmOrder",
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json", "CJ-Access-Token": token },
+          body: JSON.stringify({ orderId: data.orderId }),
+          cache: "no-store",
+        },
+      );
+      const confirmJson = await confirmResponse.json().catch(() => null);
+      if (!confirmResponse.ok || confirmJson?.code !== 200 || confirmJson?.result === false) {
+        return NextResponse.json(
+          { error: confirmJson?.message || "CJ order confirmation failed.", supplierId, externalOrderId: data.orderId },
+          { status: 502 },
+        );
+      }
+
+      const shipmentOrderId = data.shipmentOrderId || data.orderId;
+      const paymentResponse = await fetch(
+        "https://developers.cjdropshipping.com/api2.0/v1/shopping/pay/payBalanceV2",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "CJ-Access-Token": token },
+          body: JSON.stringify({ shipmentOrderId }),
+          cache: "no-store",
+        },
+      );
+      const paymentJson = await paymentResponse.json().catch(() => null);
+      if (!paymentResponse.ok || paymentJson?.code !== 200 || paymentJson?.result === false) {
+        return NextResponse.json(
+          {
+            error: paymentJson?.message || "CJ balance payment failed.",
+            supplierId,
+            externalOrderId: data.orderId,
+            shipmentOrderId,
+            cjResponse: paymentJson,
+          },
+          { status: 502 },
+        );
+      }
+
       const supplierOrder = await prisma.$transaction(async (tx) => {
         const created = await tx.supplierOrder.create({
           data: {
             orderId: order.id,
             supplierId,
             externalOrderId: data.orderId,
-            status: data.orderStatus || "CREATED",
+            status: "PAID",
             currency: "USD",
             supplierTotal: Number(data.actualPayment ?? 0),
             shippingCost: Number(data.postageAmount ?? 0),
@@ -313,8 +357,9 @@ export async function POST(req: NextRequest) {
       createdOrders.push({
         supplierOrderId: supplierOrder.id,
         externalOrderId: data.orderId,
-        shipmentOrderId: data.shipmentOrderId || null,
+        shipmentOrderId,
         shippingMethod: logisticName,
+        paid: true,
       });
     }
 
@@ -323,12 +368,38 @@ export async function POST(req: NextRequest) {
       data: { status: "PROCESSING" },
     });
 
+    // Create a shipment record immediately. Tracking is populated by the CJ sync job
+    // once CJ assigns the carrier/tracking number.
+    for (const created of createdOrders) {
+      const supplierOrder = await prisma.supplierOrder.findUnique({
+        where: { id: created.supplierOrderId },
+        include: { supplier: true },
+      });
+      if (!supplierOrder) continue;
+      await prisma.shipment.create({
+        data: {
+          orderId: order.id,
+          supplierOrderId: supplierOrder.id,
+          status: "PENDING",
+          carrier: created.shippingMethod,
+          serviceName: created.shippingMethod,
+          shippingCost: supplierOrder.shippingCost,
+          currency: supplierOrder.currency,
+          items: {
+            create: order.items
+              .filter((item) => item.product.supplierProducts.some((sp) => sp.supplierId === supplierOrder.supplierId))
+              .map((item) => ({ orderItemId: item.id, quantity: item.quantity })),
+          },
+        },
+      });
+    }
+
     return NextResponse.json({
       ok: true,
       orderId: order.id,
       orderNumber: order.number,
       supplierOrders: createdOrders,
-      note: "CJ orders were created with payType=3. They are not paid or confirmed automatically.",
+      note: "CJ orders were created, confirmed, and paid from the connected CJ balance after MOTEVRA payment verification.",
     });
   } catch (error) {
     console.error("CJ fulfillment error:", error);
