@@ -16,10 +16,12 @@ type QuoteItem = {
   productId: string;
   quantity: number;
   unitPrice: number;
+  variantId?: string | null;
   product: {
     shippingClass: string;
     weight: number | null;
     supplierProducts?: SupplierProductQuote[];
+    variant?: { id:string; stock:number; price:number|null } | null;
   };
 };
 
@@ -83,7 +85,7 @@ async function calculateCJShipping(
   for(const item of items){
     const sp=item.product.supplierProducts?.find(s=>s.active&&s.supplier?.type==="CJ_DROPSHIPPING");
     if(!sp) continue;
-    const variant=sp.variants?.find(v=>v.externalVariantId);
+    const variant=sp.variants?.find(v=>v.externalVariantId && (!item.variantId || v.productVariantId===item.variantId));
     const inventory=sp.inventories?.find(i=>Number(i.available??i.quantity)>0&&i.warehouse.countryCode);
     if(!variant?.externalVariantId||!inventory?.warehouse.countryCode){
       configured=false;
