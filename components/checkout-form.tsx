@@ -3,37 +3,64 @@
 import { useEffect, useState } from "react";
 import { CurrencyPrice } from "@/components/currency-price";
 
-type Country = { code: string; name: string; currencyCode: string };
+type Country={code:string;name:string;currencyCode:string};
+type Quote={subtotal:number;shipping:number;tax:number;total:number;displayCurrency:string;shippingConfigured:boolean;taxConfigured:boolean;shippingMethod:string};
 
 export function CheckoutForm({total,currency,guest}:{total:number;currency:string;guest:boolean}){
   const [countries,setCountries]=useState<Country[]>([]);
   const [country,setCountry]=useState("PK");
+  const [quote,setQuote]=useState<Quote|null>(null);
+  const [quoteLoading,setQuoteLoading]=useState(true);
   const [status,setStatus]=useState("");
   const [busy,setBusy]=useState(false);
 
   useEffect(()=>{
     fetch("/api/countries").then(r=>r.json()).then(data=>{
-      if(Array.isArray(data.countries)) setCountries(data.countries);
+      if(Array.isArray(data.countries))setCountries(data.countries);
     }).catch(()=>{});
   },[]);
 
+  useEffect(()=>{
+    let cancelled=false;
+    setQuoteLoading(true);
+    fetch("/api/checkout/quote",{
+      method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({country})
+    }).then(r=>r.json()).then(data=>{
+      if(!cancelled){
+        if(data?.total!=null)setQuote(data);
+        else setQuote(null);
+      }
+    }).catch(()=>{if(!cancelled)setQuote(null)})
+      .finally(()=>{if(!cancelled)setQuoteLoading(false)});
+    return()=>{cancelled=true};
+  },[country]);
+
   async function submit(e:React.FormEvent<HTMLFormElement>){
     e.preventDefault();
-    setBusy(true);
-    setStatus("Placing order…");
+    setBusy(true);setStatus("Placing order…");
     const data=Object.fromEntries(new FormData(e.currentTarget));
     const res=await fetch("/api/orders",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(data)});
     const json=await res.json();
     if(res.ok){window.location.href=guest?"/order-success?number="+encodeURIComponent(json.order.number):"/orders";return}
-    setStatus(json.error??"Unable to place order.");
-    setBusy(false);
+    setStatus(json.error??"Unable to place order.");setBusy(false);
   }
 
-  const selectedCurrency=countries.find(c=>c.code===country)?.currencyCode;
+  const selectedCurrency=countries.find(c=>c.code===country)?.currencyCode||quote?.displayCurrency;
+  const displayTotal=quote?.total??total;
+  const displayCurrency=quote?.displayCurrency??currency;
 
   return <form className="checkout-form" onSubmit={submit}>
-    <p className="hero-copy">Order total: <CurrencyPrice amount={total} from={currency}/></p>
-    {selectedCurrency&&selectedCurrency!==currency&&<p className="muted">Shipping country uses {selectedCurrency}. Final shipping, tax and payment currency are confirmed at checkout.</p>}
+    <div>
+      <p className="hero-copy">Order total: <CurrencyPrice amount={displayTotal} from={displayCurrency}/></p>
+      {quoteLoading&&<p className="muted">Calculating shipping and tax…</p>}
+      {quote&&!quoteLoading&&<div className="muted" style={{display:"grid",gap:4,marginBottom:16}}>
+        <span>Subtotal: <CurrencyPrice amount={quote.subtotal} from={displayCurrency}/></span>
+        <span>Shipping: {quote.shippingConfigured?<CurrencyPrice amount={quote.shipping} from={displayCurrency}/>: "Not configured yet"}</span>
+        <span>Tax: {quote.taxConfigured?<CurrencyPrice amount={quote.tax} from={displayCurrency}/>: "Not configured yet"}</span>
+        <span>{quote.shippingMethod}</span>
+      </div>}
+      {selectedCurrency&&selectedCurrency!==currency&&<p className="muted">Destination currency: {selectedCurrency}. Shipping and tax are calculated for this country.</p>}
+    </div>
     {guest&&<input name="email" type="email" placeholder="Email address" required/>}
     <input name="name" placeholder="Full name" required/>
     <input name="phone" placeholder="Phone" required/>
