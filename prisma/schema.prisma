@@ -75,6 +75,91 @@ enum ReviewStatus {
   APPROVED
   REJECTED
 }
+enum SupplierType {
+  MOTEVRA
+  CJ_DROPSHIPPING
+  ALIBABA
+  OTHER
+}
+enum FulfillmentMethod {
+  SELF
+  SUPPLIER_API
+  MANUAL
+}
+enum SupplierStatus {
+  ACTIVE
+  INACTIVE
+}
+enum ShipmentStatus {
+  PENDING
+  LABEL_CREATED
+  SHIPPED
+  IN_TRANSIT
+  OUT_FOR_DELIVERY
+  DELIVERED
+  EXCEPTION
+  RETURNED
+  CANCELLED
+}
+enum PaymentProvider {
+  JAZZCASH
+  EASYPAISA
+  MCB_EGATE
+  RAAST
+  STRIPE
+  PAYPAL
+  BANK_TRANSFER
+  COD
+  OTHER
+}
+enum TransactionStatus {
+  CREATED
+  PENDING
+  SUCCEEDED
+  FAILED
+  CANCELLED
+  REFUNDED
+  PARTIALLY_REFUNDED
+}
+enum RefundStatus {
+  PENDING
+  SUCCEEDED
+  FAILED
+  CANCELLED
+}
+enum ReturnStatus {
+  REQUESTED
+  APPROVED
+  REJECTED
+  RECEIVED
+  REFUNDED
+  CANCELLED
+}
+enum LedgerEntryType {
+  SALE
+  SUPPLIER_COST
+  SHIPPING_COST
+  PAYMENT_FEE
+  TAX
+  COMMISSION
+  REFUND
+  PAYOUT
+  ADJUSTMENT
+}
+enum ShippingClass {
+  STANDARD
+  HEAVY
+  BATTERY
+  LIQUID
+  ELECTRONICS
+  TYRE
+  WHEEL
+  RESTRICTED
+}
+enum WarehouseStatus {
+  ACTIVE
+  INACTIVE
+}
 
 model User {
   id String @id @default(cuid())
@@ -90,9 +175,12 @@ model User {
   reviews Review[]
   accounts Account[]
   sessions Session[]
+  wishlist Wishlist?
+  returns ReturnRequest[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
 model Account {
   id String @id @default(cuid())
   userId String
@@ -110,6 +198,7 @@ model Account {
   @@unique([provider,providerAccountId])
   @@index([userId])
 }
+
 model Session {
   id String @id @default(cuid())
   sessionToken String @unique
@@ -118,12 +207,14 @@ model Session {
   user User @relation(fields:[userId], references:[id], onDelete:Cascade)
   @@index([userId])
 }
+
 model VerificationToken {
   identifier String
   token String @unique
   expires DateTime
   @@unique([identifier,token])
 }
+
 model Address {
   id String @id @default(cuid())
   userId String
@@ -141,6 +232,7 @@ model Address {
   updatedAt DateTime @updatedAt
   @@index([userId])
 }
+
 model UserVehicle {
   id String @id @default(cuid())
   userId String
@@ -151,12 +243,14 @@ model UserVehicle {
   createdAt DateTime @default(now())
   @@index([userId])
 }
+
 model VehicleMake {
   id String @id @default(cuid())
   name String @unique
   slug String @unique
   models VehicleModel[]
 }
+
 model VehicleModel {
   id String @id @default(cuid())
   makeId String
@@ -167,6 +261,7 @@ model VehicleModel {
   @@unique([makeId,slug])
   @@index([makeId])
 }
+
 model VehicleVariant {
   id String @id @default(cuid())
   modelId String
@@ -182,6 +277,7 @@ model VehicleVariant {
   @@unique([modelId,slug])
   @@index([modelId,yearFrom,yearTo])
 }
+
 model TyreSize {
   id String @id @default(cuid())
   width Int
@@ -193,6 +289,7 @@ model TyreSize {
   @@unique([width,aspectRatio,rimSize])
   @@index([width,aspectRatio,rimSize])
 }
+
 model VehicleFitment {
   id String @id @default(cuid())
   vehicleVariantId String
@@ -205,6 +302,7 @@ model VehicleFitment {
   @@unique([vehicleVariantId,tyreSizeId,position])
   @@index([tyreSizeId])
 }
+
 model Brand {
   id String @id @default(cuid())
   name String @unique
@@ -213,6 +311,7 @@ model Brand {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
 model Category {
   id String @id @default(cuid())
   name String @unique
@@ -221,6 +320,7 @@ model Category {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
 model ProductVariant {
   id String @id @default(cuid())
   productId String
@@ -231,8 +331,11 @@ model ProductVariant {
   options Json?
   product Product @relation(fields:[productId], references:[id], onDelete:Cascade)
   orderItems OrderItem[]
+  supplierVariants SupplierVariant[]
   @@index([productId])
+  @@unique([sku])
 }
+
 model Product {
   id String @id @default(cuid())
   sku String @unique
@@ -246,24 +349,32 @@ model Product {
   status ProductStatus @default(DRAFT)
   stock Int @default(0)
   source String @default("MOTEVRA")
-  variants ProductVariant[]
+  fulfillmentMethod FulfillmentMethod @default(SELF)
+  shippingClass ShippingClass @default(STANDARD)
   weight Float?
+  supplierProduct SupplierProduct?
   brandId String?
   categoryId String?
   brand Brand? @relation(fields:[brandId], references:[id], onDelete:SetNull)
   category Category? @relation(fields:[categoryId], references:[id], onDelete:SetNull)
+  variants ProductVariant[]
   tyre Tyre?
   images ProductImage[]
   cartItems CartItem[]
   orderItems OrderItem[]
   reviews Review[]
   reviewRequests ReviewRequest[]
+  wishlistItems WishlistItem[]
+  returnItems ReturnItem[]
+  fitments ProductFitment[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   @@index([brandId])
   @@index([categoryId])
   @@index([status,productType])
+  @@index([source,fulfillmentMethod])
 }
+
 model ProductImage {
   id String @id @default(cuid())
   url String
@@ -273,6 +384,7 @@ model ProductImage {
   product Product @relation(fields:[productId], references:[id], onDelete:Cascade)
   @@index([productId,position])
 }
+
 model Tyre {
   id String @id @default(cuid())
   productId String @unique
@@ -286,6 +398,18 @@ model Tyre {
   warranty String?
   @@index([tyreSizeId])
 }
+
+model ProductFitment {
+  id String @id @default(cuid())
+  productId String
+  vehicleVariantId String
+  notes String?
+  product Product @relation(fields:[productId], references:[id], onDelete:Cascade)
+  vehicleVariant VehicleVariant @relation(fields:[vehicleVariantId], references:[id], onDelete:Cascade)
+  @@unique([productId,vehicleVariantId])
+  @@index([vehicleVariantId])
+}
+
 model Cart {
   id String @id @default(cuid())
   userId String?
@@ -297,6 +421,7 @@ model Cart {
   updatedAt DateTime @updatedAt
   @@index([userId,status])
 }
+
 model CartItem {
   id String @id @default(cuid())
   cartId String
@@ -308,6 +433,373 @@ model CartItem {
   @@unique([cartId,productId])
   @@index([productId])
 }
+
+model Country {
+  id String @id @default(cuid())
+  code String @unique
+  name String
+  currencyCode String
+  active Boolean @default(true)
+  currency Currency @relation(fields:[currencyCode], references:[code])
+  shippingZones ShippingZoneCountry[]
+  taxRules TaxRule[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@index([currencyCode])
+}
+
+model Currency {
+  code String @id
+  name String
+  symbol String
+  decimals Int @default(2)
+  active Boolean @default(true)
+  countries Country[]
+  ratesFrom CurrencyRate[] @relation("RateFrom")
+  ratesTo CurrencyRate[] @relation("RateTo")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model CurrencyRate {
+  id String @id @default(cuid())
+  fromCode String
+  toCode String
+  rate Decimal @db.Decimal(20,10)
+  source String
+  fetchedAt DateTime @default(now())
+  from Currency @relation("RateFrom", fields:[fromCode], references:[code], onDelete:Cascade)
+  to Currency @relation("RateTo", fields:[toCode], references:[code], onDelete:Cascade)
+  @@unique([fromCode,toCode])
+  @@index([toCode,fetchedAt])
+}
+
+model Supplier {
+  id String @id @default(cuid())
+  name String
+  slug String @unique
+  type SupplierType
+  status SupplierStatus @default(ACTIVE)
+  website String?
+  apiBaseUrl String?
+  externalAccountId String?
+  products SupplierProduct[]
+  warehouses SupplierWarehouse[]
+  shippingMethods SupplierShippingMethod[]
+  supplierOrders SupplierOrder[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@index([type,status])
+}
+
+model SupplierProduct {
+  id String @id @default(cuid())
+  productId String @unique
+  supplierId String
+  externalProductId String?
+  externalSku String?
+  supplierCost Decimal @db.Decimal(12,2)
+  supplierCurrency String @default("USD")
+  active Boolean @default(true)
+  lastSyncedAt DateTime?
+  product Product @relation(fields:[productId], references:[id], onDelete:Cascade)
+  supplier Supplier @relation(fields:[supplierId], references:[id], onDelete:Cascade)
+  variants SupplierVariant[]
+  inventories SupplierInventory[]
+  @@index([supplierId,externalProductId])
+  @@index([supplierId,externalSku])
+}
+
+model SupplierVariant {
+  id String @id @default(cuid())
+  supplierProductId String
+  productVariantId String?
+  externalVariantId String?
+  externalSku String?
+  supplierCost Decimal @db.Decimal(12,2)
+  supplierCurrency String @default("USD")
+  productVariant ProductVariant? @relation(fields:[productVariantId], references:[id], onDelete:SetNull)
+  supplierProduct SupplierProduct @relation(fields:[supplierProductId], references:[id], onDelete:Cascade)
+  @@index([supplierProductId,externalVariantId])
+  @@index([productVariantId])
+}
+
+model SupplierWarehouse {
+  id String @id @default(cuid())
+  supplierId String
+  externalWarehouseId String?
+  name String
+  countryCode String?
+  status WarehouseStatus @default(ACTIVE)
+  supplier Supplier @relation(fields:[supplierId], references:[id], onDelete:Cascade)
+  inventories SupplierInventory[]
+  shipments Shipment[]
+  @@index([supplierId,status])
+}
+
+model SupplierInventory {
+  id String @id @default(cuid())
+  supplierProductId String
+  supplierWarehouseId String
+  quantity Int @default(0)
+  reserved Int @default(0)
+  available Int @default(0)
+  syncedAt DateTime?
+  supplierProduct SupplierProduct @relation(fields:[supplierProductId], references:[id], onDelete:Cascade)
+  warehouse SupplierWarehouse @relation(fields:[supplierWarehouseId], references:[id], onDelete:Cascade)
+  @@unique([supplierProductId,supplierWarehouseId])
+}
+
+model SupplierShippingMethod {
+  id String @id @default(cuid())
+  supplierId String
+  externalMethodId String?
+  name String
+  active Boolean @default(true)
+  supplier Supplier @relation(fields:[supplierId], references:[id], onDelete:Cascade)
+  @@index([supplierId,active])
+}
+
+model SupplierOrder {
+  id String @id @default(cuid())
+  orderId String
+  supplierId String
+  externalOrderId String?
+  status String @default("PENDING")
+  currency String @default("USD")
+  supplierTotal Decimal @db.Decimal(12,2) @default(0)
+  shippingCost Decimal @db.Decimal(12,2) @default(0)
+  trackingNumber String?
+  trackingUrl String?
+  supplier Supplier @relation(fields:[supplierId], references:[id])
+  order Order @relation(fields:[orderId], references:[id], onDelete:Cascade)
+  items SupplierOrderItem[]
+  shipments Shipment[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@index([orderId])
+  @@index([supplierId,status])
+  @@unique([supplierId,externalOrderId])
+}
+
+model SupplierOrderItem {
+  id String @id @default(cuid())
+  supplierOrderId String
+  orderItemId String
+  quantity Int
+  unitCost Decimal @db.Decimal(12,2)
+  supplierOrder SupplierOrder @relation(fields:[supplierOrderId], references:[id], onDelete:Cascade)
+  orderItem OrderItem @relation(fields:[orderItemId], references:[id], onDelete:Cascade)
+  @@unique([supplierOrderId,orderItemId])
+}
+
+model ShippingZone {
+  id String @id @default(cuid())
+  name String
+  active Boolean @default(true)
+  countries ShippingZoneCountry[]
+  rules ShippingRule[]
+  @@index([active])
+}
+
+model ShippingZoneCountry {
+  id String @id @default(cuid())
+  zoneId String
+  countryId String
+  zone ShippingZone @relation(fields:[zoneId], references:[id], onDelete:Cascade)
+  country Country @relation(fields:[countryId], references:[id], onDelete:Cascade)
+  @@unique([zoneId,countryId])
+}
+
+model ShippingRule {
+  id String @id @default(cuid())
+  zoneId String
+  name String
+  shippingClass ShippingClass?
+  supplierId String?
+  minWeight Float?
+  maxWeight Float?
+  minOrderValue Decimal? @db.Decimal(12,2)
+  maxOrderValue Decimal? @db.Decimal(12,2)
+  price Decimal @db.Decimal(12,2)
+  currency String
+  active Boolean @default(true)
+  zone ShippingZone @relation(fields:[zoneId], references:[id], onDelete:Cascade)
+  supplier Supplier? @relation(fields:[supplierId], references:[id], onDelete:SetNull)
+  @@index([zoneId,active])
+  @@index([supplierId])
+}
+
+model TaxRule {
+  id String @id @default(cuid())
+  countryId String
+  name String
+  taxClass String?
+  rate Decimal @db.Decimal(7,4)
+  active Boolean @default(true)
+  country Country @relation(fields:[countryId], references:[id], onDelete:Cascade)
+  @@index([countryId,active])
+}
+
+model PaymentTransaction {
+  id String @id @default(cuid())
+  orderId String
+  provider PaymentProvider
+  status TransactionStatus @default(CREATED)
+  providerTransactionId String?
+  providerPaymentIntentId String?
+  amount Decimal @db.Decimal(12,2)
+  currency String
+  baseAmount Decimal? @db.Decimal(12,2)
+  baseCurrency String?
+  exchangeRate Decimal? @db.Decimal(20,10)
+  feeAmount Decimal? @db.Decimal(12,2)
+  metadata Json?
+  rawResponse Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  order Order @relation(fields:[orderId], references:[id], onDelete:Cascade)
+  refunds Refund[]
+  @@index([orderId,createdAt])
+  @@index([provider,providerTransactionId])
+}
+
+model Refund {
+  id String @id @default(cuid())
+  orderId String
+  paymentTransactionId String?
+  amount Decimal @db.Decimal(12,2)
+  currency String
+  reason String?
+  status RefundStatus @default(PENDING)
+  providerRefundId String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  order Order @relation(fields:[orderId], references:[id], onDelete:Cascade)
+  paymentTransaction PaymentTransaction? @relation(fields:[paymentTransactionId], references:[id], onDelete:SetNull)
+  @@index([orderId,createdAt])
+}
+
+model Shipment {
+  id String @id @default(cuid())
+  orderId String
+  supplierOrderId String?
+  warehouseId String?
+  status ShipmentStatus @default(PENDING)
+  carrier String?
+  serviceName String?
+  trackingNumber String?
+  trackingUrl String?
+  shippingCost Decimal @db.Decimal(12,2) @default(0)
+  currency String @default("USD")
+  shippedAt DateTime?
+  deliveredAt DateTime?
+  order Order @relation(fields:[orderId], references:[id], onDelete:Cascade)
+  supplierOrder SupplierOrder? @relation(fields:[supplierOrderId], references:[id], onDelete:SetNull)
+  warehouse SupplierWarehouse? @relation(fields:[warehouseId], references:[id], onDelete:SetNull)
+  items ShipmentItem[]
+  trackingEvents TrackingEvent[]
+  @@index([orderId,status])
+  @@index([trackingNumber])
+}
+
+model ShipmentItem {
+  id String @id @default(cuid())
+  shipmentId String
+  orderItemId String
+  quantity Int
+  shipment Shipment @relation(fields:[shipmentId], references:[id], onDelete:Cascade)
+  orderItem OrderItem @relation(fields:[orderItemId], references:[id], onDelete:Cascade)
+  @@unique([shipmentId,orderItemId])
+}
+
+model TrackingEvent {
+  id String @id @default(cuid())
+  shipmentId String
+  status String
+  description String?
+  location String?
+  occurredAt DateTime
+  shipment Shipment @relation(fields:[shipmentId], references:[id], onDelete:Cascade)
+  @@index([shipmentId,occurredAt])
+}
+
+model PriceRule {
+  id String @id @default(cuid())
+  name String
+  source String?
+  productType ProductType?
+  categoryId String?
+  minCost Decimal? @db.Decimal(12,2)
+  maxCost Decimal? @db.Decimal(12,2)
+  markupPercent Decimal? @db.Decimal(7,4)
+  fixedMarkup Decimal? @db.Decimal(12,2)
+  minProfit Decimal? @db.Decimal(12,2)
+  active Boolean @default(true)
+  category Category? @relation(fields:[categoryId], references:[id], onDelete:SetNull)
+  @@index([active])
+}
+
+model CommissionLedger {
+  id String @id @default(cuid())
+  orderId String
+  type LedgerEntryType
+  amount Decimal @db.Decimal(12,2)
+  currency String
+  description String?
+  referenceId String?
+  createdAt DateTime @default(now())
+  order Order @relation(fields:[orderId], references:[id], onDelete:Cascade)
+  @@index([orderId,createdAt])
+  @@index([type,createdAt])
+}
+
+model Wishlist {
+  id String @id @default(cuid())
+  userId String @unique
+  user User @relation(fields:[userId], references:[id], onDelete:Cascade)
+  items WishlistItem[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model WishlistItem {
+  id String @id @default(cuid())
+  wishlistId String
+  productId String
+  wishlist Wishlist @relation(fields:[wishlistId], references:[id], onDelete:Cascade)
+  product Product @relation(fields:[productId], references:[id], onDelete:Cascade)
+  createdAt DateTime @default(now())
+  @@unique([wishlistId,productId])
+}
+
+model ReturnRequest {
+  id String @id @default(cuid())
+  orderId String
+  userId String?
+  status ReturnStatus @default(REQUESTED)
+  reason String
+  notes String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  order Order @relation(fields:[orderId], references:[id], onDelete:Cascade)
+  user User? @relation(fields:[userId], references:[id], onDelete:SetNull)
+  items ReturnItem[]
+  @@index([orderId,status])
+}
+
+model ReturnItem {
+  id String @id @default(cuid())
+  returnRequestId String
+  orderItemId String
+  productId String
+  quantity Int
+  returnRequest ReturnRequest @relation(fields:[returnRequestId], references:[id], onDelete:Cascade)
+  orderItem OrderItem @relation(fields:[orderItemId], references:[id], onDelete:Cascade)
+  product Product @relation(fields:[productId], references:[id])
+  @@unique([returnRequestId,orderItemId])
+}
+
 model Order {
   id String @id @default(cuid())
   number String @unique
@@ -319,10 +811,17 @@ model Order {
   paymentMethod PaymentMethod @default(COD)
   paymentStatus PaymentStatus @default(PENDING)
   currency String @default("USD")
+  baseCurrency String @default("USD")
+  displayCurrency String @default("USD")
+  exchangeRate Decimal? @db.Decimal(20,10)
   subtotal Decimal @db.Decimal(12,2)
   shippingTotal Decimal @db.Decimal(12,2) @default(0)
   taxTotal Decimal @db.Decimal(12,2) @default(0)
   total Decimal @db.Decimal(12,2)
+  baseSubtotal Decimal? @db.Decimal(12,2)
+  baseShippingTotal Decimal? @db.Decimal(12,2)
+  baseTaxTotal Decimal? @db.Decimal(12,2)
+  baseTotal Decimal? @db.Decimal(12,2)
   shippingName String
   shippingPhone String
   shippingCountry String
@@ -335,11 +834,20 @@ model Order {
   items OrderItem[]
   reviews Review[]
   reviewRequests ReviewRequest[]
+  paymentTransactions PaymentTransaction[]
+  supplierOrders SupplierOrder[]
+  shipments Shipment[]
+  refunds Refund[]
+  ledgerEntries CommissionLedger[]
+  returns ReturnRequest[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   @@index([userId,createdAt])
   @@index([status])
+  @@index([paymentStatus])
+  @@index([shippingCountry])
 }
+
 model OrderItem {
   id String @id @default(cuid())
   orderId String
@@ -347,13 +855,20 @@ model OrderItem {
   variantId String?
   quantity Int
   price Decimal @db.Decimal(12,2)
+  currency String @default("USD")
+  supplierCost Decimal? @db.Decimal(12,2)
+  supplierCurrency String?
+  shippingCost Decimal? @db.Decimal(12,2)
+  taxAmount Decimal? @db.Decimal(12,2)
   order Order @relation(fields:[orderId], references:[id], onDelete:Cascade)
   product Product @relation(fields:[productId], references:[id])
   variant ProductVariant? @relation(fields:[variantId], references:[id], onDelete:SetNull)
+  supplierOrderItems SupplierOrderItem[]
+  shipmentItems ShipmentItem[]
+  returnItems ReturnItem[]
   @@index([orderId])
   @@index([productId])
 }
-
 
 model Review {
   id String @id @default(cuid())
