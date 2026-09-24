@@ -386,7 +386,7 @@ img,video{display:block}
 /* Autogrip brand page */
 .autogrip-hero{background:#070707;color:#fff;min-height:calc(100svh - 78px);padding:120px 0 80px;position:relative;overflow:hidden;display:flex;align-items:center}
 .autogrip-hero:before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 45% 50%,rgba(255,255,255,.06),transparent 45%),linear-gradient(90deg,rgba(0,0,0,.97) 0%,rgba(0,0,0,.72) 42%,rgba(0,0,0,.35) 100%);z-index:0}
-.autogrip-hero:after{content:"";position:absolute;inset:0;background-image:url("https://omo-oss-image.thefastimg.com/portal-saas/pg2024083014125708609/cms/image/0b6c61f4-0569-40f0-8c62-3fb55b117675.jpg_640xaf.jpg");background-repeat:repeat-y;background-position:center center;background-size:100% auto;opacity:.27;mix-blend-mode:screen;filter:grayscale(1) contrast(1.15) brightness(.8);z-index:0;transform:scale(1.02)}
+.autogrip-hero:after{content:"";position:absolute;inset:0;background-image:url("/images/autogrip-hero-tread.jpg");background-repeat:repeat-y;background-position:center center;background-size:cover;opacity:.5;mix-blend-mode:screen;filter:grayscale(1) contrast(1.12) brightness(.72);z-index:0;transform:scale(1.01)}
 .autogrip-hero-tread{position:absolute;inset:0;z-index:0;background:linear-gradient(90deg,rgba(0,0,0,.5),transparent 45%,rgba(0,0,0,.15));pointer-events:none}
 .autogrip-hero-content{position:relative;z-index:2}
 .autogrip-hero .eyebrow{color:#d6d6d6;display:flex;align-items:center;gap:18px}
