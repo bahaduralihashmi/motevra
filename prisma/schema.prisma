@@ -490,9 +490,25 @@ model Supplier {
   shippingMethods SupplierShippingMethod[]
   shippingRules ShippingRule[]
   supplierOrders SupplierOrder[]
+  credentials SupplierCredential[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   @@index([type,status])
+}
+
+model SupplierCredential {
+  id String @id @default(cuid())
+  supplierId String
+  provider String
+  encryptedData String @db.Text
+  status String @default("DISCONNECTED")
+  lastTestedAt DateTime?
+  lastError String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  supplier Supplier @relation(fields:[supplierId], references:[id], onDelete:Cascade)
+  @@unique([supplierId,provider])
+  @@index([supplierId,status])
 }
 
 model SupplierProduct {
