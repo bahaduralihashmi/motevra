@@ -2,17 +2,22 @@
 
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 
-export type CurrencyCode = "USD" | "PKR" | "AED" | "SAR" | "GBP" | "EUR";
-
+export type CurrencyCode = string;
 type Currency = { code: CurrencyCode; name: string; symbol: string; flag: string };
-export const currencies: Currency[] = [
-  { code: "USD", name: "US Dollar", symbol: "$", flag: "🇺🇸" },
-  { code: "PKR", name: "Pakistani Rupee", symbol: "₨", flag: "🇵🇰" },
-  { code: "AED", name: "UAE Dirham", symbol: "د.إ", flag: "🇦🇪" },
-  { code: "SAR", name: "Saudi Riyal", symbol: "﷼", flag: "🇸🇦" },
-  { code: "GBP", name: "British Pound", symbol: "£", flag: "🇬🇧" },
-  { code: "EUR", name: "Euro", symbol: "€", flag: "🇪🇺" },
-];
+
+const flags: Record<string,string> = {
+  USD:"🇺🇸", PKR:"🇵🇰", EUR:"🇪🇺", GBP:"🇬🇧", AED:"🇦🇪", SAR:"🇸🇦", CAD:"🇨🇦",
+  AUD:"🇦🇺", NZD:"🇳🇿", SGD:"🇸🇬", INR:"🇮🇳", CNY:"🇨🇳", JPY:"🇯🇵", KRW:"🇰🇷",
+  CHF:"🇨🇭", SEK:"🇸🇪", NOK:"🇳🇴", DKK:"🇩🇰", PLN:"🇵🇱", TRY:"🇹🇷", ZAR:"🇿🇦",
+  BRL:"🇧🇷", MXN:"🇲🇽", THB:"🇹🇭", MYR:"🇲🇾", IDR:"🇮🇩", QAR:"🇶🇦", KWD:"🇰🇼"
+};
+
+const fallbackCurrencies: Currency[] = [
+  ["USD","US Dollar","$"],["PKR","Pakistani Rupee","₨"],["EUR","Euro","€"],["GBP","British Pound","£"],
+  ["AED","UAE Dirham","د.إ"],["SAR","Saudi Riyal","﷼"],["CAD","Canadian Dollar","CA$"],
+  ["AUD","Australian Dollar","A$"],["INR","Indian Rupee","₹"],["CNY","Chinese Yuan","¥"],
+  ["JPY","Japanese Yen","¥"],["CHF","Swiss Franc","CHF"]
+].map(([code,name,symbol]) => ({code,name,symbol,flag:flags[code]||"🌐"}));
 
 type CurrencyContextValue = {
   currency: CurrencyCode;
@@ -26,20 +31,28 @@ const CurrencyContext = createContext<CurrencyContextValue | null>(null);
 
 export function CurrencyProvider({ children }: { children: React.ReactNode }) {
   const [currency, setCurrencyState] = useState<CurrencyCode>("USD");
+  const [currencies, setCurrencies] = useState<Currency[]>(fallbackCurrencies);
   const [rates, setRates] = useState<Record<string, number>>({ USD: 1 });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const saved = window.localStorage.getItem("motevra_currency") as CurrencyCode | null;
-    if (saved && currencies.some((item) => item.code === saved)) {
+    const saved = window.localStorage.getItem("motevra_currency");
+    if (saved) {
       setCurrencyState(saved);
+      setLoading(false);
       return;
     }
+    fetch("/api/geo").then(r=>r.json()).then(data=>{
+      if (data.currency) setCurrencyState(data.currency);
+    }).catch(()=>{}).finally(()=>setLoading(false));
+  }, []);
 
-    fetch("/api/geo")
-      .then((res) => res.json())
-      .then((data) => setCurrencyState(data.currency === "PKR" ? "PKR" : "USD"))
-      .catch(() => setCurrencyState("USD"));
+  useEffect(() => {
+    fetch("/api/currencies").then(r=>r.json()).then(data=>{
+      if (Array.isArray(data.currencies)) {
+        setCurrencies(data.currencies.map((c: {code:string;name:string;symbol:string})=>({...c,flag:flags[c.code]||"🌐"})));
+      }
+    }).catch(()=>{});
   }, []);
 
   useEffect(() => {
@@ -48,18 +61,11 @@ export function CurrencyProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     let cancelled = false;
-    setLoading(true);
     fetch("/api/exchange-rates")
-      .then((res) => res.json())
-      .then((data) => {
-        if (!cancelled && data.rates) setRates(data.rates);
-      })
-      .catch(() => {
-        if (!cancelled) setRates({ USD: 1 });
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false);
-      });
+      .then(r => r.json())
+      .then(data => { if (!cancelled && data.rates) setRates(data.rates); })
+      .catch(() => { if (!cancelled) setRates({USD:1}); })
+      .finally(() => { if (!cancelled) setLoading(false); });
     return () => { cancelled = true; };
   }, []);
 
@@ -72,13 +78,11 @@ export function CurrencyProvider({ children }: { children: React.ReactNode }) {
       const sourceRate = rates[from] || 1;
       const targetRate = rates[currency] || 1;
       const converted = amount * (targetRate / sourceRate);
-      return new Intl.NumberFormat(currency === "PKR" ? "en-PK" : currency === "AED" ? "en-AE" : currency === "SAR" ? "en-SA" : currency === "GBP" ? "en-GB" : currency === "EUR" ? "en-DE" : "en-US", {
-        style: "currency",
-        currency,
-        maximumFractionDigits: currency === "PKR" ? 0 : 2,
-      }).format(converted);
-    },
-  }), [currency, rates, loading]);
+      const decimals = currencies.find(c=>c.code===currency)?.code === "PKR" ? 0 : 2;
+      const locale = currency === "PKR" ? "en-PK" : currency === "AED" ? "en-AE" : currency === "SAR" ? "en-SA" : currency === "GBP" ? "en-GB" : currency === "EUR" ? "en-DE" : "en-US";
+      return new Intl.NumberFormat(locale, {style:"currency",currency,maximumFractionDigits:decimals}).format(converted);
+    }
+  }), [currency,rates,loading,currencies]);
 
   return <CurrencyContext.Provider value={value}>{children}</CurrencyContext.Provider>;
 }
@@ -87,4 +91,8 @@ export function useCurrency() {
   const value = useContext(CurrencyContext);
   if (!value) throw new Error("useCurrency must be used inside CurrencyProvider");
   return value;
+}
+
+export function useSupportedCurrencies() {
+  return fallbackCurrencies;
 }
