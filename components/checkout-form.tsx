@@ -13,6 +13,7 @@ export function CheckoutForm({total,currency,guest}:{total:number;currency:strin
   const [quoteLoading,setQuoteLoading]=useState(true);
   const [status,setStatus]=useState("");
   const [busy,setBusy]=useState(false);
+  const isPakistan=country==="PK";
 
   useEffect(()=>{
     fetch("/api/countries").then(r=>r.json()).then(data=>{
@@ -72,10 +73,11 @@ export function CheckoutForm({total,currency,guest}:{total:number;currency:strin
     <input name="line1" placeholder="Address" required/>
     <input name="line2" placeholder="Apartment / area"/>
     <input name="postalCode" placeholder="Postal code"/>
-    <select name="paymentMethod" defaultValue="COD">
-      <option value="COD">Cash on delivery</option>
-      <option value="BANK_TRANSFER">Bank transfer</option>
+    <select name="paymentMethod" defaultValue="BANK_TRANSFER" key={country}>
+      {isPakistan&&<option value="COD">Cash on delivery</option>}
+      <option value="BANK_TRANSFER">{isPakistan?"Bank transfer":"Bank account transfer"}</option>
     </select>
+    <p className="muted">{isPakistan?"Cash on delivery is available for Pakistan deliveries.":"Cash on delivery is not available for international deliveries."}</p>
     <button className="button button-dark" type="submit" disabled={busy}>{busy?"Placing…":"Place order"}</button>
     {status&&<p>{status}</p>}
   </form>
