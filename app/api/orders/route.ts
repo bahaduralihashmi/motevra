@@ -62,7 +62,14 @@ export async function POST(req:NextRequest){
           shippingClass:i.product.shippingClass,
           weight:i.product.weight,
           supplierProducts:i.product.supplierProducts,
-          variant:i.variantId ? i.product.variants.find(v=>v.id===i.variantId) : undefined,
+          variant:i.variantId
+              ? (() => {
+                  const variant=i.product.variants.find(v=>v.id===i.variantId);
+                  return variant
+                    ? {id:variant.id,stock:variant.stock,price:variant.price==null?null:Number(variant.price)}
+                    : undefined;
+                })()
+              : undefined,
         },
       })),
       String(body.country).trim().toUpperCase(),
