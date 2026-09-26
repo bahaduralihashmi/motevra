@@ -226,16 +226,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ok:true,provider:method,transactionId:transaction.id,status:"PENDING",action:"RAAST_INSTRUCTIONS",instructions:config.instructions||"Complete the Raast payment using the configured merchant alias, IBAN or QR code. MOTEVRA will verify the payment before fulfillment.",merchantAlias:String(meta.merchantAlias||""),iban:String(meta.iban||""),qrImageUrl:String(meta.qrImageUrl||"")});
     }
     if (method === "BANK_TRANSFER" || method === "COD") {
-      return NextResponse.json({
-        ok: true,
-        provider: method,
-        transactionId: transaction.id,
-        status: "PENDING",
-        action: method === "COD" ? "COLLECTION" : "BANK_TRANSFER_INSTRUCTIONS",
-        message: method === "COD"
-          ? "Order placed with Pakistan cash on delivery. Payment remains pending until collection is verified."
-          : "Bank transfer payment remains pending until the transfer is verified by MOTEVRA.",
-      });
+      if (method === "COD") return NextResponse.json({ok:true,provider:method,transactionId:transaction.id,status:"PENDING",action:"COLLECTION",message:"Order placed with Pakistan cash on delivery. Payment remains pending until collection is verified."});
+      const config=await prisma.paymentMethodConfig.findFirst({where:{provider:"BANK_TRANSFER",enabled:true,countries:{has:order.shippingCountry},OR:[{currencies:{has:order.displayCurrency||order.currency}},{currencies:{isEmpty:true}}]},orderBy:[{sortOrder:"asc"},{createdAt:"asc"}]});
+      const credentials=config?.encryptedCredentials?decryptCredentials<Record<string,string>>(config.encryptedCredentials):{};
+      if(!config||!config.encryptedCredentials)return NextResponse.json({error:"Bank transfer is not configured in the Admin Payment Dashboard."},{status:503});
+      return NextResponse.json({ok:true,provider:method,transactionId:transaction.id,status:"PENDING",action:"BANK_TRANSFER_INSTRUCTIONS",bank:{bankName:credentials.bankName||"",accountTitle:credentials.accountTitle||"",accountNumber:credentials.accountNumber||"",iban:credentials.iban||"",branchCode:credentials.branchCode||"",swiftCode:credentials.swiftCode||""},message:credentials.bankInstructions||config.instructions||"Transfer the exact order total and use the order number as the payment reference. Payment remains pending until MOTEVRA verifies the transfer."});
     }
 
     return NextResponse.json({
