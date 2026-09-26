@@ -5,6 +5,14 @@ import { decryptCredentials } from "@/lib/supplier-credentials";
 
 export const runtime = "nodejs";
 
+const prisma = getPrisma();
+
+function isCronRequest(req: NextRequest) {
+  const secret = process.env.CRON_SECRET;
+  if (!secret) return false;
+  return req.headers.get("authorization") === `Bearer ${secret}`;
+}
+
 type CJResponse = {
   code?: number;
   result?: boolean;
@@ -76,8 +84,20 @@ async function getCJShipping(
   return options[0];
 }
 
+export async function GET(req: NextRequest) {
+  if (!isCronRequest(req)) {
+    return NextResponse.json({ error: "Cron authentication required." }, { status: 401 });
+  }
+
+  return POST(new NextRequest(req.url, {
+    method: "POST",
+    headers: req.headers,
+    body: JSON.stringify({ mode: "sync" }),
+  }));
+}
+
 export async function POST(req: NextRequest) {
-  if (!await getAdminUser()) {
+  if (!isCronRequest(req) && !await getAdminUser()) {
     return NextResponse.json({ error: "Admin access required." }, { status: 403 });
   }
 
@@ -207,7 +227,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "orderId is required." }, { status: 400 });
     }
 
-    const prisma = getPrisma();
     const order = await prisma.order.findUnique({
       where: { id: orderId },
       include: {
