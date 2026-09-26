@@ -42,7 +42,19 @@ export function CheckoutForm({total,currency,guest}:{total:number;currency:strin
     const data=Object.fromEntries(new FormData(e.currentTarget));
     const res=await fetch("/api/orders",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(data)});
     const json=await res.json();
-    if(res.ok){window.location.href=guest?"/order-success?number="+encodeURIComponent(json.order.number):"/orders";return}
+    if(res.ok){
+      if(String(data.paymentMethod)==="JAZZCASH"){
+        const init=await fetch("/api/payments/initiate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({orderId:json.order.id,paymentMethod:"JAZZCASH"})});
+        const payment=await init.json();
+        if(!init.ok){setStatus(payment.error??"Unable to initialize JazzCash.");setBusy(false);return;}
+        if(payment.action==="REDIRECT_FORM"&&payment.gatewayUrl&&payment.fields){
+          const form=document.createElement("form"); form.method="POST"; form.action=payment.gatewayUrl;
+          Object.entries(payment.fields as Record<string,string>).forEach(([key,value])=>{const input=document.createElement("input");input.type="hidden";input.name=key;input.value=String(value);form.appendChild(input)});
+          document.body.appendChild(form); form.submit(); return;
+        }
+      }
+      window.location.href=guest?"/order-success?number="+encodeURIComponent(json.order.number):"/orders";return
+    }
     setStatus(json.error??"Unable to place order.");setBusy(false);
   }
 
@@ -74,10 +86,10 @@ export function CheckoutForm({total,currency,guest}:{total:number;currency:strin
     <input name="line2" placeholder="Apartment / area"/>
     <input name="postalCode" placeholder="Postal code"/>
     <select name="paymentMethod" defaultValue="BANK_TRANSFER" key={country}>
-      {isPakistan&&<option value="COD">Cash on delivery</option>}
+      {isPakistan&&<option value="COD">Cash on delivery</option>}\n      {isPakistan&&<option value="JAZZCASH">JazzCash</option>}
       <option value="BANK_TRANSFER">{isPakistan?"Bank transfer":"Bank account transfer"}</option>
     </select>
-    <p className="muted">{isPakistan?"Cash on delivery is available for Pakistan deliveries.":"Cash on delivery is not available for international deliveries."}</p>
+    <p className="muted">{isPakistan?"Pakistan: COD, bank transfer, and JazzCash are available.":"International: cash on delivery is not available."}</p>
     <button className="button button-dark" type="submit" disabled={busy}>{busy?"Placing…":"Place order"}</button>
     {status&&<p>{status}</p>}
   </form>
