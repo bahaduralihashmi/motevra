@@ -131,6 +131,19 @@ export async function POST(req:NextRequest){
         }
       }
       await tx.cart.update({where:{id:cart.id},data:{status:"CONVERTED"}});
+      await tx.paymentTransaction.create({
+        data:{
+          orderId:created.id,
+          provider:body.paymentMethod==="BANK_TRANSFER"?"BANK_TRANSFER":"COD",
+          status:"PENDING",
+          amount:quote.total,
+          currency:quote.displayCurrency,
+          baseAmount:quote.sourceTotal,
+          baseCurrency:quote.sourceCurrency,
+          exchangeRate:quote.exchangeRate,
+          metadata:{source:"checkout",paymentMethod:body.paymentMethod==="BANK_TRANSFER"?"BANK_TRANSFER":"COD"},
+        },
+      });
       return created;
     });
 
