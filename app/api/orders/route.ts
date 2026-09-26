@@ -3,6 +3,7 @@ import { auth } from "@/auth";
 import { getPrisma } from "@/lib/prisma";
 import { cookies } from "next/headers";
 import { buildCheckoutQuote } from "@/lib/checkout/quote";
+import { isPaymentMethodAllowed, normalizePaymentMethod, PAYMENT_METHODS } from "@/lib/payments/payment-methods";
 
 export const runtime="nodejs";
 
@@ -24,9 +25,9 @@ export async function POST(req:NextRequest){
     if(!s?.user?.email&&!String(body.email??"").trim())return NextResponse.json({error:"Email is required for guest checkout."},{status:400});
 
     const destinationCountry=String(body.country).trim().toUpperCase();
-    const requestedPayment=body.paymentMethod==="COD"?"COD":"BANK_TRANSFER";
-    if(requestedPayment==="COD" && destinationCountry!=="PK"){
-      return NextResponse.json({error:"Cash on delivery is available only in Pakistan. Please select bank transfer or another available payment method."},{status:400});
+    const requestedPayment=normalizePaymentMethod(body.paymentMethod) || PAYMENT_METHODS.BANK_TRANSFER;
+    if(!isPaymentMethodAllowed(requestedPayment,destinationCountry)){
+      return NextResponse.json({error:"This payment method is not available for the selected destination."},{status:400});
     }
 
     const p=getPrisma();
