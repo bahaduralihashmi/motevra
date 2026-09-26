@@ -56,11 +56,11 @@ export function CheckoutForm({total,currency,guest}:{total:number;currency:strin
     const res=await fetch("/api/orders",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(data)});
     const json=await res.json();
     if(res.ok){
-      if(String(data.paymentMethod)==="JAZZCASH"||String(data.paymentMethod)==="EASYPAISA"){
+      if(["JAZZCASH","EASYPAISA","MCB_EGATE","RAAST","STRIPE","PAYPAL"].includes(String(data.paymentMethod))){
         const init=await fetch("/api/payments/initiate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({orderId:json.order.id,paymentMethod:String(data.paymentMethod),email:String(data.email||""),phone:String(data.phone||"")})});
         const payment=await init.json();
         if(!init.ok){setStatus(payment.error??"Unable to initialize JazzCash.");setBusy(false);return;}
-        if(payment.action==="REDIRECT_FORM"&&payment.gatewayUrl&&payment.fields){
+        if((payment.action==="REDIRECT_URL"&&payment.url)){window.location.href=payment.url;return;} if(payment.action==="RAAST_INSTRUCTIONS"){setStatus(payment.instructions||"Complete the Raast payment and wait for verification.");setBusy(false);return;} if(payment.action==="REDIRECT_FORM"&&payment.gatewayUrl&&payment.fields){
           const form=document.createElement("form"); form.method="POST"; form.action=payment.gatewayUrl;
           Object.entries(payment.fields as Record<string,string>).forEach(([key,value])=>{const input=document.createElement("input");input.type="hidden";input.name=key;input.value=String(value);form.appendChild(input)});
           document.body.appendChild(form); form.submit(); return;

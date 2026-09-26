@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Payment transaction not found." }, { status: 404 });
     }
 
-    if (transaction.provider !== "BANK_TRANSFER" && transaction.provider !== "COD") {
+    if (transaction.provider !== "BANK_TRANSFER" && transaction.provider !== "COD" && transaction.provider !== "RAAST") {
       return NextResponse.json(
         { error: "This endpoint only verifies bank transfer or collected COD payments." },
         { status: 400 },
@@ -59,9 +59,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({
       ok: true,
-      message: transaction.provider === "COD"
-        ? "COD payment marked collected."
-        : "Bank transfer marked verified.",
+      message: transaction.provider === "COD" ? "COD payment marked collected." : transaction.provider === "RAAST" ? "Raast payment marked verified." : "Bank transfer marked verified.",
       ...result,
     });
   } catch (error) {

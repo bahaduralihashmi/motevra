@@ -693,6 +693,19 @@ model PaymentTransaction {
   @@index([provider,providerTransactionId])
 }
 
+model PaymentWebhookEvent {
+  id String @id @default(cuid())
+  provider PaymentProvider
+  eventId String
+  eventType String?
+  payload Json?
+  processed Boolean @default(false)
+  createdAt DateTime @default(now())
+  processedAt DateTime?
+  @@unique([provider,eventId])
+  @@index([provider,createdAt])
+}
+
 model PaymentMethodConfig {
   id String @id @default(cuid())
   name String

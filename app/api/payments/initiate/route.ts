@@ -4,6 +4,9 @@ import { getPrisma } from "@/lib/prisma";
 import { createJazzCashSecureHash, jazzCashTimestamp } from "@/lib/payments/jazzcash";
 import { decryptCredentials } from "@/lib/supplier-credentials";
 import { getEnabledPaymentMethods } from "@/lib/payment-method-config";
+import { paypalAccessToken, paypalRequest } from "@/lib/payments/paypal";
+import { stripeRequest } from "@/lib/payments/stripe";
+import { mcbCreateSession } from "@/lib/payments/mcb";
 import { easypaisaExpiry, easypaisaNonce, createEasypaisaMerchantHash } from "@/lib/payments/easypaisa";
 import {
   isPaymentMethodAllowed,
@@ -191,6 +194,36 @@ export async function POST(req: NextRequest) {
         gatewayUrl,
         fields,
       });
+    }
+    if (method === "STRIPE") {
+      const config=await prisma.paymentMethodConfig.findFirst({where:{provider:"STRIPE",enabled:true,countries:{has:order.shippingCountry}},orderBy:[{sortOrder:"asc"},{createdAt:"asc"}]});
+      const cr=config?.encryptedCredentials?decryptCredentials<Record<string,string>>(config.encryptedCredentials):{};
+      if(!config||!cr.secretKey)return NextResponse.json({error:"Stripe is not configured in the Admin Payment Dashboard."},{status:503});
+      const meta=config.settings&&typeof config.settings==="object"?config.settings as Record<string,unknown>:{};
+      const origin=new URL(req.url).origin,success=String(meta.successUrl||origin+"/api/payments/stripe/callback?session_id={CHECKOUT_SESSION_ID}"),cancel=String(meta.cancelUrl||origin+"/order-success?payment=cancelled");
+      const form=new URLSearchParams();form.set("mode","payment");form.set("success_url",success);form.set("cancel_url",cancel);form.set("client_reference_id",order.id);form.set("metadata[order_id]",order.id);form.set("metadata[payment_transaction_id]",transaction.id);form.set("line_items[0][price_data][currency]",order.displayCurrency.toLowerCase());form.set("line_items[0][price_data][product_data][name]","MOTEVRA Order "+order.number);form.set("line_items[0][price_data][unit_amount]",String(Math.round(Number(order.total)*100)));form.set("line_items[0][quantity]","1");
+      const s=await stripeRequest(cr.secretKey,"/v1/checkout/sessions",form);if(!s.url||!s.id)throw new Error("Stripe did not return a checkout URL.");await prisma.paymentTransaction.update({where:{id:transaction.id},data:{providerTransactionId:s.id,metadata:{source:"stripe",paymentMethodConfigId:config.id}}});return NextResponse.json({ok:true,provider:method,transactionId:transaction.id,status:"PENDING",action:"REDIRECT_URL",url:s.url});
+    }
+    if (method === "PAYPAL") {
+      const config=await prisma.paymentMethodConfig.findFirst({where:{provider:"PAYPAL",enabled:true,countries:{has:order.shippingCountry}},orderBy:[{sortOrder:"asc"},{createdAt:"asc"}]});
+      const cr=config?.encryptedCredentials?decryptCredentials<Record<string,string>>(config.encryptedCredentials):{};const meta=config?.settings&&typeof config.settings==="object"?config.settings as Record<string,unknown>:{};
+      if(!config||!cr.clientId||!cr.clientSecret)return NextResponse.json({error:"PayPal is not configured in the Admin Payment Dashboard."},{status:503});
+      const base=String(meta.apiBaseUrl||"https://api-m.paypal.com").replace(/\/$/,"");const token=await paypalAccessToken(base,cr.clientId,cr.clientSecret);const origin=new URL(req.url).origin;const body={intent:"CAPTURE",purchase_units:[{reference_id:order.number,custom_id:order.id,amount:{currency_code:order.displayCurrency,value:Number(order.total).toFixed(2)}}],application_context:{return_url:String(meta.successUrl||origin+"/api/payments/paypal/callback"),cancel_url:String(meta.cancelUrl||origin+"/order-success?payment=cancelled")}};const po=await paypalRequest(base,token,"/v2/checkout/orders",{method:"POST",headers:{"PayPal-Request-Id":transaction.id},body:JSON.stringify(body)});const approve=po.links?.find((x:any)=>x.rel==="approve")?.href;if(!approve)throw new Error("PayPal did not return an approval URL.");await prisma.paymentTransaction.update({where:{id:transaction.id},data:{providerTransactionId:po.id,metadata:{source:"paypal",paymentMethodConfigId:config.id}}});return NextResponse.json({ok:true,provider:method,transactionId:transaction.id,status:"PENDING",action:"REDIRECT_URL",url:approve});
+    }
+    if (method === "MCB_EGATE") {
+      const config=await prisma.paymentMethodConfig.findFirst({where:{provider:"MCB_EGATE",enabled:true,countries:{has:order.shippingCountry}},orderBy:[{sortOrder:"asc"},{createdAt:"asc"}]});
+      const cr=config?.encryptedCredentials?decryptCredentials<Record<string,string>>(config.encryptedCredentials):{};const meta=config?.settings&&typeof config.settings==="object"?config.settings as Record<string,unknown>:{};
+      const merchantId=String(cr.merchantId||"").trim(),password=String(cr.apiPassword||cr.password||"").trim(),base=String(meta.apiBaseUrl||"").replace(/\/$/,""),version=String(meta.apiVersion||"61"),js=String(meta.checkoutJsUrl||"");
+      if(!config||!merchantId||!password||!base||!js)return NextResponse.json({error:"MCB eGate is not configured in the Admin Payment Dashboard."},{status:503});
+      const origin=new URL(req.url).origin;const session=await mcbCreateSession(base,version,merchantId,password,{apiOperation:"CREATE_CHECKOUT_SESSION",order:{id:order.number,amount:Number(order.total).toFixed(2),currency:order.displayCurrency},interaction:{operation:"PURCHASE",returnUrl:origin+"/api/payments/mcb/callback?transaction="+encodeURIComponent(transaction.id)}});
+      await prisma.paymentTransaction.update({where:{id:transaction.id},data:{providerTransactionId:session.session.id,metadata:{source:"mcb_egate",paymentMethodConfigId:config.id,mcbSessionId:session.session.id}}});
+      return NextResponse.json({ok:true,provider:method,transactionId:transaction.id,status:"PENDING",action:"REDIRECT_URL",url:origin+"/api/payments/mcb/checkout?session="+encodeURIComponent(session.session.id)+"&config="+encodeURIComponent(config.id)});
+    }
+    if (method === "RAAST") {
+      const config=await prisma.paymentMethodConfig.findFirst({where:{provider:"RAAST",enabled:true,countries:{has:"PK"},currencies:{has:"PKR"}},orderBy:[{sortOrder:"asc"},{createdAt:"asc"}]});
+      if(!config)return NextResponse.json({error:"Raast is not configured in the Admin Payment Dashboard."},{status:503});
+      const meta=config.settings&&typeof config.settings==="object"?config.settings as Record<string,unknown>:{};
+      return NextResponse.json({ok:true,provider:method,transactionId:transaction.id,status:"PENDING",action:"RAAST_INSTRUCTIONS",instructions:config.instructions||"Complete the Raast payment using the configured merchant alias, IBAN or QR code. MOTEVRA will verify the payment before fulfillment.",merchantAlias:String(meta.merchantAlias||""),iban:String(meta.iban||""),qrImageUrl:String(meta.qrImageUrl||"")});
     }
     if (method === "BANK_TRANSFER" || method === "COD") {
       return NextResponse.json({
