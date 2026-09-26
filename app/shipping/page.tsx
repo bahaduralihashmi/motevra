@@ -1,8 +1,3 @@
-export const metadata = { title: "Shipping & Delivery | MOTEVRA Pakistan", description: "Read MOTEVRA shipping and delivery information for automotive products ordered online in Pakistan." , alternates: { canonical: "/shipping" } };
-
-import { SiteHeader } from "@/components/site-header";
-import { SiteFooter } from "@/components/site-footer";
-
-export default function ShippingPage() {
-  return <><SiteHeader /><main><section className="page-hero"><div className="container narrow"><p className="eyebrow">SHIPPING</p><h1>Local fulfillment today. International expansion tomorrow.</h1><p className="hero-copy">Country, currency, tax, warehouse, destination and shipping-method concepts will be implemented as commerce services after the storefront foundation.</p></div></section></main><SiteFooter /></>;
-}
+export const metadata={title:"Shipping & Delivery | MOTEVRA",description:"MOTEVRA shipping and delivery information for automotive products ordered online.",alternates:{canonical:"/shipping"}};
+import { SiteHeader } from "@/components/site-header";import { SiteFooter } from "@/components/site-footer";
+export default function ShippingPage(){return <><SiteHeader/><main><section className="page-hero"><div className="container narrow"><p className="eyebrow">SHIPPING & DELIVERY</p><h1>Delivery information before you buy.</h1><p className="hero-copy">Shipping is calculated for the destination and products in your cart. Different products or suppliers can have different fulfillment and delivery requirements.</p></div></section><section className="section"><div className="container narrow"><div className="trust-copy"><h2>What checkout shows</h2><ul><li>Destination-specific shipping availability.</li><li>Applicable shipping cost when a configured method is available.</li><li>Tax when a destination tax rule is configured.</li><li>Payment methods available for the selected country and currency.</li></ul><h2>After your order</h2><p>Paid orders move into fulfillment. Supplier orders can generate separate shipments, and tracking information is shown in your order detail when available.</p><h2>International orders</h2><p>International delivery can vary by destination, product type, warehouse and supplier. Customs duties or local charges may apply where required by the destination.</p></div></div></section></main><SiteFooter/></>}
