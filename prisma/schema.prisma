@@ -58,6 +58,12 @@ enum PaymentMethod {
   COD
   BANK_TRANSFER
   ONLINE
+  JAZZCASH
+  EASYPAISA
+  MCB_EGATE
+  RAAST
+  STRIPE
+  PAYPAL
 }
 enum PaymentStatus {
   PENDING
@@ -685,6 +691,25 @@ model PaymentTransaction {
   refunds Refund[]
   @@index([orderId,createdAt])
   @@index([provider,providerTransactionId])
+}
+
+model PaymentMethodConfig {
+  id String @id @default(cuid())
+  name String
+  provider PaymentProvider
+  type String @default("ONLINE")
+  countries String[]
+  currencies String[]
+  encryptedCredentials String? @db.Text
+  settings Json?
+  instructions String? @db.Text
+  mode String @default("LIVE")
+  enabled Boolean @default(false)
+  sortOrder Int @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@index([enabled,sortOrder])
+  @@index([provider])
 }
 
 model Refund {
