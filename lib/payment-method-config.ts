@@ -5,3 +5,10 @@ let ready=false;
 export async function ensurePaymentMethodSchema(){if(ready)return;const p=getPrisma();for(const value of PAYMENT_PROVIDERS){await p.$executeRawUnsafe(`ALTER TYPE "PaymentMethod" ADD VALUE IF NOT EXISTS '${value}'`)}await p.$executeRawUnsafe(`CREATE TABLE IF NOT EXISTS "PaymentMethodConfig" ("id" TEXT NOT NULL,"name" TEXT NOT NULL,"provider" "PaymentProvider" NOT NULL,"type" TEXT NOT NULL DEFAULT 'ONLINE',"countries" TEXT[] NOT NULL DEFAULT ARRAY[]::TEXT[],"currencies" TEXT[] NOT NULL DEFAULT ARRAY[]::TEXT[],"encryptedCredentials" TEXT,"settings" JSONB,"instructions" TEXT,"mode" TEXT NOT NULL DEFAULT 'LIVE',"enabled" BOOLEAN NOT NULL DEFAULT false,"sortOrder" INTEGER NOT NULL DEFAULT 0,"createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,"updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,CONSTRAINT "PaymentMethodConfig_pkey" PRIMARY KEY ("id"))`);await p.$executeRawUnsafe(`CREATE INDEX IF NOT EXISTS "PaymentMethodConfig_enabled_sortOrder_idx" ON "PaymentMethodConfig" ("enabled","sortOrder")`);await p.$executeRawUnsafe(`CREATE INDEX IF NOT EXISTS "PaymentMethodConfig_provider_idx" ON "PaymentMethodConfig" ("provider")`);ready=true}
 export function normalizeProvider(v:string):PaymentMethodProvider{const x=v.trim().toUpperCase();return (PAYMENT_PROVIDERS as readonly string[]).includes(x)?x as PaymentMethodProvider:"OTHER"}
 export function cleanList(v:unknown){return Array.isArray(v)?[...new Set(v.map(x=>String(x).trim().toUpperCase()).filter(Boolean))]:[]}
+
+export async function getEnabledPaymentMethods(country:string,currency:string){
+  const {getPrisma}=await import("@/lib/prisma");
+  await ensurePaymentMethodSchema();
+  const rows=await getPrisma().paymentMethodConfig.findMany({where:{enabled:true,OR:[{countries:{has:country.toUpperCase()}},{countries:{isEmpty:true}}],AND:[{OR:[{currencies:{has:currency.toUpperCase()}},{currencies:{isEmpty:true}}]}]},orderBy:[{sortOrder:"asc"},{createdAt:"asc"}]});
+  return rows.map(r=>({id:r.id,name:r.name,provider:r.provider,type:r.type,instructions:r.instructions,mode:r.mode,sortOrder:r.sortOrder}));
+}

@@ -6,6 +6,7 @@ export const PAYMENT_METHODS = {
   MCB_EGATE: "MCB_EGATE",
   STRIPE: "STRIPE",
   PAYPAL: "PAYPAL",
+  RAAST: "RAAST",
 } as const;
 
 export type PaymentMethod = (typeof PAYMENT_METHODS)[keyof typeof PAYMENT_METHODS];

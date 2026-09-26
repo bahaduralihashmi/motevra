@@ -4,6 +4,7 @@ import { getPrisma } from "@/lib/prisma";
 import { cookies } from "next/headers";
 import { buildCheckoutQuote } from "@/lib/checkout/quote";
 import { isPaymentMethodAllowed, normalizePaymentMethod, PAYMENT_METHODS } from "@/lib/payments/payment-methods";
+import { getEnabledPaymentMethods } from "@/lib/payment-method-config";
 
 export const runtime="nodejs";
 
@@ -28,6 +29,11 @@ export async function POST(req:NextRequest){
     const requestedPayment=normalizePaymentMethod(body.paymentMethod) || PAYMENT_METHODS.BANK_TRANSFER;
     if(!isPaymentMethodAllowed(requestedPayment,destinationCountry)){
       return NextResponse.json({error:"This payment method is not available for the selected destination."},{status:400});
+    }
+    const destinationCurrency=String(body.currency||"").trim().toUpperCase();
+    const configuredMethods=await getEnabledPaymentMethods(destinationCountry,destinationCurrency||"PKR");
+    if(!configuredMethods.some(method=>method.provider===requestedPayment)){
+      return NextResponse.json({error:"This payment method is not enabled for the selected country and currency in the MOTEVRA Admin Payment Dashboard."},{status:400});
     }
 
     const p=getPrisma();

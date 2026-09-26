@@ -1,8 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { getPrisma } from "@/lib/prisma";
+import { createJazzCashSecureHash, jazzCashTimestamp } from "@/lib/payments/jazzcash";
+import { decryptCredentials } from "@/lib/supplier-credentials";
+import { getEnabledPaymentMethods } from "@/lib/payment-method-config";
+import { easypaisaExpiry, easypaisaNonce, createEasypaisaMerchantHash } from "@/lib/payments/easypaisa";
 import {
-  getAvailablePaymentMethods,
   isPaymentMethodAllowed,
   normalizePaymentMethod,
 } from "@/lib/payments/payment-methods";
@@ -11,7 +14,8 @@ export const runtime = "nodejs";
 
 export async function GET(req: NextRequest) {
   const country = String(new URL(req.url).searchParams.get("country") || "PK").toUpperCase();
-  return NextResponse.json({ country, methods: getAvailablePaymentMethods(country) });
+  const currency = String(new URL(req.url).searchParams.get("currency") || "PKR").toUpperCase();
+  return NextResponse.json({ country, currency, methods: await getEnabledPaymentMethods(country, currency) });
 }
 
 export async function POST(req: NextRequest) {
@@ -64,17 +68,34 @@ export async function POST(req: NextRequest) {
       if (order.currency !== "PKR" && order.displayCurrency !== "PKR") {
         return NextResponse.json({ error: "JazzCash payments require a PKR order." }, { status: 400 });
       }
-      const merchantId = process.env.JAZZCASH_MERCHANT_ID;
-      const password = process.env.JAZZCASH_PASSWORD;
-      const integritySalt = process.env.JAZZCASH_INTEGRITY_SALT;
-      if (!merchantId || !password || !integritySalt) {
-        return NextResponse.json({ error: "JazzCash merchant credentials are not configured." }, { status: 503 });
+      const config = await prisma.paymentMethodConfig.findFirst({
+        where: {
+          provider: "JAZZCASH",
+          enabled: true,
+          countries: { has: order.shippingCountry },
+          OR: [{ currencies: { has: "PKR" } }, { currencies: { isEmpty: true } }],
+        },
+        orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }],
+      });
+      if (!config || !config.encryptedCredentials) {
+        return NextResponse.json({ error: "JazzCash is not configured in the Admin Payment Dashboard." }, { status: 503 });
       }
-      const baseUrl = process.env.NEXT_PUBLIC_APP_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null);
-      if (!baseUrl) return NextResponse.json({ error: "NEXT_PUBLIC_APP_URL or VERCEL_URL is required." }, { status: 503 });
+      const credentials = decryptCredentials<Record<string, string>>(config.encryptedCredentials);
+      const merchantId = String(credentials.merchantId || credentials.MerchantID || "").trim();
+      const password = String(credentials.password || credentials.Password || "").trim();
+      const integritySalt = String(credentials.integritySalt || credentials.sharedSecret || "").trim();
+      if (!merchantId || !password || !integritySalt) {
+        return NextResponse.json({ error: "JazzCash merchantId, password and integritySalt are required in the Admin Payment Dashboard." }, { status: 503 });
+      }
+      const settings = config.settings && typeof config.settings === "object" ? config.settings as Record<string, unknown> : {};
+      const configuredGatewayUrl = String(settings.gatewayUrl || "").trim();
+      if (!configuredGatewayUrl) {
+        return NextResponse.json({ error: "JazzCash gateway URL is missing in the Admin Payment Dashboard." }, { status: 503 });
+      }
       const txnRef = order.number.slice(0, 20);
       const txnDateTime = jazzCashTimestamp();
       const expiry = jazzCashTimestamp(new Date(Date.now() + 3 * 60 * 60 * 1000));
+      const baseUrl = new URL(req.url).origin;
       const fields = {
         pp_Version: "1.1",
         pp_TxnType: "MWALLET",
@@ -97,7 +118,7 @@ export async function POST(req: NextRequest) {
       const secureHash = createJazzCashSecureHash(fields, integritySalt);
       await prisma.paymentTransaction.update({
         where: { id: transaction.id },
-        data: { providerTransactionId: txnRef, metadata: { source: "jazzcash", txnRef } },
+        data: { providerTransactionId: txnRef, metadata: { source: "jazzcash", txnRef, paymentMethodConfigId: config.id } },
       });
       return NextResponse.json({
         ok: true,
@@ -105,11 +126,72 @@ export async function POST(req: NextRequest) {
         transactionId: transaction.id,
         status: "PENDING",
         action: "REDIRECT_FORM",
-        gatewayUrl: process.env.JAZZCASH_PAYMENT_URL || "https://sandbox.jazzcash.com.pk/CustomerPortal/transactionmanagement/merchantform",
+        gatewayUrl: configuredGatewayUrl,
         fields: { ...fields, pp_SecureHash: secureHash },
       });
     }
-
+    if (method === "EASYPAISA") {
+      if ((order.currency || order.displayCurrency) !== "PKR" && order.displayCurrency !== "PKR") {
+        return NextResponse.json({ error: "Easypaisa payments require a PKR order." }, { status: 400 });
+      }
+      const config = await prisma.paymentMethodConfig.findFirst({
+        where: {
+          provider: "EASYPAISA",
+          enabled: true,
+          countries: { has: order.shippingCountry },
+          OR: [{ currencies: { has: "PKR" } }, { currencies: { isEmpty: true } }],
+        },
+        orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }],
+      });
+      if (!config || !config.encryptedCredentials) {
+        return NextResponse.json({ error: "Easypaisa is not configured in the Admin Payment Dashboard." }, { status: 503 });
+      }
+      const credentials = decryptCredentials<Record<string, string>>(config.encryptedCredentials);
+      const storeId = String(credentials.storeId || credentials.StoreID || credentials.store_id || "").trim();
+      const hashKey = String(credentials.hashKey || credentials.HashKey || credentials.hash_key || "").trim();
+      if (!storeId) {
+        return NextResponse.json({ error: "Easypaisa storeId is required in the Admin Payment Dashboard." }, { status: 503 });
+      }
+      const settings = config.settings && typeof config.settings === "object" ? config.settings as Record<string, unknown> : {};
+      const gatewayUrl = String(settings.gatewayUrl || "").trim();
+      const confirmUrl = String(settings.confirmUrl || "").trim();
+      if (!gatewayUrl || !confirmUrl) {
+        return NextResponse.json({ error: "Easypaisa gateway URL and confirmation URL are required in the Admin Payment Dashboard." }, { status: 503 });
+      }
+      const existingMeta = transaction.metadata && typeof transaction.metadata === "object" ? transaction.metadata as Record<string, unknown> : {};
+      const orderRefNum = String(existingMeta.easypaisaOrderRef || `EP${order.id.replace(/[^A-Za-z0-9]/g, "").slice(-18)}`).slice(0, 20);
+      const nonce = String(existingMeta.easypaisaNonce || easypaisaNonce());
+      const callbackUrl = new URL("/api/payments/easypaisa/callback", new URL(req.url).origin);
+      callbackUrl.searchParams.set("nonce", nonce);
+      const fields: Record<string,string> = {
+        amount: Number(order.total).toFixed(1),
+        storeId,
+        postBackURL: callbackUrl.toString(),
+        orderRefNum,
+        expiryDate: easypaisaExpiry(30),
+        autoRedirect: "0",
+        paymentMethod: "MA_PAYMENT_METHOD",
+      };
+      if (body.email) fields.emailAddr = String(body.email).trim();
+      if (body.mobile || body.phone) fields.mobileNum = String(body.mobile || body.phone).trim();
+      if (hashKey) fields.merchantHashedReq = createEasypaisaMerchantHash(fields, hashKey);
+      await prisma.paymentTransaction.update({
+        where: { id: transaction.id },
+        data: {
+          providerTransactionId: orderRefNum,
+          metadata: { source: "easypaisa", paymentMethodConfigId: config.id, easypaisaOrderRef: orderRefNum, easypaisaNonce: nonce },
+        },
+      });
+      return NextResponse.json({
+        ok: true,
+        provider: method,
+        transactionId: transaction.id,
+        status: "PENDING",
+        action: "REDIRECT_FORM",
+        gatewayUrl,
+        fields,
+      });
+    }
     if (method === "BANK_TRANSFER" || method === "COD") {
       return NextResponse.json({
         ok: true,

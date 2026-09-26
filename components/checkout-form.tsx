@@ -13,6 +13,8 @@ export function CheckoutForm({total,currency,guest}:{total:number;currency:strin
   const [quoteLoading,setQuoteLoading]=useState(true);
   const [status,setStatus]=useState("");
   const [busy,setBusy]=useState(false);
+  const [paymentMethods,setPaymentMethods]=useState<{id:string;name:string;provider:string;instructions?:string|null}[]>([]);
+  const [paymentLoading,setPaymentLoading]=useState(true);
   const isPakistan=country==="PK";
 
   useEffect(()=>{
@@ -20,6 +22,17 @@ export function CheckoutForm({total,currency,guest}:{total:number;currency:strin
       if(Array.isArray(data.countries))setCountries(data.countries);
     }).catch(()=>{});
   },[]);
+
+  useEffect(()=>{
+    let cancelled=false;
+    setPaymentLoading(true);
+    const countryCurrency=countries.find(c=>c.code===country)?.currencyCode||"PKR";
+    fetch(`/api/payment-methods?country=${encodeURIComponent(country)}&currency=${encodeURIComponent(countryCurrency)}`,{cache:"no-store"})
+      .then(r=>r.json()).then(data=>{if(!cancelled)setPaymentMethods(Array.isArray(data.methods)?data.methods:[])})
+      .catch(()=>{if(!cancelled)setPaymentMethods([])})
+      .finally(()=>{if(!cancelled)setPaymentLoading(false)});
+    return()=>{cancelled=true};
+  },[country,countries]);
 
   useEffect(()=>{
     let cancelled=false;
@@ -43,8 +56,8 @@ export function CheckoutForm({total,currency,guest}:{total:number;currency:strin
     const res=await fetch("/api/orders",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(data)});
     const json=await res.json();
     if(res.ok){
-      if(String(data.paymentMethod)==="JAZZCASH"){
-        const init=await fetch("/api/payments/initiate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({orderId:json.order.id,paymentMethod:"JAZZCASH"})});
+      if(String(data.paymentMethod)==="JAZZCASH"||String(data.paymentMethod)==="EASYPAISA"){
+        const init=await fetch("/api/payments/initiate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({orderId:json.order.id,paymentMethod:String(data.paymentMethod),email:String(data.email||""),phone:String(data.phone||"")})});
         const payment=await init.json();
         if(!init.ok){setStatus(payment.error??"Unable to initialize JazzCash.");setBusy(false);return;}
         if(payment.action==="REDIRECT_FORM"&&payment.gatewayUrl&&payment.fields){
@@ -77,6 +90,7 @@ export function CheckoutForm({total,currency,guest}:{total:number;currency:strin
     {guest&&<input name="email" type="email" placeholder="Email address" required/>}
     <input name="name" placeholder="Full name" required/>
     <input name="phone" placeholder="Phone" required/>
+    <input type="hidden" name="currency" value={selectedCurrency||"PKR"}/>
     <select name="country" value={country} onChange={e=>setCountry(e.target.value)} required>
       {countries.length?countries.map(c=><option key={c.code} value={c.code}>{c.name} ({c.currencyCode})</option>):<option value="PK">Pakistan (PKR)</option>}
     </select>
@@ -85,12 +99,13 @@ export function CheckoutForm({total,currency,guest}:{total:number;currency:strin
     <input name="line1" placeholder="Address" required/>
     <input name="line2" placeholder="Apartment / area"/>
     <input name="postalCode" placeholder="Postal code"/>
-    <select name="paymentMethod" defaultValue="BANK_TRANSFER" key={country}>
-      {isPakistan&&<option value="COD">Cash on delivery</option>}\n      {isPakistan&&<option value="JAZZCASH">JazzCash</option>}
-      <option value="BANK_TRANSFER">{isPakistan?"Bank transfer":"Bank account transfer"}</option>
+    <select name="paymentMethod" defaultValue="" key={country} required disabled={paymentLoading||paymentMethods.length===0}>
+      <option value="" disabled>{paymentLoading?"Loading payment methods…":paymentMethods.length?"Select payment method":"No payment methods configured"}</option>
+      {paymentMethods.map(m=><option key={m.id} value={m.provider}>{m.name}</option>)}
     </select>
-    <p className="muted">{isPakistan?"Pakistan: COD, bank transfer, and JazzCash are available.":"International: cash on delivery is not available."}</p>
-    <button className="button button-dark" type="submit" disabled={busy}>{busy?"Placing…":"Place order"}</button>
+    {paymentMethods.find(m=>m.provider===paymentMethods[0]?.provider)?.instructions&&<p className="muted">{paymentMethods[0].instructions}</p>}
+    <p className="muted">{isPakistan?"Payment methods are managed by MOTEVRA Admin.":"International checkout does not offer cash on delivery."}</p>
+    <button className="button button-dark" type="submit" disabled={busy||paymentLoading||paymentMethods.length===0}>{busy?"Placing…":paymentMethods.length?"Place order":"Configure payment method first"}</button>
     {status&&<p>{status}</p>}
   </form>
 }
