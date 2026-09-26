@@ -546,3 +546,7 @@ pre,code{max-width:100%;overflow-x:auto}
   .container{width:calc(100% - 18px)}
   .product-grid,.brand-product-grid{grid-template-columns:1fr}
 }
+
+/* Payment administration */
+.payment-admin{display:grid;gap:28px}.payment-form{max-width:980px}.payment-form-head{display:flex;justify-content:space-between;align-items:flex-start;gap:20px}.payment-form-head h2{font-size:clamp(30px,4vw,48px);margin:0 0 18px}.payment-check-grid{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px;padding:14px;background:#fafaf7;border:1px solid var(--line)}.payment-check-grid .check{padding:8px 10px;background:#fff;border:1px solid var(--line);font-size:11px}.payment-enabled{padding:13px;border:1px solid var(--line);background:#fafaf7}.payment-row{grid-template-columns:1.5fr 1fr 1.4fr 1.3fr .8fr 1.4fr;min-width:1050px}.payment-row .button{white-space:nowrap}.payment-list{overflow-x:auto}.payment-form label{font-weight:600;font-size:12px}.payment-form label input,.payment-form label select,.payment-form label textarea{margin-top:6px;font-weight:400}.admin-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+@media(max-width:768px){.admin-heading{align-items:flex-start;flex-direction:column}.admin-actions{justify-content:flex-start}.payment-form-head{align-items:flex-start}.payment-check-grid{gap:5px}.payment-check-grid .check{padding:7px 8px}}
