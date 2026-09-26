@@ -60,6 +60,56 @@ export async function POST(req: NextRequest) {
       },
     });
 
+    if (method === "JAZZCASH") {
+      if (order.currency !== "PKR" && order.displayCurrency !== "PKR") {
+        return NextResponse.json({ error: "JazzCash payments require a PKR order." }, { status: 400 });
+      }
+      const merchantId = process.env.JAZZCASH_MERCHANT_ID;
+      const password = process.env.JAZZCASH_PASSWORD;
+      const integritySalt = process.env.JAZZCASH_INTEGRITY_SALT;
+      if (!merchantId || !password || !integritySalt) {
+        return NextResponse.json({ error: "JazzCash merchant credentials are not configured." }, { status: 503 });
+      }
+      const baseUrl = process.env.NEXT_PUBLIC_APP_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null);
+      if (!baseUrl) return NextResponse.json({ error: "NEXT_PUBLIC_APP_URL or VERCEL_URL is required." }, { status: 503 });
+      const txnRef = order.number.slice(0, 20);
+      const txnDateTime = jazzCashTimestamp();
+      const expiry = jazzCashTimestamp(new Date(Date.now() + 3 * 60 * 60 * 1000));
+      const fields = {
+        pp_Version: "1.1",
+        pp_TxnType: "MWALLET",
+        pp_Language: "EN",
+        pp_MerchantID: merchantId,
+        pp_SubMerchantID: "",
+        pp_Password: password,
+        pp_BankID: "",
+        pp_ProductID: "RETL",
+        pp_TxnRefNo: txnRef,
+        pp_Amount: String(Math.round(Number(order.total) * 100)),
+        pp_TxnCurrency: "PKR",
+        pp_TxnDateTime: txnDateTime,
+        pp_TxnExpiryDateTime: expiry,
+        pp_BillReference: order.number.slice(0, 20),
+        pp_Description: `MOTEVRA ${order.number}`.slice(0, 200),
+        pp_ReturnURL: `${baseUrl}/api/payments/jazzcash/callback`,
+        ppmpf_1: "", ppmpf_2: "", ppmpf_3: "", ppmpf_4: "", ppmpf_5: "",
+      };
+      const secureHash = createJazzCashSecureHash(fields, integritySalt);
+      await prisma.paymentTransaction.update({
+        where: { id: transaction.id },
+        data: { providerTransactionId: txnRef, metadata: { source: "jazzcash", txnRef } },
+      });
+      return NextResponse.json({
+        ok: true,
+        provider: method,
+        transactionId: transaction.id,
+        status: "PENDING",
+        action: "REDIRECT_FORM",
+        gatewayUrl: process.env.JAZZCASH_PAYMENT_URL || "https://sandbox.jazzcash.com.pk/CustomerPortal/transactionmanagement/merchantform",
+        fields: { ...fields, pp_SecureHash: secureHash },
+      });
+    }
+
     if (method === "BANK_TRANSFER" || method === "COD") {
       return NextResponse.json({
         ok: true,
