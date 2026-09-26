@@ -59,8 +59,18 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
       offers:{"@type":"Offer",url:productUrl,priceCurrency:product.currency,price:price.toFixed(2),availability}
     };
     if (averageRating) structuredData.aggregateRating={"@type":"AggregateRating",ratingValue:averageRating.toFixed(1),reviewCount:approvedReviews.length};
+    const breadcrumbData = {
+      "@context":"https://schema.org",
+      "@type":"BreadcrumbList",
+      itemListElement:[
+        {"@type":"ListItem",position:1,name:"Home",item:"https://www.motevra.com/"},
+        {"@type":"ListItem",position:2,name:product.category?.name||"Shop",item:"https://www.motevra.com/shop"},
+        {"@type":"ListItem",position:3,name:product.name,item:productUrl}
+      ]
+    };
     return <><SiteHeader /><main>
       <Script id={`product-schema-${product.id}`} type="application/ld+json">{JSON.stringify(structuredData)}</Script>
+      <Script id={`product-breadcrumb-${product.id}`} type="application/ld+json">{JSON.stringify(breadcrumbData)}</Script>
       <section className="section product-section">
         <div className="container product-detail">
           <ProductExperience

@@ -35,7 +35,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     if (!process.env.DATABASE_URL) return staticEntries;
 
     const products = await getPrisma().product.findMany({
-      where: { status: "ACTIVE" },
+      where: { status: "ACTIVE", slug: { not: "" } },
       select: { slug: true, updatedAt: true },
       orderBy: { updatedAt: "desc" },
     });
