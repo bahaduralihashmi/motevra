@@ -106,7 +106,18 @@ export async function POST(req: NextRequest) {
           shippingClass: item.product.shippingClass,
           weight: item.product.weight,
           supplierProducts: item.product.supplierProducts,
-          variant: item.variantId ? item.product.variants.find(v=>v.id===item.variantId) : undefined,
+          variant: item.variantId
+            ? (() => {
+                const variant = item.product.variants.find((v) => v.id === item.variantId);
+                return variant
+                  ? {
+                      id: variant.id,
+                      stock: variant.stock,
+                      price: variant.price == null ? null : Number(variant.price),
+                    }
+                  : undefined;
+              })()
+            : undefined,
         },
       })),
       country,
