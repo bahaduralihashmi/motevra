@@ -69,6 +69,9 @@ export function SiteHeader() {
   const [hovered, setHovered] = useState<string | null>(null);
   const { currency, setCurrency } = useCurrency();
   const [currencyOpen, setCurrencyOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [cartCount, setCartCount] = useState(0);
 
   useEffect(() => {
     const onScroll = () => {
@@ -86,6 +89,33 @@ export function SiteHeader() {
       document.body.style.overflow = "";
     };
   }, [open]);
+
+  useEffect(() => {
+    let cancelled = false;
+    const loadCartCount = async () => {
+      try {
+        const response = await fetch("/api/cart", { cache: "no-store" });
+        const data = await response.json();
+        const count = data?.cart?.items?.reduce((total: number, item: { quantity: number }) => total + Number(item.quantity || 0), 0) || 0;
+        if (!cancelled) setCartCount(count);
+      } catch {}
+    };
+    loadCartCount();
+    const onCartChanged = () => loadCartCount();
+    window.addEventListener("motevra:cart-updated", onCartChanged);
+    return () => {
+      cancelled = true;
+      window.removeEventListener("motevra:cart-updated", onCartChanged);
+    };
+  }, []);
+
+  const submitSearch = (event: React.FormEvent) => {
+    event.preventDefault();
+    const value = searchQuery.trim();
+    if (value) window.location.href = "/shop?q=" + encodeURIComponent(value);
+    else window.location.href = "/shop";
+    setSearchOpen(false);
+  };
 
   const closeMenus = () => {
     setOpen(false);
@@ -139,9 +169,9 @@ export function SiteHeader() {
         </nav>
 
         <div className="header-actions">
-          <Link href="/shop" aria-label="Search products">⌕ <span className="header-action-label">Search</span></Link>
+          <button className="header-search-button" type="button" aria-label="Search products" aria-expanded={searchOpen} onClick={() => setSearchOpen((value) => !value)}>⌕ <span className="header-action-label">Search</span></button>
           <Link className="desktop-account" href="/account">Account</Link>
-          <Link className="header-cart" href="/cart" aria-label="Shopping cart"><span className="header-cart-icon" aria-hidden="true">🛒</span><span className="header-action-label">Cart</span></Link>
+          <Link className="header-cart" href="/cart" aria-label={cartCount ? `Shopping cart, ${cartCount} items` : "Shopping cart"}><span className="header-cart-icon" aria-hidden="true">🛒</span><span className="header-action-label">Cart</span>{cartCount > 0 && <span className="cart-count" aria-label={`${cartCount} items in cart`}>{cartCount > 99 ? "99+" : cartCount}</span>}</Link>
           <div className="currency-picker" onMouseLeave={() => setCurrencyOpen(false)}>
             <button className="currency-trigger" type="button" aria-haspopup="listbox" aria-expanded={currencyOpen} onClick={() => setCurrencyOpen((value) => !value)}>
               {currency} <span>⌄</span>
@@ -155,6 +185,23 @@ export function SiteHeader() {
             </div>
           </div>
         </div>
+      </div>
+
+      <div className={`header-search-panel${searchOpen ? " is-open" : ""}`} aria-hidden={!searchOpen}>
+        <form className="header-search-form" onSubmit={submitSearch}>
+          <label htmlFor="global-search">Search MOTEVRA</label>
+          <div className="header-search-input-wrap">
+            <input id="global-search" value={searchQuery} onChange={(event) => setSearchQuery(event.target.value)} placeholder="Search tyres, wheels, parts, brands or SKU…" autoComplete="off" autoFocus={searchOpen} />
+            <button type="submit">Search</button>
+          </div>
+          <div className="header-search-links">
+            <span>Quick search</span>
+            <Link href="/tyres" onClick={closeMenus}>Tyres</Link>
+            <Link href="/wheels" onClick={closeMenus}>Wheels</Link>
+            <Link href="/auto-parts" onClick={closeMenus}>Auto parts</Link>
+            <Link href="/accessories" onClick={closeMenus}>Accessories</Link>
+          </div>
+        </form>
       </div>
 
       <div className={`mobile-nav-backdrop${open ? " is-open" : ""}`} onClick={() => setOpen(false)} aria-hidden="true" />
@@ -177,7 +224,7 @@ export function SiteHeader() {
         </nav>
         <div className="mobile-currency-row"><span>Currency</span><select value={currency} onChange={(event) => setCurrency(event.target.value as CurrencyCode)} aria-label="Choose currency">{currencies.map((item) => <option key={item.code} value={item.code}>{item.flag} {item.code} — {item.name}</option>)}</select></div>
         <div className="mobile-nav-secondary">
-          <Link href="/shop" onClick={() => setOpen(false)}>Search products</Link>
+          <button className="mobile-search-launch" type="button" onClick={() => { setOpen(false); setSearchOpen(true); }}>Search products</button>
           <Link href="/account" onClick={() => setOpen(false)}>Account</Link>
           <Link href="/orders" onClick={() => setOpen(false)}>Orders</Link>
           <Link href="/cart" onClick={() => setOpen(false)}>Cart</Link>
