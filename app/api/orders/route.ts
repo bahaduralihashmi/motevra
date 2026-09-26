@@ -23,6 +23,12 @@ export async function POST(req:NextRequest){
     if(required.some(k=>!String(body[k]??"").trim()))return NextResponse.json({error:"Complete the shipping address."},{status:400});
     if(!s?.user?.email&&!String(body.email??"").trim())return NextResponse.json({error:"Email is required for guest checkout."},{status:400});
 
+    const destinationCountry=String(body.country).trim().toUpperCase();
+    const requestedPayment=body.paymentMethod==="COD"?"COD":"BANK_TRANSFER";
+    if(requestedPayment==="COD" && destinationCountry!=="PK"){
+      return NextResponse.json({error:"Cash on delivery is available only in Pakistan. Please select bank transfer or another available payment method."},{status:400});
+    }
+
     const p=getPrisma();
     let userId:string|null=null;
     if(s?.user?.email){
@@ -83,7 +89,7 @@ export async function POST(req:NextRequest){
           number:orderNumber,
           userId,
           status:"PENDING",
-          paymentMethod:body.paymentMethod==="BANK_TRANSFER"?"BANK_TRANSFER":"COD",
+          paymentMethod:requestedPayment,
           paymentStatus:"PENDING",
           currency:quote.displayCurrency,
           baseCurrency:quote.sourceCurrency,
@@ -102,7 +108,7 @@ export async function POST(req:NextRequest){
           guestPhone:userId?null:String(body.phone).trim(),
           shippingName:String(body.name).trim(),
           shippingPhone:String(body.phone).trim(),
-          shippingCountry:String(body.country).trim().toUpperCase(),
+          shippingCountry:destinationCountry,
           shippingRegion:String(body.region??"").trim()||null,
           shippingCity:String(body.city).trim(),
           shippingLine1:String(body.line1).trim(),
@@ -134,14 +140,14 @@ export async function POST(req:NextRequest){
       await tx.paymentTransaction.create({
         data:{
           orderId:created.id,
-          provider:body.paymentMethod==="BANK_TRANSFER"?"BANK_TRANSFER":"COD",
+          provider:requestedPayment,
           status:"PENDING",
           amount:quote.total,
           currency:quote.displayCurrency,
           baseAmount:quote.sourceTotal,
           baseCurrency:quote.sourceCurrency,
           exchangeRate:quote.exchangeRate,
-          metadata:{source:"checkout",paymentMethod:body.paymentMethod==="BANK_TRANSFER"?"BANK_TRANSFER":"COD"},
+          metadata:{source:"checkout",paymentMethod:requestedPayment},
         },
       });
       return created;
