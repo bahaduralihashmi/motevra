@@ -8,9 +8,6 @@ export default defineConfig({
     seed: "tsx prisma/seed.ts",
   },
   datasource: {
-    // Vercel's Prisma Postgres integration provides DATABASE_URL.
-    // Prisma Postgres includes connection pooling, so no separate
-    // Neon-style pooler/direct URL pair is required here.
-    url: env("DATABASE_URL"),
+    url: env("DIRECT_URL"),
   },
 });
