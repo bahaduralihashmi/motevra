@@ -1,5 +1,6 @@
 import { auth, signIn } from "@/auth";
 import { redirect } from "next/navigation";
+import { getAdminUser } from "@/lib/admin";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 
@@ -27,15 +28,32 @@ function getSafeCallbackUrl(value: string | string[] | undefined) {
 }
 
 export default async function SignInPage({ searchParams }: SignInPageProps) {
+  const params = searchParams ? await searchParams : {};
+  const callbackUrl = getSafeCallbackUrl(params.callbackUrl);
+
   let session = null;
-  try { session = await auth(); } catch { session = null; }
-  if (session?.user) redirect("/account");
+  try {
+    session = await auth();
+  } catch {
+    session = null;
+  }
+
+  // A normal signed-in customer must not be sent through the admin flow.
+  // If the existing session belongs to the ADMIN database user, however,
+  // /signin?callbackUrl=/admin must continue to the admin dashboard.
+  if (session?.user) {
+    if (callbackUrl.startsWith("/admin")) {
+      const admin = await getAdminUser();
+      if (admin) redirect(callbackUrl);
+      redirect("/account?admin=denied");
+    }
+
+    redirect("/account");
+  }
 
   const googleReady = Boolean(
     process.env.AUTH_GOOGLE_ID && process.env.AUTH_GOOGLE_SECRET,
   );
-  const params = searchParams ? await searchParams : {};
-  const callbackUrl = getSafeCallbackUrl(params.callbackUrl);
 
   return <><SiteHeader /><main><section className="page-hero"><div className="container narrow">
     <p className="eyebrow">MOTEVRA ACCOUNT</p><h1>Sign in to your garage.</h1>

@@ -12,7 +12,7 @@ export default async function AdminLayout({
   const admin = await getAdminUser();
 
   if (!admin) {
-    redirect("/account?admin=denied");
+    redirect("/signin?callbackUrl=%2Fadmin");
   }
 
   return children;
