@@ -13,11 +13,19 @@ function getConfig() {
 
 function authHeaders(contentType?: string) {
   const { secretKey } = getConfig();
-  return {
-    Authorization: `Bearer ${secretKey}`,
+  // Supabase's new sb_secret_* keys are opaque API keys, not JWTs.
+  // Sending an sb_secret_* key as "Authorization: Bearer ..." makes
+  // Storage try to parse it as a JWT and returns "Invalid Compact JWS".
+  // Send new secret keys via apikey only. Legacy service_role keys remain
+  // compatible with the Authorization header.
+  const headers: Record<string, string> = {
     apikey: secretKey,
     ...(contentType ? { "Content-Type": contentType } : {}),
   };
+  if (!secretKey.startsWith("sb_secret_")) {
+    headers.Authorization = `Bearer ${secretKey}`;
+  }
+  return headers;
 }
 
 function encodedPath(path: string) {
