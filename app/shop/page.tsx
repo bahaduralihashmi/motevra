@@ -53,10 +53,15 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
         orderBy: { createdAt: "desc" },
         take: 48,
       });
-      const imageMap = await resolveImageUrls(products.flatMap((product) => product.images.map((image) => image.url)));
+      const imageMap = await resolveImageUrls(
+        products.flatMap((product) => product.images.map((image: { url: string }) => image.url)),
+      );
       products = products.map((product) => ({
         ...product,
-        images: product.images.map((image) => ({ ...image, url: imageMap.get(image.url) || image.url })),
+        images: product.images.map((image: { url: string }) => ({
+          ...image,
+          url: imageMap.get(image.url) || image.url,
+        })),
       }));
     }
   } catch {

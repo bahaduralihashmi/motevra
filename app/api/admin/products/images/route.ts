@@ -84,6 +84,7 @@ export async function POST(req: NextRequest) {
           url: reference,
           alt: product.name,
           position: existingCount + index,
+          product: { connect: { id: productId } },
         },
         select: { id: true, url: true, alt: true, position: true },
       });
