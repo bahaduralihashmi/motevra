@@ -22,7 +22,7 @@ const groups: NavGroup[] = [
   },
   {
     label: "ORDERS",
-    items: [{ label: "Orders", href: "/admin#orders", icon: "◫" }],
+    items: [{ label: "Orders", href: "/admin?view=orders", icon: "◫" }],
   },
   {
     label: "SUPPLIERS",
