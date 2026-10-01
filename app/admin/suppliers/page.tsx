@@ -1,3 +1,8 @@
-import{auth}from"@/auth";import{redirect}from"next/navigation";import{getAdminUser}from"@/lib/admin";import{SiteHeader}from"@/components/site-header";import{SiteFooter}from"@/components/site-footer";import SuppliersClient from"./suppliers-client";
-export const runtime="nodejs";export const dynamic="force-dynamic";
-export default async function SuppliersAdmin(){const s=await auth();if(!s?.user?.email)redirect("/signin");const u=await getAdminUser();if(!u)return <><SiteHeader/><main><section className="page-hero"><div className="container narrow"><p className="eyebrow">MOTEVRA ADMIN</p><h1>Access restricted.</h1><p className="hero-copy">This account does not have store-management permission.</p></div></section></main><SiteFooter/></>;return <><SiteHeader/><SuppliersClient/><SiteFooter/></>}
+import SuppliersClient from "./suppliers-client";
+
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
+export default function SuppliersAdmin() {
+  return <SuppliersClient />;
+}
