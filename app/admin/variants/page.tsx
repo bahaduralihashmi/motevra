@@ -1,3 +1,8 @@
-import{auth}from"@/auth";import{redirect}from"next/navigation";import{getAdminUser}from"@/lib/admin";import{SiteHeader}from"@/components/site-header";import{SiteFooter}from"@/components/site-footer";import VariantsClient from"./variants-client";
-export const runtime="nodejs";export const dynamic="force-dynamic";
-export default async function VariantsAdmin(){const s=await auth();if(!s?.user?.email)redirect("/signin");if(!await getAdminUser())return <><SiteHeader/><main><section className="page-hero"><div className="container narrow"><p className="eyebrow">MOTEVRA ADMIN</p><h1>Access restricted.</h1><p className="hero-copy">This account does not have store-management permission.</p></div></section></main><SiteFooter/></>;return <><SiteHeader/><VariantsClient/><SiteFooter/></>}
+import VariantsClient from "./variants-client";
+
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
+export default function VariantsAdmin() {
+  return <VariantsClient />;
+}
