@@ -48,8 +48,8 @@ export async function getAdminUser() {
           where: { email },
           create: {
             email,
-            name: session.user?.name ?? email,
-            image: session.user?.image ?? null,
+            name: session?.user?.name ?? email,
+            image: session?.user?.image ?? null,
             role: "ADMIN",
           },
           update: {
