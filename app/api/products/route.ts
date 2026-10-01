@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getPrisma } from "@/lib/prisma";
+import { resolveImageUrls } from "@/lib/supabase-storage";
 
 export const runtime = "nodejs";
 
@@ -23,5 +24,15 @@ export async function GET(request: NextRequest) {
     orderBy: { createdAt: "desc" },
     take: limit,
   });
-  return NextResponse.json({ products });
+
+  const imageMap = await resolveImageUrls(products.flatMap((product) => product.images.map((image) => image.url)));
+  return NextResponse.json({
+    products: products.map((product) => ({
+      ...product,
+      images: product.images.map((image) => ({
+        ...image,
+        url: imageMap.get(image.url) || image.url,
+      })),
+    })),
+  });
 }
