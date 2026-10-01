@@ -15,11 +15,19 @@ export async function getAdminUser() {
   const session = await auth();
   const email = normalizeEmail(session?.user?.email);
 
-  if (!email) return null;
+  if (!email) {
+    console.warn("[MOTEVRA admin] denied: Auth.js session has no email");
+    return null;
+  }
 
   const allowedEmails = getAllowedAdminEmails();
-  if (!allowedEmails.includes(email)) {
-    console.warn("[MOTEVRA admin] denied: email is not in ADMIN_EMAILS", { email });
+  const emailAllowed = allowedEmails.includes(email);
+
+  if (!emailAllowed) {
+    console.warn("[MOTEVRA admin] denied: Auth.js email is not in ADMIN_EMAILS", {
+      email,
+      allowedEmails,
+    });
     return null;
   }
 
@@ -28,8 +36,17 @@ export async function getAdminUser() {
     select: { id: true, role: true, name: true, email: true },
   });
 
+  console.info("[MOTEVRA admin] authorization check", {
+    email,
+    emailAllowed,
+    databaseRole: user?.role ?? null,
+    databaseUserFound: Boolean(user),
+  });
+
   if (!user || user.role !== "ADMIN") {
-    console.warn("[MOTEVRA admin] denied: database user is missing or not ADMIN");
+    console.warn(
+      "[MOTEVRA admin] denied: database user is missing or role is not ADMIN",
+    );
     return null;
   }
 
