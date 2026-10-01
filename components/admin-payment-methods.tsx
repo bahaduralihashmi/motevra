@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { PAYMENT_FIELD_DEFINITIONS, PAYMENT_METHOD_LABELS, fieldsForProvider } from "@/lib/payment-provider-fields";
+import { PAYMENT_METHOD_LABELS, fieldsForProvider } from "@/lib/payment-provider-fields";
 
 type M = {
   id: string;
