@@ -1,3 +1,8 @@
-import{auth}from"@/auth";import{redirect}from"next/navigation";import{getAdminUser}from"@/lib/admin";import{SiteHeader}from"@/components/site-header";import{SiteFooter}from"@/components/site-footer";import SupplierCatalogClient from"./supplier-catalog-client";
-export const runtime="nodejs";export const dynamic="force-dynamic";
-export default async function SupplierCatalogAdmin(){const s=await auth();if(!s?.user?.email)redirect("/signin");if(!await getAdminUser())return <><SiteHeader/><main><section className="page-hero"><div className="container narrow"><p className="eyebrow">MOTEVRA ADMIN</p><h1>Access restricted.</h1></div></section></main><SiteFooter/></>;return <><SiteHeader/><SupplierCatalogClient/><SiteFooter/></>}
+import SupplierCatalogClient from "./supplier-catalog-client";
+
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
+export default function SupplierCatalogAdmin() {
+  return <SupplierCatalogClient />;
+}
