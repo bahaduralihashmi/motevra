@@ -4,12 +4,22 @@ import { getPrisma } from "@/lib/prisma";
 const normalizeEmail = (value: string | null | undefined) =>
   value?.trim().toLowerCase().replace(/^["']|["']$/g, "") ?? "";
 
+function getAllowedAdminEmails() {
+  return (process.env.ADMIN_EMAILS ?? "")
+    .split(",")
+    .map(normalizeEmail)
+    .filter(Boolean);
+}
+
 export async function getAdminUser() {
   const session = await auth();
   const email = normalizeEmail(session?.user?.email);
 
-  if (!email) {
-    console.warn("[MOTEVRA admin] denied: no authenticated session email");
+  if (!email) return null;
+
+  const allowedEmails = getAllowedAdminEmails();
+  if (!allowedEmails.includes(email)) {
+    console.warn("[MOTEVRA admin] denied: email is not in ADMIN_EMAILS", { email });
     return null;
   }
 
@@ -18,17 +28,8 @@ export async function getAdminUser() {
     select: { id: true, role: true, name: true, email: true },
   });
 
-  if (!user) {
-    console.warn("[MOTEVRA admin] denied: no matching database user");
-    return null;
-  }
-
-  // The database ADMIN role is the authoritative store-management permission.
-  // This avoids locking the owner out because an environment allow-list is stale.
-  if (user.role !== "ADMIN") {
-    console.warn("[MOTEVRA admin] denied: database role is not ADMIN", {
-      role: user.role,
-    });
+  if (!user || user.role !== "ADMIN") {
+    console.warn("[MOTEVRA admin] denied: database user is missing or not ADMIN");
     return null;
   }
 
