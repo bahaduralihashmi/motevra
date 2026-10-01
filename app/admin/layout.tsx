@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { getAdminUser } from "@/lib/admin";
+import { AdminShell } from "@/components/admin-shell";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -15,5 +16,5 @@ export default async function AdminLayout({
     redirect("/signin?callbackUrl=%2Fadmin");
   }
 
-  return children;
+  return <AdminShell>{children}</AdminShell>;
 }
