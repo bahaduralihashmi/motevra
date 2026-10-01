@@ -1,1 +1,24 @@
-import{auth}from"@/auth";import{redirect}from"next/navigation";import{getAdminUser}from"@/lib/admin";import{SiteHeader}from"@/components/site-header";import{SiteFooter}from"@/components/site-footer";import{AdminProductForm}from"@/components/admin-product-form";import{AdminDashboard}from"@/components/admin-dashboard";export const runtime="nodejs";export const dynamic="force-dynamic";export default async function AdminPage(){const s=await auth();if(!s?.user?.email)redirect("/signin");const u=await getAdminUser();if(!u)return <><SiteHeader/><main><section className="page-hero"><div className="container narrow"><p className="eyebrow">MOTEVRA ADMIN</p><h1>Access restricted.</h1><p className="hero-copy">This account does not have store-management permission. Add your Google email to ADMIN_EMAILS in Vercel or assign ADMIN/STAFF in the database.</p></div></section></main><SiteFooter/></>;return <><SiteHeader/><main><section className="section admin-shell"><div className="container"><div className="admin-heading"><div><p className="eyebrow">MOTEVRA COMMERCE</p><h1>Admin dashboard</h1><p className="hero-copy">Manage your MOTEVRA catalogue, suppliers and customer orders from one place.</p></div><div className="admin-actions"><a className="button button-dark" href="#add-product">Add MOTEVRA product</a><a className="button" href="/admin/products">Products</a><a className="button" href="/admin/variants">Variants</a><a className="button" href="/admin/fitment">Vehicle fitment</a><a className="button" href="/admin/suppliers">Suppliers</a><a className="button" href="/admin/inventory">Inventory</a><a className="button" href="/admin/shipping">Shipping & tax</a><a className="button button-dark" href="/admin/payments">Payment dashboard</a></div></div><AdminDashboard/><AdminProductForm/></div></section></main><SiteFooter/></>}
+import { AdminDashboard } from "@/components/admin-dashboard";
+import { AdminProductForm } from "@/components/admin-product-form";
+
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
+export default function AdminPage() {
+  return (
+    <section className="admin-dashboard-page">
+      <div className="admin-page-heading">
+        <div>
+          <p className="eyebrow">MOTEVRA COMMERCE</p>
+          <h1>Dashboard</h1>
+          <p className="admin-page-description">Manage your catalogue, suppliers and customer orders from one place.</p>
+        </div>
+        <div className="admin-page-actions">
+          <a className="button button-dark" href="#add-product">+ Add product</a>
+        </div>
+      </div>
+      <AdminDashboard />
+      <AdminProductForm />
+    </section>
+  );
+}
