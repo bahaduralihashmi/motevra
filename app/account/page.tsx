@@ -6,10 +6,12 @@ import { SiteFooter } from "@/components/site-footer";
 import { getPrisma } from "@/lib/prisma";
 import { CurrencyPrice } from "@/components/currency-price";
 export const runtime="nodejs";
+export const dynamic="force-dynamic";
 export default async function AccountPage(){
  const session=await auth(); if(!session?.user?.email) redirect("/signin");
- const p=getPrisma(); const user=await p.user.findUnique({where:{email:session.user.email},include:{addresses:{orderBy:{isDefault:"desc"}},wishlist:{include:{items:{select:{id:true}}}},orders:{orderBy:{createdAt:"desc"},take:5,include:{items:{include:{product:{select:{name:true}}}}}}}});
+ const p=getPrisma(); const user=await p.user.findUnique({where:{email:session.user.email},select:{id:true,name:true,email:true,role:true,addresses:{orderBy:{isDefault:"desc"}},wishlist:{include:{items:{select:{id:true}}}},orders:{orderBy:{createdAt:"desc"},take:5,include:{items:{include:{product:{select:{name:true}}}}}}}});
  if(!user) redirect("/signin");
+ if(user.role==="ADMIN") redirect("/admin");
  return <><SiteHeader/><main><section className="page-hero"><div className="container narrow"><p className="eyebrow">YOUR MOTEVRA ACCOUNT</p><h1>Welcome{user.name?", "+user.name:""}.</h1><p className="hero-copy">{user.email}</p></div></section>
  <section className="section"><div className="container"><div className="account-grid">
  <Link className="account-card" href="/orders"><span>01</span><h2>Orders</h2><p>{user.orders.length?user.orders.length+" recent order"+(user.orders.length===1?"":"s"):"View your order history and tracking."}</p></Link>
