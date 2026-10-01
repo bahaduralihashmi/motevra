@@ -31,22 +31,42 @@ export async function getAdminUser() {
     return null;
   }
 
-  const user = await getPrisma().user.findUnique({
+  const prisma = getPrisma();
+  const existingUser = await prisma.user.findUnique({
     where: { email },
     select: { id: true, role: true, name: true, email: true },
   });
 
+  // ADMIN_EMAILS is the explicit server-side allowlist. If the allowlisted
+  // Google account already exists as a customer, promote that same account
+  // instead of making the owner manually repair the role in Supabase.
+  // If the Auth.js adapter did not create the row yet, create it as ADMIN.
+  const user =
+    existingUser?.role === "ADMIN"
+      ? existingUser
+      : await prisma.user.upsert({
+          where: { email },
+          create: {
+            email,
+            name: session.user?.name ?? email,
+            image: session.user?.image ?? null,
+            role: "ADMIN",
+          },
+          update: {
+            role: "ADMIN",
+          },
+          select: { id: true, role: true, name: true, email: true },
+        });
+
   console.info("[MOTEVRA admin] authorization check", {
     email,
-    emailAllowed,
-    databaseRole: user?.role ?? null,
+    emailAllowed: true,
+    databaseRole: user.role,
     databaseUserFound: Boolean(user),
   });
 
-  if (!user || user.role !== "ADMIN") {
-    console.warn(
-      "[MOTEVRA admin] denied: database user is missing or role is not ADMIN",
-    );
+  if (user.role !== "ADMIN") {
+    console.warn("[MOTEVRA admin] denied: database role is not ADMIN");
     return null;
   }
 
