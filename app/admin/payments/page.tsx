@@ -1,1 +1,20 @@
-import{auth}from"@/auth";import{redirect}from"next/navigation";import{getAdminUser}from"@/lib/admin";import{SiteHeader}from"@/components/site-header";import{SiteFooter}from"@/components/site-footer";import{AdminPaymentMethods}from"@/components/admin-payment-methods";import"./payment-dashboard.css";export const runtime="nodejs";export const dynamic="force-dynamic";export default async function AdminPaymentsPage(){const s=await auth();if(!s?.user?.email)redirect("/signin");if(!await getAdminUser())return <><SiteHeader/><main><section className="page-hero"><div className="container narrow"><p className="eyebrow">MOTEVRA ADMIN</p><h1>Access restricted.</h1></div></section></main><SiteFooter/></>;return <><SiteHeader/><main><section className="section admin-shell"><div className="container"><div className="admin-heading"><div><p className="eyebrow">MOTEVRA COMMERCE</p><h1>Payment dashboard</h1><p className="hero-copy">Manage payment methods, countries, currencies, customer instructions and gateway credentials.</p></div><div className="admin-actions"><a className="button" href="/admin">Back to admin</a></div></div><AdminPaymentMethods/></div></section></main><SiteFooter/></>}
+import { AdminPaymentMethods } from "@/components/admin-payment-methods";
+import "./payment-dashboard.css";
+
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
+export default function AdminPaymentsPage() {
+  return (
+    <section className="admin-subpage">
+      <div className="admin-page-heading">
+        <div>
+          <p className="eyebrow">MOTEVRA FINANCE</p>
+          <h1>Payment dashboard</h1>
+          <p className="admin-page-description">Manage payment methods, countries, currencies, customer instructions and gateway credentials.</p>
+        </div>
+      </div>
+      <AdminPaymentMethods />
+    </section>
+  );
+}
