@@ -195,7 +195,6 @@ model User {
   sessions Session[]
   wishlist Wishlist?
   returns ReturnRequest[]
-  codSettlements CodSettlement[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -961,6 +960,7 @@ model Order {
   refunds Refund[]
   ledgerEntries CommissionLedger[]
   returns ReturnRequest[]
+  codSettlements CodSettlement[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   @@index([userId,createdAt])
