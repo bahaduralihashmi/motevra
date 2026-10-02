@@ -904,3 +904,81 @@ pre,code{max-width:100%;overflow-x:auto}
 .courier-admin-page .admin-message{border-radius:12px;box-shadow:0 5px 16px rgba(17,17,17,.04)}
 .courier-admin-page code{display:inline-block;padding:4px 7px;border-radius:7px;background:#f0f0eb}
 @media(max-width:640px){.courier-admin-page .courier-panel{padding:20px;border-radius:15px}.courier-admin-page .courier-form{grid-template-columns:1fr}.courier-admin-page .courier-form input:not([type="checkbox"]),.courier-admin-page .courier-form select,.courier-admin-page .courier-form label,.courier-admin-page .courier-form .button{min-height:50px;height:50px}.courier-admin-page .admin-row{min-width:0;grid-template-columns:1fr auto;gap:8px;padding:14px}.courier-admin-page .admin-row span{grid-column:2;grid-row:1/3;align-self:center}}
+
+
+/* Global rounded UI language: apply consistently across the admin workspace */
+.admin-app .admin-form,
+.admin-app .admin-form-card,
+.admin-app .category-admin-form,
+.admin-app .supplier-card,
+.admin-app .payment-method-card,
+.admin-app .payment-form,
+.admin-app .admin-filters,
+.admin-app .admin-message,
+.admin-app .admin-loading,
+.admin-app .integration-checklist,
+.admin-app .payment-readiness,
+.admin-app .payment-endpoints,
+.admin-app .admin-search-results{border-radius:18px}
+.admin-app .admin-search,
+.admin-app .admin-user-pill,
+.admin-app .admin-collapse,
+.admin-app .admin-mobile-menu,
+.admin-app .admin-tabs,
+.admin-app .admin-filters select,
+.admin-app .admin-inline,
+.admin-app .admin-message,
+.admin-app .admin-field input,
+.admin-app .admin-field select,
+.admin-app .admin-field textarea,
+.admin-app .admin-form input,
+.admin-app .admin-form select,
+.admin-app .admin-form textarea,
+.admin-app .payment-check-grid .check,
+.admin-app .provider-chip,
+.admin-app .payment-status,
+.admin-app .button,
+.admin-app .mini-button{border-radius:12px}
+.admin-app .admin-search input,
+.admin-app .admin-search-results,
+.admin-app .admin-search-results a{border-radius:10px}
+.admin-app .admin-tabs{border-radius:14px;overflow:hidden}
+.admin-app .admin-tabs .button{border-radius:10px}
+.admin-app .admin-table{border:0;background:transparent;gap:9px;overflow:visible}
+.admin-app .admin-row{border:1px solid #deded8;border-radius:14px!important;margin:0;background:#fff;box-shadow:0 6px 20px rgba(17,17,17,.045)}
+.admin-app .admin-row-head{border-radius:12px!important;box-shadow:none}
+.admin-app .admin-form-card,
+.admin-app .admin-form,
+.admin-app .category-admin-form,
+.admin-app .supplier-card,
+.admin-app .payment-method-card,
+.admin-app .payment-form{box-shadow:0 10px 32px rgba(17,17,17,.055)}
+.admin-app .admin-field input,
+.admin-app .admin-field select,
+.admin-app .admin-field textarea,
+.admin-app .admin-form input,
+.admin-app .admin-form select,
+.admin-app .admin-form textarea,
+.admin-app .admin-filters select{min-height:50px;border-color:#d7d7d1;background:#fff}
+.admin-app .admin-field input:focus,
+.admin-app .admin-field select:focus,
+.admin-app .admin-field textarea:focus,
+.admin-app .admin-form input:focus,
+.admin-app .admin-form select:focus,
+.admin-app .admin-form textarea:focus,
+.admin-app .admin-filters select:focus{border-color:var(--accent);box-shadow:0 0 0 4px rgba(232,75,42,.10)}
+.admin-app .admin-page-actions .button,
+.admin-app .admin-form-actions .button,
+.admin-app .admin-filters .button{border-radius:12px}
+.admin-app .category-admin-preview{border-radius:14px}
+.admin-app .category-admin-card{border-radius:16px;box-shadow:0 7px 22px rgba(17,17,17,.045)}
+.admin-app .supplier-card,.admin-app .payment-method-card{border-radius:16px}
+.admin-app .integration-checklist{border-radius:18px}
+.admin-app .payment-endpoints{border-radius:14px}
+.admin-app .payment-section-title>span{border-radius:9px}
+.admin-app .endpoint-list code{border-radius:10px}
+.admin-app .cart-action .button{border-radius:12px}
+@media(max-width:640px){
+  .admin-app .admin-form-card,.admin-app .admin-form,.admin-app .category-admin-form,.admin-app .supplier-card,.admin-app .payment-method-card,.admin-app .payment-form,.admin-app .admin-filters{border-radius:15px}
+  .admin-app .admin-row{border-radius:12px!important}
+}
