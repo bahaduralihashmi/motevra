@@ -3,7 +3,7 @@ const STORAGE_PREFIX = "supabase://";
 
 function getConfig() {
   const baseUrl = (process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || "").replace(/\/$/, "");
-  const secretKey = process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const secretKey = process.env.SUPABASE_STORAGE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SECRET_KEY;
   const bucket = process.env.SUPABASE_STORAGE_BUCKET || DEFAULT_BUCKET;
   if (!baseUrl || !secretKey) {
     throw new Error("Supabase Storage is not configured.");
@@ -13,18 +13,20 @@ function getConfig() {
 
 function authHeaders(contentType?: string) {
   const { secretKey } = getConfig();
-  // Supabase's new sb_secret_* keys are opaque API keys, not JWTs.
-  // Sending an sb_secret_* key as "Authorization: Bearer ..." makes
-  // Storage try to parse it as a JWT and returns "Invalid Compact JWS".
-  // Send new secret keys via apikey only. Legacy service_role keys remain
-  // compatible with the Authorization header.
   const headers: Record<string, string> = {
     apikey: secretKey,
     ...(contentType ? { "Content-Type": contentType } : {}),
   };
-  if (!secretKey.startsWith("sb_secret_")) {
-    headers.Authorization = `Bearer ${secretKey}`;
+  // Supabase Storage's object endpoints require Authorization for
+  // server-side Storage operations. Use the legacy JWT service-role key
+  // for raw Storage REST calls; sb_secret_* is not itself a JWT and must
+  // not be sent as a Bearer token.
+  if (secretKey.startsWith("sb_secret_")) {
+    throw new Error(
+      "Supabase Storage requires a legacy service-role JWT for the current raw REST integration. Add SUPABASE_SERVICE_ROLE_KEY (or SUPABASE_STORAGE_SERVICE_ROLE_KEY) in Vercel, or migrate this module to @supabase/supabase-js."
+    );
   }
+  headers.Authorization = `Bearer ${secretKey}`;
   return headers;
 }
 
