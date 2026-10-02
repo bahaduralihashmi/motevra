@@ -97,22 +97,39 @@ export function CurrencyProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     let cancelled = false;
-    fetch("/api/exchange-rates")
-      .then((res) => res.json())
-      .then((data) => {
-        if (!cancelled && data?.rates && typeof data.rates === "object") {
+    let timer: ReturnType<typeof setInterval> | undefined;
+
+    const refreshRates = async () => {
+      try {
+        const response = await fetch("/api/exchange-rates?refresh=" + Date.now(), {
+          cache: "no-store",
+        });
+        const data = await response.json();
+        if (!cancelled && data?.rates && typeof data.rates === "object" && data.rates.PKR) {
           setRates(data.rates);
         }
-      })
-      .catch(() => {
-        if (!cancelled) setRates({ USD: 1 });
-      })
-      .finally(() => {
+      } catch {
+        // Keep the last known good rates. Never replace them with a fake 1:1 rate.
+      } finally {
         if (!cancelled) setLoading(false);
-      });
+      }
+    };
+
+    refreshRates();
+
+    // Re-check automatically so prices follow market-rate changes without
+    // requiring an admin to edit any product price.
+    timer = setInterval(refreshRates, 30 * 60 * 1000);
+
+    const onVisible = () => {
+      if (document.visibilityState === "visible") refreshRates();
+    };
+    document.addEventListener("visibilitychange", onVisible);
 
     return () => {
       cancelled = true;
+      if (timer) clearInterval(timer);
+      document.removeEventListener("visibilitychange", onVisible);
     };
   }, []);
 
@@ -122,8 +139,11 @@ export function CurrencyProvider({ children }: { children: React.ReactNode }) {
     rates,
     loading,
     format: (amount, from = "USD") => {
-      const sourceRate = rates[from] || 1;
-      const targetRate = rates[currency] || 1;
+      const sourceRate = rates[from];
+      const targetRate = rates[currency];
+      // Never display a source-currency amount as another currency when the
+      // required live rate is unavailable.
+      if (!sourceRate || !targetRate) return "—";
       const converted = amount * (targetRate / sourceRate);
       const config = currencies.find((item) => item.code === currency);
       const decimals = config?.decimals ?? 2;
