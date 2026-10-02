@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getPrisma } from "@/lib/prisma";
-import { resolveImageUrls } from "@/lib/supabase-storage";
+import { storageProxyUrl } from "@/lib/supabase-storage";
 
 export const runtime = "nodejs";
 
@@ -25,13 +25,13 @@ export async function GET(request: NextRequest) {
     take: limit,
   });
 
-  const imageMap = await resolveImageUrls(products.flatMap((product) => product.images.map((image) => image.url)));
+  
   return NextResponse.json({
     products: products.map((product) => ({
       ...product,
       images: product.images.map((image) => ({
         ...image,
-        url: image.url.startsWith("supabase://") ? storageProxyUrl(image.url) : imageMap.get(image.url) || image.url,
+        url: image.url.startsWith("supabase://") ? storageProxyUrl(image.url) : image.url,
       })),
     })),
   });
