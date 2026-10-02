@@ -19,7 +19,7 @@ export async function GET() {
     );
   } catch {
     return NextResponse.json(
-      { base: "USD", rates: { USD: 1, PKR: 277.5 }, error: "Live exchange rates temporarily unavailable; fallback rate used" },
+      { base: "USD", rates: {}, error: "Live exchange rates temporarily unavailable" },
       { status: 503 }
     );
   }
