@@ -38,6 +38,8 @@ const groups: NavGroup[] = [
     items: [
       { label: "Payment dashboard", href: "/admin/payments", icon: "¤" },
       { label: "Shipping & tax", href: "/admin/shipping", icon: "⌂" },
+      { label: "Courier settings", href: "/admin/couriers", icon: "▰" },
+      { label: "COD operations", href: "/admin/cod", icon: "₨" },
     ],
   },
 ];
