@@ -20,7 +20,7 @@ const categories = [
   ["Car Care","/car-care","Cleaning, detailing and protection for every journey.","https://images.unsplash.com/photo-1607860108855-64acf2078ed9?auto=format&fit=crop&w=1000&q=80"],
 ];
 
-type ProductRailItem = {id?:string; name:string; variation?:string; type:string; size?:string; detail?:string; price:number; image:string; image2?:string; href?:string};
+type ProductRailItem = {id?:string; name:string; variation?:string; type:string; size?:string; detail?:string; price:number; currency:string; image:string; image2?:string; href?:string};
 
 type QuickShopItem = { name: string; href: string; image: string; type: "Category" | "Hot selling" };
 
@@ -74,6 +74,7 @@ async function getHomepageData(): Promise<HomepageData> {
       size: product.tyre?.size?.label,
       detail: product.description ?? undefined,
       price: Number(product.salePrice ?? product.price),
+      currency: product.currency,
       image: product.images[0]?.url?.startsWith("supabase://") ? storageProxyUrl(product.images[0].url) : product.images[0]?.url ?? "",
       image2: product.images[1]?.url?.startsWith("supabase://") ? storageProxyUrl(product.images[1].url) : product.images[1]?.url,
       href: "/product/" + product.slug,
@@ -110,7 +111,7 @@ async function getHomepageData(): Promise<HomepageData> {
       accessories: dbAccessories,
       hotSelling: dbHot,
       quickShopItems: [...categoryItems, ...productItems],
-      newestProduct: newestProduct ? { id: newestProduct.id, name: newestProduct.name, variation: newestProduct.variants.length ? newestProduct.variants.map((v) => v.name).filter(Boolean).join(" · ") : newestProduct.tyre?.size?.label, type: newestProduct.category?.name ?? newestProduct.productType.replaceAll("_", " "), detail: newestProduct.description ?? undefined, price: Number(newestProduct.salePrice ?? newestProduct.price), image: newestProduct.images[0]?.url?.startsWith("supabase://") ? storageProxyUrl(newestProduct.images[0].url) : newestProduct.images[0]?.url ?? "", image2: newestProduct.images[1]?.url?.startsWith("supabase://") ? storageProxyUrl(newestProduct.images[1].url) : newestProduct.images[1]?.url, href: "/product/" + newestProduct.slug } : null,
+      newestProduct: newestProduct ? { id: newestProduct.id, name: newestProduct.name, variation: newestProduct.variants.length ? newestProduct.variants.map((v) => v.name).filter(Boolean).join(" · ") : newestProduct.tyre?.size?.label, type: newestProduct.category?.name ?? newestProduct.productType.replaceAll("_", " "), detail: newestProduct.description ?? undefined, price: Number(newestProduct.salePrice ?? newestProduct.price), currency: newestProduct.currency, image: newestProduct.images[0]?.url?.startsWith("supabase://") ? storageProxyUrl(newestProduct.images[0].url) : newestProduct.images[0]?.url ?? "", image2: newestProduct.images[1]?.url?.startsWith("supabase://") ? storageProxyUrl(newestProduct.images[1].url) : newestProduct.images[1]?.url, href: "/product/" + newestProduct.slug } : null,
     };
   } catch {
     return staticHomepageData();
@@ -119,7 +120,7 @@ async function getHomepageData(): Promise<HomepageData> {
 
 
 function ProductRail({items,badge,href}: {items: ProductRailItem[]; badge:string; href:string}) {
-  return <div className="product-rail-wrap"><div className="product-rail product-rail-scroll">{items.map((p,i)=><article className="product-card" key={p.name+i}><div className="product-visual"><Image unoptimized={p.image.startsWith("/api/")} className="product-image-primary" src={p.image} alt={p.name+", "+p.type} fill sizes="(max-width: 640px) 82vw, (max-width: 1000px) 45vw, 25vw" />{p.image2 && <Image unoptimized={p.image2?.startsWith("/api/")} className="product-image-secondary" src={p.image2} alt="" fill sizes="(max-width: 640px) 82vw, (max-width: 1000px) 45vw, 25vw" aria-hidden="true" />}<span className="product-badge">{badge}</span></div><div className="product-info"><span className="product-brand">MOTEVRA</span><h3>{p.name}</h3><p className="product-meta">{p.type} · {p.size ?? p.detail}</p><div className="product-price">From <CurrencyPrice amount={p.price} /></div><div className="product-actions"><Link className="mini-button" href={p.href ?? href}>View details</Link><Link className="mini-button primary" href={p.href ?? href}>Shop</Link></div></div></article>)}</div></div>;
+  return <div className="product-rail-wrap"><div className="product-rail product-rail-scroll">{items.map((p,i)=><article className="product-card" key={p.name+i}><div className="product-visual"><Image unoptimized={p.image.startsWith("/api/")} className="product-image-primary" src={p.image} alt={p.name+", "+p.type} fill sizes="(max-width: 640px) 82vw, (max-width: 1000px) 45vw, 25vw" />{p.image2 && <Image unoptimized={p.image2?.startsWith("/api/")} className="product-image-secondary" src={p.image2} alt="" fill sizes="(max-width: 640px) 82vw, (max-width: 1000px) 45vw, 25vw" aria-hidden="true" />}<span className="product-badge">{badge}</span></div><div className="product-info"><span className="product-brand">MOTEVRA</span><h3>{p.name}</h3><p className="product-meta">{p.type} · {p.size ?? p.detail}</p><div className="product-price">From <CurrencyPrice amount={p.price} from={p.currency}/></div><div className="product-actions"><Link className="mini-button" href={p.href ?? href}>View details</Link><Link className="mini-button primary" href={p.href ?? href}>Shop</Link></div></div></article>)}</div></div>;
 }
 
 export const dynamic = "force-dynamic";
