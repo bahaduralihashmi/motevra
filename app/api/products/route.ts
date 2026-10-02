@@ -31,7 +31,7 @@ export async function GET(request: NextRequest) {
       ...product,
       images: product.images.map((image) => ({
         ...image,
-        url: imageMap.get(image.url) || image.url,
+        url: image.url.startsWith("supabase://") ? storageProxyUrl(image.url) : imageMap.get(image.url) || image.url,
       })),
     })),
   });
