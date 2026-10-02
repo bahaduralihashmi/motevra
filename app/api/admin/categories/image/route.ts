@@ -1,0 +1,6 @@
+import { NextRequest, NextResponse } from "next/server";
+import { getAdminUser } from "@/lib/admin";
+import { getPrisma } from "@/lib/prisma";
+import { uploadStorageObject } from "@/lib/supabase-storage";
+export const runtime="nodejs";
+export async function POST(req:NextRequest){if(!(await getAdminUser()))return NextResponse.json({error:"Admin access required."},{status:403});const form=await req.formData();const categoryId=String(form.get("categoryId")||"").trim();const file=form.get("file");if(!categoryId||!(file instanceof File))return NextResponse.json({error:"Category and image are required."},{status:400});if(!["image/jpeg","image/png","image/webp","image/avif"].includes(file.type))return NextResponse.json({error:"Use JPG, PNG, WebP or AVIF."},{status:400});if(file.size>8*1024*1024)return NextResponse.json({error:"Maximum image size is 8 MB."},{status:400});const category=await getPrisma().category.findUnique({where:{id:categoryId}});if(!category)return NextResponse.json({error:"Category not found."},{status:404});const ext=file.type.split("/")[1].replace("jpeg","jpg");const path=`categories/${categoryId}/${crypto.randomUUID()}.${ext}`;const reference=await uploadStorageObject(path,file,file.type);const updated=await getPrisma().category.update({where:{id:categoryId},data:{imageUrl:reference}});return NextResponse.json({category:updated});}
