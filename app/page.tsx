@@ -9,6 +9,7 @@ import { TyreFinder } from "@/components/tyre-finder";
 import { CategoryShuffleGrid } from "@/components/category-shuffle-grid";
 import { getPrisma } from "@/lib/prisma";
 import { NewestProductActions } from "@/components/newest-product-actions";
+import { storageProxyUrl } from "@/lib/supabase-storage";
 
 const categories = [
   ["Tyres","/tyres","Everyday, performance, touring and all-season tyres.","https://images.unsplash.com/photo-1511919884226-fd3cad34687c?auto=format&fit=crop&w=1000&q=80"],
@@ -73,21 +74,21 @@ async function getHomepageData(): Promise<HomepageData> {
       size: product.tyre?.size?.label,
       detail: product.description ?? undefined,
       price: Number(product.salePrice ?? product.price),
-      image: product.images[0]?.url ?? "",
-      image2: product.images[1]?.url,
+      image: product.images[0]?.url?.startsWith("supabase://") ? storageProxyUrl(product.images[0].url) : product.images[0]?.url ?? "",
+      image2: product.images[1]?.url?.startsWith("supabase://") ? storageProxyUrl(product.images[1].url) : product.images[1]?.url,
       href: "/product/" + product.slug,
     });
 
-    const categoryItems = dbCategories.filter((c) => c.products[0]?.images[0]?.url).map((c) => ({
+    const categoryItems = dbCategories.filter((c) => c.imageUrl || c.products[0]?.images[0]?.url).map((c) => ({
       name: c.name,
       href: "/shop?category=" + encodeURIComponent(c.slug),
-      image: c.products[0].images[0].url,
+      image: c.imageUrl?.startsWith("supabase://") ? "/api/categories/image?ref=" + encodeURIComponent(c.imageUrl) : c.imageUrl || (c.products[0]?.images[0]?.url?.startsWith("supabase://") ? storageProxyUrl(c.products[0].images[0].url) : c.products[0]?.images[0]?.url || ""),
       type: "Category" as const,
     }));
     const productItems = orderedHot.filter((p) => p.images[0]?.url).map((p) => ({
       name: p.name,
       href: "/product/" + p.slug,
-      image: p.images[0].url,
+      image: p.images[0].url.startsWith("supabase://") ? storageProxyUrl(p.images[0].url) : p.images[0].url,
       type: "Hot selling" as const,
     }));
 
@@ -102,7 +103,7 @@ async function getHomepageData(): Promise<HomepageData> {
       accessories: dbAccessories,
       hotSelling: dbHot,
       quickShopItems: [...categoryItems, ...productItems],
-      newestProduct: newestProduct ? { id: newestProduct.id, name: newestProduct.name, variation: newestProduct.variants.length ? newestProduct.variants.map((v) => v.name).filter(Boolean).join(" · ") : newestProduct.tyre?.size?.label, type: newestProduct.category?.name ?? newestProduct.productType.replaceAll("_", " "), detail: newestProduct.description ?? undefined, price: Number(newestProduct.salePrice ?? newestProduct.price), image: newestProduct.images[0]?.url ?? "", image2: newestProduct.images[1]?.url, href: "/product/" + newestProduct.slug } : null,
+      newestProduct: newestProduct ? { id: newestProduct.id, name: newestProduct.name, variation: newestProduct.variants.length ? newestProduct.variants.map((v) => v.name).filter(Boolean).join(" · ") : newestProduct.tyre?.size?.label, type: newestProduct.category?.name ?? newestProduct.productType.replaceAll("_", " "), detail: newestProduct.description ?? undefined, price: Number(newestProduct.salePrice ?? newestProduct.price), image: newestProduct.images[0]?.url?.startsWith("supabase://") ? storageProxyUrl(newestProduct.images[0].url) : newestProduct.images[0]?.url ?? "", image2: newestProduct.images[1]?.url?.startsWith("supabase://") ? storageProxyUrl(newestProduct.images[1].url) : newestProduct.images[1]?.url, href: "/product/" + newestProduct.slug } : null,
     };
   } catch {
     return staticHomepageData();
