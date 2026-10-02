@@ -1045,3 +1045,11 @@ pre,code{max-width:100%;overflow-x:auto}
 .admin-app details.admin-collapse-panel>.admin-collapse-content,
 .admin-app .payment-scope details>.payment-check-grid{padding:0 16px 16px}
 @media(max-width:640px){.admin-app .admin-card{padding:20px;border-radius:15px}.admin-app .admin-grid{gap:12px}.admin-app .admin-grid input:not([type="checkbox"]),.admin-app .admin-grid select,.admin-app .admin-grid textarea{min-height:50px}.admin-app details.admin-collapse-panel>summary,.admin-app .payment-scope details>summary{padding:15px 16px}}
+
+.admin-modal-backdrop{position:fixed;inset:0;z-index:1000;display:grid;place-items:center;padding:20px;background:rgba(0,0,0,.45);backdrop-filter:blur(5px)}
+.admin-modal{width:min(520px,100%);background:#fff;border:1px solid #ddd;border-radius:20px;padding:26px;box-shadow:0 24px 70px rgba(0,0,0,.2);display:grid;gap:15px}
+.admin-modal h2{margin:0 0 4px;font-size:28px;letter-spacing:-.04em}
+.admin-modal select,.admin-modal input,.admin-modal textarea{width:100%;min-height:50px;border:1px solid #d7d7d1;border-radius:12px;background:#fff;padding:0 14px}
+.admin-modal .admin-form-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:5px}
+.admin-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.admin-actions .button-small{min-height:38px;padding:0 12px}
