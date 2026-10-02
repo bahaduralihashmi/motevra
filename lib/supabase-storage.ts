@@ -3,7 +3,7 @@ const STORAGE_PREFIX = "supabase://";
 
 function getConfig() {
   const baseUrl = (process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || "").replace(/\/$/, "");
-  const secretKey = process.env.SUPABASE_SECRET_KEY;
+  const secretKey = process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
   const bucket = process.env.SUPABASE_STORAGE_BUCKET || DEFAULT_BUCKET;
   if (!baseUrl || !secretKey) {
     throw new Error("Supabase Storage is not configured.");
@@ -161,6 +161,10 @@ export async function resolveImageUrls(
   );
 
   return result;
+}
+
+export function storageProxyUrl(reference: string) {
+  return `/api/products/image?ref=${encodeURIComponent(reference)}`;
 }
 
 export async function resolveImageUrl(url: string, expiresIn = 3600) {
