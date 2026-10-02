@@ -17,6 +17,22 @@ const ALLOWED_TYPES = new Set([
 const deny = () =>
   NextResponse.json({ error: "Admin access required." }, { status: 403 });
 
+export async function GET(req: NextRequest) {
+  if (!(await getAdminUser())) return deny();
+  const id = req.nextUrl.searchParams.get("id");
+  if (!id) return NextResponse.json({ error: "Image id is required." }, { status: 400 });
+  try {
+    const image = await getPrisma().productImage.findUnique({ where: { id } });
+    if (!image) return NextResponse.json({ error: "Image not found." }, { status: 404 });
+    if (!image.url.startsWith("supabase://")) return NextResponse.redirect(image.url);
+    const { resolveImageUrl } = await import("@/lib/supabase-storage");
+    const url = await resolveImageUrl(image.url, 900);
+    return NextResponse.redirect(url);
+  } catch (error) {
+    return NextResponse.json({ error: error instanceof Error ? error.message : "Unable to load image." }, { status: 500 });
+  }
+}
+
 export async function POST(req: NextRequest) {
   if (!(await getAdminUser())) return deny();
 
