@@ -8,12 +8,13 @@ export async function GET(req: NextRequest) {
     const reference = req.nextUrl.searchParams.get("ref") || "";
     const parsed = parseStorageReference(reference);
     const baseUrl = (process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || "").replace(/\/$/, "");
-    const secretKey = process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || "";
+    const secretKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_STORAGE_SERVICE_ROLE_KEY || process.env.SUPABASE_SECRET_KEY || "";
     const bucket = process.env.SUPABASE_STORAGE_BUCKET || "product-images";
     if (!parsed || parsed.bucket !== bucket || !parsed.path.startsWith("products/")) return NextResponse.json({ error: "Invalid product image reference." }, { status: 400 });
     if (!baseUrl || !secretKey) return NextResponse.json({ error: "Supabase Storage is not configured." }, { status: 500 });
     const headers: Record<string,string> = { apikey: secretKey };
-    if (!secretKey.startsWith("sb_secret_")) headers.Authorization = `Bearer ${secretKey}`;
+    if (secretKey.startsWith("sb_secret_")) return NextResponse.json({ error: "A legacy Supabase service-role JWT is required for private product image serving. Set SUPABASE_SERVICE_ROLE_KEY in Vercel." }, { status: 500 });
+    headers.Authorization = `Bearer ${secretKey}`;
     const path = parsed.path.split("/").map(encodeURIComponent).join("/");
     const response = await fetch(`${baseUrl}/storage/v1/object/${encodeURIComponent(bucket)}/${path}`, { headers, cache:"no-store" });
     if (!response.ok) return new NextResponse(await response.text(), { status: response.status, headers: {"Content-Type":"application/json"} });
