@@ -324,6 +324,7 @@ model Category {
   id String @id @default(cuid())
   name String @unique
   slug String @unique
+  imageUrl String?
   products Product[]
   priceRules PriceRule[]
   createdAt DateTime @default(now())
