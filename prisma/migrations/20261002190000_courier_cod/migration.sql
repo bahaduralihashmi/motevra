@@ -1,0 +1,13 @@
+CREATE TYPE "CourierConnectionStatus" AS ENUM ('DISCONNECTED','TESTING','CONNECTED','ERROR');
+CREATE TYPE "CodSettlementStatus" AS ENUM ('PENDING','SETTLED','PARTIAL','DISPUTED');
+CREATE TABLE "CourierConnection" ("id" TEXT NOT NULL,"name" TEXT NOT NULL,"provider" TEXT NOT NULL,"mode" TEXT NOT NULL DEFAULT 'MANUAL',"baseUrl" TEXT,"encryptedCredentials" TEXT,"webhookSecret" TEXT,"status" "CourierConnectionStatus" NOT NULL DEFAULT 'DISCONNECTED',"lastTestedAt" TIMESTAMP(3),"lastError" TEXT,"enabled" BOOLEAN NOT NULL DEFAULT false,"createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,"updatedAt" TIMESTAMP(3) NOT NULL,CONSTRAINT "CourierConnection_pkey" PRIMARY KEY ("id"));
+CREATE INDEX "CourierConnection_provider_status_idx" ON "CourierConnection"("provider","status");
+CREATE TABLE "CodSettlement" ("id" TEXT NOT NULL,"orderId" TEXT NOT NULL,"shipmentId" TEXT,"courierId" TEXT,"status" "CodSettlementStatus" NOT NULL DEFAULT 'PENDING',"grossAmount" DECIMAL(12,2) NOT NULL,"courierFee" DECIMAL(12,2) NOT NULL DEFAULT 0,"otherDeductions" DECIMAL(12,2) NOT NULL DEFAULT 0,"netAmount" DECIMAL(12,2) NOT NULL,"currency" TEXT NOT NULL DEFAULT 'PKR',"settlementReference" TEXT,"settledAt" TIMESTAMP(3),"notes" TEXT,"createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,"updatedAt" TIMESTAMP(3) NOT NULL,CONSTRAINT "CodSettlement_pkey" PRIMARY KEY ("id"));
+CREATE INDEX "CodSettlement_orderId_status_idx" ON "CodSettlement"("orderId","status");
+CREATE INDEX "CodSettlement_courierId_status_idx" ON "CodSettlement"("courierId","status");
+ALTER TABLE "Shipment" ADD COLUMN IF NOT EXISTS "courierId" TEXT;
+ALTER TABLE "CourierConnection" ADD CONSTRAINT "CourierConnection_id_key" UNIQUE ("id");
+ALTER TABLE "CodSettlement" ADD CONSTRAINT "CodSettlement_orderId_fkey" FOREIGN KEY ("orderId") REFERENCES "Order"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "CodSettlement" ADD CONSTRAINT "CodSettlement_shipmentId_fkey" FOREIGN KEY ("shipmentId") REFERENCES "Shipment"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "CodSettlement" ADD CONSTRAINT "CodSettlement_courierId_fkey" FOREIGN KEY ("courierId") REFERENCES "CourierConnection"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "Shipment" ADD CONSTRAINT "Shipment_courierId_fkey" FOREIGN KEY ("courierId") REFERENCES "CourierConnection"("id") ON DELETE SET NULL ON UPDATE CASCADE;
