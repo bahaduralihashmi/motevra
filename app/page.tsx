@@ -98,7 +98,7 @@ async function getHomepageData(): Promise<HomepageData> {
     const dbHot = orderedHot.map(toRail).filter((p) => p.image);
 
     return {
-      categories: categoryItems.length ? dbCategories.filter((c) => c.products[0]?.images[0]?.url).map((c) => [c.name, "/shop?category=" + encodeURIComponent(c.slug), "Shop " + c.name + " at MOTEVRA.", c.products[0].images[0].url, c.products[0].images[1]?.url ?? ""]) : categories,
+      categories: categoryItems.length ? dbCategories.filter((c) => c.imageUrl || c.products[0]?.images[0]?.url).map((c) => [c.name, "/shop?category=" + encodeURIComponent(c.slug), "Shop " + c.name + " at MOTEVRA.", c.imageUrl?.startsWith("supabase://") ? "/api/categories/image?ref=" + encodeURIComponent(c.imageUrl) : c.imageUrl || (c.products[0]?.images[0]?.url?.startsWith("supabase://") ? storageProxyUrl(c.products[0].images[0].url) : c.products[0]?.images[0]?.url || ""), c.products[0]?.images[1]?.url?.startsWith("supabase://") ? storageProxyUrl(c.products[0].images[1].url) : c.products[0]?.images[1]?.url ?? ""]) : categories,
       products: dbTyres.length ? dbTyres : dbRailProducts,
       accessories: dbAccessories,
       hotSelling: dbHot,
