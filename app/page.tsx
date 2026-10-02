@@ -79,12 +79,19 @@ async function getHomepageData(): Promise<HomepageData> {
       href: "/product/" + product.slug,
     });
 
-    const categoryItems = dbCategories.filter((c) => c.imageUrl || c.products[0]?.images[0]?.url).map((c) => ({
-      name: c.name,
-      href: "/shop?category=" + encodeURIComponent(c.slug),
-      image: c.imageUrl?.startsWith("supabase://") ? "/api/categories/image?ref=" + encodeURIComponent(c.imageUrl) : c.imageUrl || (c.products[0]?.images[0]?.url?.startsWith("supabase://") ? storageProxyUrl(c.products[0].images[0].url) : c.products[0]?.images[0]?.url || ""),
-      type: "Category" as const,
-    }));
+    const categoryItems = dbCategories.map((c) => {
+      const fallback = categories.find((item) => item[0].toLowerCase() === c.name.toLowerCase())?.[3] || "";
+      return {
+        name: c.name,
+        href: "/shop?category=" + encodeURIComponent(c.slug),
+        image: c.imageUrl?.startsWith("supabase://")
+          ? "/api/categories/image?ref=" + encodeURIComponent(c.imageUrl)
+          : c.imageUrl || (c.products[0]?.images[0]?.url?.startsWith("supabase://")
+            ? storageProxyUrl(c.products[0].images[0].url)
+            : c.products[0]?.images[0]?.url || fallback),
+        type: "Category" as const,
+      };
+    });
     const productItems = orderedHot.filter((p) => p.images[0]?.url).map((p) => ({
       name: p.name,
       href: "/product/" + p.slug,
@@ -98,7 +105,7 @@ async function getHomepageData(): Promise<HomepageData> {
     const dbHot = orderedHot.map(toRail).filter((p) => p.image);
 
     return {
-      categories: categoryItems.length ? dbCategories.filter((c) => c.imageUrl || c.products[0]?.images[0]?.url).map((c) => [c.name, "/shop?category=" + encodeURIComponent(c.slug), "Shop " + c.name + " at MOTEVRA.", c.imageUrl?.startsWith("supabase://") ? "/api/categories/image?ref=" + encodeURIComponent(c.imageUrl) : c.imageUrl || (c.products[0]?.images[0]?.url?.startsWith("supabase://") ? storageProxyUrl(c.products[0].images[0].url) : c.products[0]?.images[0]?.url || ""), c.products[0]?.images[1]?.url?.startsWith("supabase://") ? storageProxyUrl(c.products[0].images[1].url) : c.products[0]?.images[1]?.url ?? ""]) : categories,
+      categories: categoryItems.length ? categoryItems.map((item) => [item.name, item.href, "Shop " + item.name + " at MOTEVRA.", item.image]) : categories,
       products: dbTyres.length ? dbTyres : dbRailProducts,
       accessories: dbAccessories,
       hotSelling: dbHot,
@@ -112,7 +119,7 @@ async function getHomepageData(): Promise<HomepageData> {
 
 
 function ProductRail({items,badge,href}: {items: ProductRailItem[]; badge:string; href:string}) {
-  return <div className="product-rail-wrap"><div className="product-rail product-rail-scroll">{items.map((p,i)=><article className="product-card" key={p.name+i}><div className="product-visual"><Image className="product-image-primary" src={p.image} alt={p.name+", "+p.type} fill sizes="(max-width: 640px) 82vw, (max-width: 1000px) 45vw, 25vw" />{p.image2 && <Image className="product-image-secondary" src={p.image2} alt="" fill sizes="(max-width: 640px) 82vw, (max-width: 1000px) 45vw, 25vw" aria-hidden="true" />}<span className="product-badge">{badge}</span></div><div className="product-info"><span className="product-brand">MOTEVRA</span><h3>{p.name}</h3><p className="product-meta">{p.type} · {p.size ?? p.detail}</p><div className="product-price">From <CurrencyPrice amount={p.price} /></div><div className="product-actions"><Link className="mini-button" href={p.href ?? href}>View details</Link><Link className="mini-button primary" href={p.href ?? href}>Shop</Link></div></div></article>)}</div></div>;
+  return <div className="product-rail-wrap"><div className="product-rail product-rail-scroll">{items.map((p,i)=><article className="product-card" key={p.name+i}><div className="product-visual"><Image unoptimized={p.image.startsWith("/api/")} className="product-image-primary" src={p.image} alt={p.name+", "+p.type} fill sizes="(max-width: 640px) 82vw, (max-width: 1000px) 45vw, 25vw" />{p.image2 && <Image unoptimized={p.image2?.startsWith("/api/")} className="product-image-secondary" src={p.image2} alt="" fill sizes="(max-width: 640px) 82vw, (max-width: 1000px) 45vw, 25vw" aria-hidden="true" />}<span className="product-badge">{badge}</span></div><div className="product-info"><span className="product-brand">MOTEVRA</span><h3>{p.name}</h3><p className="product-meta">{p.type} · {p.size ?? p.detail}</p><div className="product-price">From <CurrencyPrice amount={p.price} /></div><div className="product-actions"><Link className="mini-button" href={p.href ?? href}>View details</Link><Link className="mini-button primary" href={p.href ?? href}>Shop</Link></div></div></article>)}</div></div>;
 }
 
 export const dynamic = "force-dynamic";
@@ -122,11 +129,11 @@ export default async function Home() {
   const quickShopItems = data.quickShopItems;
   return <><SiteHeader/><main>
     <section className="hero"><div className="container"><div className="hero-visual"><video className="hero-video" autoPlay muted loop playsInline preload="metadata" aria-label="MOTEVRA automotive marketplace hero video"><source src="/videos/Motevra_Homepage_Hero_15s_Clean.mp4" type="video/mp4" /></video><div className="hero-content"><p className="eyebrow">MOTEVRA · MODERN AUTOMOTIVE MARKETPLACE</p><h1>Everything your drive needs.</h1><p className="hero-copy">Shop tyres, wheels, parts and accessories in one focused automotive marketplace — built for simple discovery today and global expansion tomorrow.</p><div className="hero-actions"><Link className="button button-dark" href="/shop">Shop the range</Link><Link className="button button-light" href="/tyres">Find my tyres</Link></div></div></div></div></section>
-    <section className="quick-shop-section" aria-label="Quick shop categories and hot selling products"><div className="quick-shop-track"><div className="quick-shop-loop">{[...quickShopItems,...quickShopItems].map((item,i)=><Link href={item.href} className="quick-shop-item" key={item.name+i}><span className="quick-shop-image"><Image src={item.image} alt="" fill sizes="62px" /></span><span><small>{item.type}</small><strong>{item.name}</strong></span><b>→</b></Link>)}</div></div></section>
+    <section className="quick-shop-section" aria-label="Quick shop categories and hot selling products"><div className="quick-shop-track"><div className="quick-shop-loop">{[...quickShopItems,...quickShopItems].map((item,i)=><Link href={item.href} className="quick-shop-item" key={item.name+i}><span className="quick-shop-image"><Image unoptimized={item.image.startsWith("/api/")} src={item.image} alt="" fill sizes="62px" /></span><span><small>{item.type}</small><strong>{item.name}</strong></span><b>→</b></Link>)}</div></div></section>
 
     <section className="section"><div className="container"><div className="section-heading"><div><p className="eyebrow">Shop by category</p><h2>Start with what your vehicle needs.</h2></div><Link href="/shop">View all →</Link></div><CategoryShuffleGrid items={data.categories.map(([name,href,description,image,image2]) => ({ name, href, description, image, image2 }))} /></div></section>
 
-    {data.newestProduct && <section className="section newest-product-section"><div className="newest-product-wrap"><div className="section-heading newest-product-heading"><div><p className="eyebrow">Just added</p><h2>Our newest product.</h2></div></div><div className="newest-product-card"><div className="newest-product-image"><Image src={data.newestProduct.image} alt={data.newestProduct.name} fill sizes="(max-width: 900px) 100vw, 58vw" />{data.newestProduct.image2 && <div className="newest-product-image-secondary"><Image src={data.newestProduct.image2} alt="" fill sizes="180px" /></div>}</div><div className="newest-product-copy"><span className="product-brand">NEW · MOTEVRA</span><h3>{data.newestProduct.name}</h3><p className="newest-product-description">{data.newestProduct.detail || "Newly added to the MOTEVRA collection. Explore the latest automotive product and its available options."}</p><div className="newest-product-meta"><span><small>Category</small><strong>{data.newestProduct.type}</strong></span><span><small>Variation</small><strong>{data.newestProduct.variation || "Standard"}</strong></span><span><small>Price</small><strong><CurrencyPrice amount={data.newestProduct.price} /></strong></span></div><NewestProductActions productId={data.newestProduct.id} href={data.newestProduct.href ?? "/shop"} /></div></div></div></section>}
+    {data.newestProduct && <section className="section newest-product-section"><div className="newest-product-wrap"><div className="section-heading newest-product-heading"><div><p className="eyebrow">Just added</p><h2>Our newest product.</h2></div></div><div className="newest-product-card"><div className="newest-product-image"><Image unoptimized={data.newestProduct.image.startsWith("/api/")} src={data.newestProduct.image} alt={data.newestProduct.name} fill sizes="(max-width: 900px) 100vw, 58vw" />{data.newestProduct.image2 && <div className="newest-product-image-secondary"><Image unoptimized={data.newestProduct.image2?.startsWith("/api/")} src={data.newestProduct.image2} alt="" fill sizes="180px" /></div>}</div><div className="newest-product-copy"><span className="product-brand">NEW · MOTEVRA</span><h3>{data.newestProduct.name}</h3><p className="newest-product-description">{data.newestProduct.detail || "Newly added to the MOTEVRA collection. Explore the latest automotive product and its available options."}</p><div className="newest-product-meta"><span><small>Category</small><strong>{data.newestProduct.type}</strong></span><span><small>Variation</small><strong>{data.newestProduct.variation || "Standard"}</strong></span><span><small>Price</small><strong><CurrencyPrice amount={data.newestProduct.price} /></strong></span></div><NewestProductActions productId={data.newestProduct.id} href={data.newestProduct.href ?? "/shop"} /></div></div></div></section>}
 
     {data.products.length > 0 && <section className="section product-rail-section"><div className="container"><div className="section-heading"><div><p className="eyebrow">Featured range</p><h2>Popular tyre options, clearly presented.</h2></div><Link href="/shop">Shop all →</Link></div><ProductRail items={data.products} badge="FEATURED" href="/shop"/></div></section>}
 
