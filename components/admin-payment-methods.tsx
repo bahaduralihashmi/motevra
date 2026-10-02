@@ -226,8 +226,14 @@ export function AdminPaymentMethods() {
         </div>
 
         <div className="payment-scope">
-          <div><div className="payment-section-title"><span>01</span><div><strong>Availability</strong><small>Select where this method can appear at checkout.</small></div></div><div className="payment-check-grid">{countries.map(c => <label className="check" key={c}><input type="checkbox" checked={form.countries.includes(c)} onChange={() => toggleList("countries", c)} />{c}</label>)}</div></div>
-          <div><div className="payment-section-title"><span>02</span><div><strong>Currency</strong><small>Select the currencies accepted by this method.</small></div></div><div className="payment-check-grid">{currencies.map(c => <label className="check" key={c}><input type="checkbox" checked={form.currencies.includes(c)} onChange={() => toggleList("currencies", c)} />{c}</label>)}</div></div>
+          <details open>
+            <summary><span>01 · Availability</span><small>Select where this method can appear at checkout.</small></summary>
+            <div className="payment-check-grid">{countries.map(c => <label className="check" key={c}><input type="checkbox" checked={form.countries.includes(c)} onChange={() => toggleList("countries", c)} />{c}</label>)}</div>
+          </details>
+          <details open>
+            <summary><span>02 · Currency</span><small>Select the currencies accepted by this method.</small></summary>
+            <div className="payment-check-grid">{currencies.map(c => <label className="check" key={c}><input type="checkbox" checked={form.currencies.includes(c)} onChange={() => toggleList("currencies", c)} />{c}</label>)}</div>
+          </details>
         </div>
 
         <div className="payment-credentials">
