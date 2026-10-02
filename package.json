@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "next dev",
-    "build": "prisma migrate deploy && prisma generate && next build",
+    "build": "prisma migrate resolve --applied 20260919180000_guest_cj || true; prisma migrate resolve --applied 20260921170000_remove_cj_dropshipping || true; prisma migrate deploy && prisma generate && next build",
     "start": "next start",
     "lint": "eslint",
     "db:generate": "prisma generate",
