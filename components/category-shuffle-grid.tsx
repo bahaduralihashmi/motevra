@@ -94,6 +94,7 @@ export function CategoryShuffleGrid({ items }: { items: CategoryItem[] }) {
             }}
           >
             <Image
+              unoptimized={category.image.startsWith("/api/")}
               className="category-image category-image-primary"
               src={category.image}
               alt={`${category.name} for cars and automotive shopping at MOTEVRA`}
@@ -102,6 +103,7 @@ export function CategoryShuffleGrid({ items }: { items: CategoryItem[] }) {
             />
             {category.image2 && (
               <Image
+                unoptimized={category.image2?.startsWith("/api/")}
                 className="category-image category-image-secondary"
                 src={category.image2}
                 alt=""
