@@ -314,6 +314,7 @@ model Brand {
   id String @id @default(cuid())
   name String @unique
   slug String @unique
+  imageUrl String?
   products Product[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
