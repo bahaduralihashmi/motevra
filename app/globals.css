@@ -1078,7 +1078,7 @@ pre,code{max-width:100%;overflow-x:auto}
 .trending-intro h2{font-family:'Space Grotesk',var(--font-geist-sans),sans-serif;font-size:clamp(32px,4vw,52px);line-height:.98;letter-spacing:-.055em;margin:8px 0 16px;max-width:520px}
 .trending-intro p:last-child{color:#aaa;line-height:1.65;max-width:430px;margin:0}
 .trending-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
-.trending-card{min-height:180px;border:1px solid #303030;border-radius:18px;padding:20px;display:flex;flex-direction:column;justify-content:flex-end;background:linear-gradient(145deg,#1a1a1a,#111);transition:transform .2s ease,border-color .2s ease,background .2s ease}
+.trending-card{position:relative;min-height:180px;border:1px solid #303030;border-radius:18px;padding:20px;display:flex;flex-direction:column;justify-content:flex-end;background:linear-gradient(145deg,#1a1a1a,#111);transition:transform .2s ease,border-color .2s ease,background .2s ease}
 .trending-card:hover{transform:translateY(-4px);border-color:#555;background:#191919}
 .trending-number{font-family:'Space Grotesk',sans-serif;color:#666;font-size:12px;position:absolute;align-self:flex-end;margin-bottom:126px}
 .trending-card-type{font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:#aaa;margin-bottom:7px}
