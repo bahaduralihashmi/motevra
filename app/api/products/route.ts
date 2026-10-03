@@ -10,13 +10,15 @@ export async function GET(request: NextRequest) {
   const category = params.get("category")?.trim();
   const brand = params.get("brand")?.trim();
   const type = params.get("type")?.trim();
+  const categoryTypeMap: Record<string, string> = { tyres: "TYRE", wheels: "WHEEL", accessories: "ACCESSORY", "auto-parts": "AUTO_PART", batteries: "BATTERY", "car-care": "CAR_CARE" };
+  const expectedProductType = category ? categoryTypeMap[category.toLowerCase()] : null;
   const limit = Math.min(Math.max(Number(params.get("limit") || 24), 1), 60);
 
   const products = await getPrisma().product.findMany({
     where: {
       status: "ACTIVE",
       ...(q ? { OR: [{ name: { contains: q, mode: "insensitive" } }, { sku: { contains: q, mode: "insensitive" } }] } : {}),
-      ...(category ? { category: { slug: category } } : {}),
+      ...(category ? { category: { slug: category.toLowerCase() }, ...(expectedProductType ? { productType: expectedProductType as never } : {}) } : {}),
       ...(brand ? { brand: { slug: brand } } : {}),
       ...(type ? { productType: type as never } : {}),
     },
