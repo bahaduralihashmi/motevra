@@ -7,6 +7,8 @@ type Product={id:string;name:string;sku:string;price:number;currency:string;stoc
 export function ProductExperience({product}:{product:Product}){
  const [image,setImage]=useState(0); const [wish,setWish]=useState(false); const [wishBusy,setWishBusy]=useState(false); const [wishMsg,setWishMsg]=useState("");
  const [tab,setTab]=useState("description");
+ const availableStock=product.stock>0?product.stock:product.variants.reduce((sum,v)=>sum+Math.max(0,Number(v.stock||0)),0);
+ const cleanDescription=String(product.description||"").replace(/<br\s*\/?>(\s*)/gi,"\n").replace(/<\/(p|div|li|h[1-6])>/gi,"\n").replace(/<li[^>]*>/gi,"• ").replace(/<[^>]*>/g,"").replace(/&nbsp;/gi," ").replace(/&amp;/gi,"&").replace(/&lt;/gi,"<").replace(/&gt;/gi,">").replace(/&#39;/gi,"'").replace(/&quot;/gi,'"').replace(/\n\s*\n+/g,"\n\n").trim();
  const img=product.images[image]||product.images[0];
  async function toggleWishlist(){setWishBusy(true);setWishMsg("");try{const r=await fetch("/api/wishlist",{method:wish?"DELETE":"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({productId:product.id})});const d=await r.json();if(r.ok){setWish(!wish);setWishMsg(wish?"Removed from wishlist":"Saved to wishlist")}else setWishMsg(d.error||"Sign in to save this product");}catch{setWishMsg("Unable to update wishlist")}finally{setWishBusy(false)}}
  return <div className="product-experience">
@@ -24,15 +26,15 @@ export function ProductExperience({product}:{product:Product}){
    {product.averageRating&&<div className="rating-line" aria-label={`${product.averageRating.toFixed(1)} out of 5 stars`}><span>{"★".repeat(Math.round(product.averageRating))}{"☆".repeat(5-Math.round(product.averageRating))}</span> <span>{product.averageRating.toFixed(1)} · {product.count} reviews</span></div>}
    <p className="price"><CurrencyPrice amount={product.price} from={product.currency}/></p>
    {product.tyre&&<p className="muted">Size <strong>{product.tyre.size}</strong> · Load {product.tyre.loadIndex??"—"} · Speed {product.tyre.speedRating??"—"}</p>}
-   <p className="muted">{product.stock>0?product.stock+" units available":"Currently out of stock"}</p>
-   <div className="product-buy-row"><AddToCartButton productId={product.id} stock={product.stock} variants={product.variants}/><button className={`wishlist-button ${wish?"active":""}`} onClick={toggleWishlist} disabled={wishBusy} aria-pressed={wish}>{wish?"♥":"♡"} <span>{wishBusy?"Saving…":wish?"Saved":"Wishlist"}</span></button></div>
+   <p className="muted">{availableStock>0?availableStock+" units available":"Currently out of stock"}</p>
+   <div className="product-buy-row"><AddToCartButton productId={product.id} stock={availableStock} variants={product.variants}/><button className={`wishlist-button ${wish?"active":""}`} onClick={toggleWishlist} disabled={wishBusy} aria-pressed={wish}>{wish?"♥":"♡"} <span>{wishBusy?"Saving…":wish?"Saved":"Wishlist"}</span></button></div>
    {wishMsg&&<small className="muted">{wishMsg}</small>}
    <div className="product-trust"><span>✓ Secure checkout</span><span>✓ Shipping options shown at checkout</span><span>✓ Order tracking</span></div>
    <div className="product-tabs" role="tablist">
     {["description","specifications","fitment","shipping","returns","reviews"].map(x=><button key={x} className={tab===x?"active":""} onClick={()=>setTab(x)}>{x[0].toUpperCase()+x.slice(1)}</button>)}
    </div>
    <div className="product-tab-panel">
-    {tab==="description"&&<div><h3>Product description</h3><p>{product.description||"Product details will be added as this catalogue record is completed."}</p></div>}
+    {tab==="description"&&<div><h3>Product description</h3><div className="product-description">{(cleanDescription||"Product details will be added as this catalogue record is completed.").split(/\n+/).filter(Boolean).map((line,i)=><p key={i}>{line}</p>)}</div></div>}
     {tab==="specifications"&&<Specs product={product}/>}
     {tab==="fitment"&&<Fitment fitments={product.fitments}/>}
     {tab==="shipping"&&<div><h3>Shipping</h3><p>Shipping availability, destination and cost are calculated during checkout. Heavy, tyre, wheel, battery and supplier products may have different delivery options.</p><a className="text-link" href="/shipping">View shipping information →</a></div>}

@@ -1204,3 +1204,14 @@ pre,code{max-width:100%;overflow-x:auto}
     main:not(:has(.hero)) .page-hero+.section{padding-top:18px}
   }
 }
+
+
+/* Product detail: keep long supplier titles readable and product information scannable. */
+.product-copy h1{font-size:clamp(32px,3.4vw,54px);line-height:.98;letter-spacing:-.055em;max-width:680px;overflow-wrap:anywhere}
+.product-description{display:grid;gap:8px;line-height:1.65;color:#333;max-width:720px}
+.product-description p{margin:0;white-space:pre-wrap}
+.product-copy .price{font-size:28px;line-height:1.1;margin:16px 0 12px}
+.product-copy .muted{font-size:13px;line-height:1.45}
+.product-main-image-real,.product-thumb img{background:#eee}
+@media(max-width:900px){.product-copy h1{font-size:clamp(30px,7vw,48px)}}
+@media(max-width:640px){.product-copy h1{font-size:clamp(28px,8.5vw,40px);max-width:none}.product-description{font-size:14px}}

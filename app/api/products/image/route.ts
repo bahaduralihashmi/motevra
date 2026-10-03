@@ -6,6 +6,19 @@ export const runtime = "nodejs";
 export async function GET(req: NextRequest) {
   try {
     const reference = req.nextUrl.searchParams.get("ref") || "";
+    const externalUrl = req.nextUrl.searchParams.get("url") || "";
+    if (externalUrl) {
+      const target = new URL(externalUrl);
+      const host = target.hostname.toLowerCase();
+      const allowed = target.protocol === "https:" && (host === "cjdropshipping.com" || host.endsWith(".cjdropshipping.com"));
+      if (!allowed) return NextResponse.json({ error: "External product image host is not allowed." }, { status: 400 });
+      const response = await fetch(target.toString(), { cache: "force-cache" });
+      if (!response.ok || !response.body) return new NextResponse(null, { status: response.status || 404 });
+      return new NextResponse(response.body, { status: 200, headers: {
+        "Content-Type": response.headers.get("content-type") || "image/jpeg",
+        "Cache-Control": "public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800"
+      }});
+    }
     const parsed = parseStorageReference(reference);
     const baseUrl = (process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || "").replace(/\/$/, "");
     const secretKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_STORAGE_SERVICE_ROLE_KEY || process.env.SUPABASE_SECRET_KEY || "";
