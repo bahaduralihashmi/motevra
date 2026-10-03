@@ -122,6 +122,7 @@ export async function POST(req: NextRequest) {
       })),
       country,
       cart.currency || "USD",
+      String(body.shippingMethod || "").trim() || undefined,
     );
 
     return NextResponse.json(quote, {
