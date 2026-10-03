@@ -58,7 +58,7 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
     else {
       products = await getPrisma().product.findMany({
         where: { status: "ACTIVE",
-          ...(category ? { category: subcategory ? { slug: subcategory, parent: { slug: category } } : { OR: [{ slug: category }, { parent: { slug: category } }] }, ...(expectedProductType ? { productType: expectedProductType as never } : {}) } : {}),
+          ...(category ? (subcategory ? { category: { slug: subcategory, parent: { slug: category } }, ...(expectedProductType ? { productType: expectedProductType as never } : {}) } : { OR: [{ category: { slug: category } }, { category: { parent: { slug: category } } }], ...(expectedProductType ? { productType: expectedProductType as never } : {}) }) : {}),
           ...(brand ? { brand: { slug: brand } } : {}),
           ...(filter ? { OR: [{ category: { slug: filter } }, { category: { name: { contains: filter.replace(/-/g," "), mode: "insensitive" } } }, { brand: { slug: filter } }, { brand: { name: { contains: filter.replace(/-/g," "), mode: "insensitive" } } }, { name: { contains: filter.replace(/-/g," "), mode: "insensitive" } }, { tyre: { size: { label: { contains: filter.replace(/-/g," "), mode: "insensitive" } } } }] } : {}),
           ...(size ? { tyre: { size: { label: size } } } : {}) },
