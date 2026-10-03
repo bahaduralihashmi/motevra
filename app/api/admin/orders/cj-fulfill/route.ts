@@ -42,6 +42,20 @@ async function getCJToken(supplierId: string) {
   }
 }
 
+async function getCJBalance(token: string) {
+  const response = await fetch(
+    "https://developers.cjdropshipping.com/api2.0/v1/shopping/pay/getBalance",
+    { headers: { "CJ-Access-Token": token }, cache: "no-store" },
+  );
+  const json = await response.json().catch(() => null);
+  if (!response.ok || json?.code !== 200 || !json?.data) {
+    throw new Error(json?.message || "Unable to read CJ account balance.");
+  }
+  const amount = Number(json.data.amount ?? 0);
+  if (!Number.isFinite(amount)) throw new Error("CJ returned an invalid account balance.");
+  return amount;
+}
+
 async function getCJShipping(
   token: string,
   origin: string,
@@ -89,11 +103,51 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Cron authentication required." }, { status: 401 });
   }
 
-  return POST(new NextRequest(req.url, {
+  // Cron handles both paid-order fulfillment and tracking synchronization.
+  // One paid CJ order is processed per run to keep the job reliable on serverless runtimes.
+  let fulfillment: unknown = null;
+  try {
+    const candidate = await prisma.order.findFirst({
+      where: {
+        paymentStatus: "PAID",
+        items: {
+          some: {
+            product: {
+              supplierProducts: {
+                some: {
+                  active: true,
+                  supplier: { type: "CJ_DROPSHIPPING", status: "ACTIVE" },
+                },
+              },
+            },
+          },
+        },
+        supplierOrders: {
+          none: { supplier: { type: "CJ_DROPSHIPPING" } },
+        },
+      },
+      orderBy: { createdAt: "asc" },
+      select: { id: true, number: true },
+    });
+    if (candidate) {
+      const response = await POST(new NextRequest(req.url, {
+        method: "POST",
+        headers: req.headers,
+        body: JSON.stringify({ orderId: candidate.id }),
+      }));
+      fulfillment = await response.json().catch(() => ({ error: "CJ fulfillment returned an unreadable response." }));
+    }
+  } catch (error) {
+    fulfillment = { error: error instanceof Error ? error.message : "Automatic CJ fulfillment failed." };
+  }
+
+  const syncResponse = await POST(new NextRequest(req.url, {
     method: "POST",
     headers: req.headers,
     body: JSON.stringify({ mode: "sync" }),
   }));
+  const sync = await syncResponse.json().catch(() => ({ error: "CJ sync returned an unreadable response." }));
+  return NextResponse.json({ ok: true, fulfillment, sync });
 }
 
 export async function POST(req: NextRequest) {
@@ -149,6 +203,18 @@ export async function POST(req: NextRequest) {
             where: { id: so.id },
             data: { status: cjStatus || so.status, trackingNumber, trackingUrl },
           });
+
+          const orderStatus =
+            shipmentStatus === "DELIVERED" ? "DELIVERED" :
+            shipmentStatus === "OUT_FOR_DELIVERY" ? "OUT_FOR_DELIVERY" :
+            shipmentStatus === "SHIPPED" || shipmentStatus === "IN_TRANSIT" ? "SHIPPED" :
+            undefined;
+          if (orderStatus) {
+            await tx.order.update({
+              where: { id: so.orderId },
+              data: { status: orderStatus },
+            });
+          }
 
           let current = so.shipments[0];
           if (!current) {
@@ -366,6 +432,22 @@ export async function POST(req: NextRequest) {
       const token = lines[0].token;
       const origin = lines[0].origin;
       const logisticName = lines[0].shippingName;
+      const estimatedCJTotal = lines.reduce(
+        (sum, line) => sum + line.unitCost * line.quantity + line.shippingCostUSD,
+        0,
+      );
+      const cjBalance = await getCJBalance(token);
+      if (cjBalance < estimatedCJTotal) {
+        return NextResponse.json(
+          {
+            error: "CJ account balance is too low for this order.",
+            supplierId,
+            requiredAtLeastUSD: Number(estimatedCJTotal.toFixed(2)),
+            availableBalanceUSD: Number(cjBalance.toFixed(2)),
+          },
+          { status: 409 },
+        );
+      }
       const response = await fetch(
         "https://developers.cjdropshipping.com/api2.0/v1/shopping/order/createOrderV3",
         {
