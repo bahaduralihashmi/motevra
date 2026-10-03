@@ -21,24 +21,30 @@ export async function GET(request: NextRequest) {
       status: "ACTIVE",
       ...(category ? (subcategory ? { category: { slug: subcategory, parent: { slug: category.toLowerCase() } }, ...(expectedProductType ? { productType: expectedProductType as never } : {}) } : { OR: [{ category: { slug: category.toLowerCase() } }, { category: { parent: { slug: category.toLowerCase() } } }], ...(expectedProductType ? { productType: expectedProductType as never } : {}) }) : {}),
       ...((q || filter) ? { AND: [
-        ...(q ? [{ OR: [{ name: { contains: q, mode: "insensitive" } }, { sku: { contains: q, mode: "insensitive" } }] }] : []),
-        ...(filter ? [{ OR: [{ category: { slug: filter } }, { category: { name: { contains: filter.replace(/-/g," "), mode:"insensitive" } } }, { brand: { slug: filter } }, { brand: { name: { contains: filter.replace(/-/g," "), mode:"insensitive" } } }, { name: { contains: filter.replace(/-/g," "), mode:"insensitive" } }, { tyre: { size: { label: { contains: filter.replace(/-/g," "), mode:"insensitive" } } } }] }] : []),
+        ...(q ? [{ OR: [{ name: { contains: q, mode: "insensitive" as const } }, { sku: { contains: q, mode: "insensitive" as const } }] }] : []),
+        ...(filter ? [{ OR: [{ category: { slug: filter } }, { category: { name: { contains: filter.replace(/-/g," "), mode:"insensitive" as const } } }, { brand: { slug: filter } }, { brand: { name: { contains: filter.replace(/-/g," "), mode:"insensitive" as const } } }, { name: { contains: filter.replace(/-/g," "), mode:"insensitive" as const } }, { tyre: { size: { label: { contains: filter.replace(/-/g," "), mode:"insensitive" as const } } } }] }] : []),
       ] } : {}),
       ...(brand ? { brand: { slug: brand } } : {}),
       ...(type ? { productType: type as never } : {}),
     },
-    include: { brand: true, category: true, images: { orderBy: { position: "asc" }, take: 1 }, tyre: { include: { size: true } } },
+    include: {
+      brand: true,
+      category: true,
+      images: { orderBy: { position: "asc" }, take: 1 },
+      tyre: { include: { size: true } },
+    },
     orderBy: { createdAt: "desc" },
     take: limit,
   });
 
   
+  const productRows = products;
   return NextResponse.json({
-    products: products.map((product) => ({
+    products: productRows.map((product) => ({
       ...product,
-      images: product.images.map((image) => ({
+      images: product.images.map((image: { url: string; id: string; alt: string | null; position: number }) => ({
         ...image,
-        url: image.url.startsWith("supabase://") ? storageProxyUrl(image.url) : image.url,
+        url: typeof image.url === "string" && image.url.startsWith("supabase://") ? storageProxyUrl(image.url) : image.url,
       })),
     })),
   });
