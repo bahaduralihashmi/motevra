@@ -1,0 +1,19 @@
+name: CJ Fulfillment
+
+on:
+  schedule:
+    - cron: "7,17,27,37,47,57 * * * *"
+  workflow_dispatch:
+
+jobs:
+  cj:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger MOTEVRA CJ fulfillment and tracking sync
+        env:
+          MOTEVRA_URL: ${{ secrets.MOTEVRA_URL }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          test -n "$MOTEVRA_URL"
+          test -n "$CRON_SECRET"
+          curl --fail-with-body --silent --show-error             -H "Authorization: Bearer $CRON_SECRET"             "$MOTEVRA_URL/api/admin/orders/cj-fulfill"
