@@ -38,9 +38,12 @@ const fallbackImages: Record<string, string> = {
   OTHER: "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1000&q=85",
 };
 
-export default async function ShopPage({ searchParams }: { searchParams: Promise<{ size?: string }> }) {
+export default async function ShopPage({ searchParams }: { searchParams: Promise<{ size?: string; category?: string }> }) {
   const params = await searchParams;
   const size = params.size ? sizeSlugToLabel(params.size) : null;
+  const category = params.category?.trim().toLowerCase() || null;
+  const categoryTypeMap: Record<string, string> = { tyres: "TYRE", wheels: "WHEEL", accessories: "ACCESSORY", "auto-parts": "AUTO_PART", batteries: "BATTERY", "car-care": "CAR_CARE" };
+  const expectedProductType = category ? categoryTypeMap[category] : null;
   let products: any[] = [];
   let databaseError = false;
 
