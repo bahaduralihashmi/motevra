@@ -87,6 +87,7 @@ export async function POST(req:NextRequest){
       })),
       String(body.country).trim().toUpperCase(),
       cart.currency||"USD",
+      String(body.shippingMethod||"").trim()||undefined,
     );
 
     const hasCJItems=cart.items.some(i=>i.product.supplierProducts.some(sp=>sp.supplier?.type==="CJ_DROPSHIPPING" && sp.active));
@@ -108,6 +109,8 @@ export async function POST(req:NextRequest){
           exchangeRate:quote.exchangeRate,
           subtotal:quote.subtotal,
           shippingTotal:quote.shipping,
+          shippingMethod:quote.shippingMethod,
+          shippingProvider:quote.shippingProvider,
           taxTotal:quote.tax,
           total:quote.total,
           baseSubtotal:quote.sourceSubtotal,
