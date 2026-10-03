@@ -72,13 +72,22 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
     <>
       <SiteHeader />
       <main>
-        <section className="page-hero">
-          <div className="container narrow">
-            <p className="eyebrow">{size ? "TYRE SIZE" : "MOTEVRA SHOP"}</p>
-            <h1>{size ? `${size} Tyres in Pakistan` : "Automotive products, beautifully presented."}</h1>
-            <p className="hero-copy">
-              {size ? `Explore available ${size} tyres, including product details, brands, prices and stock. Confirm your vehicle's required size before ordering.` : "Explore tyres, wheels, parts and accessories from one international-ready automotive catalogue."}
-            </p>
+                <section className="category-hero">
+          <div className="container">
+            <div className="category-hero-media">
+              <img src={size ? "https://images.unsplash.com/photo-1578844251758-2f71da64c6e6?auto=format&fit=crop&w=1800&q=85" : "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1800&q=85"} alt={size ? "Car tyre and road performance" : "Modern performance car on the road"} fetchPriority="high" />
+              <div className="category-hero-scrim" />
+              <div className="category-hero-content">
+                <p className="eyebrow">{size ? "TYRE SIZE / MOTEVRA SHOP" : "MOTEVRA / AUTOMOTIVE SHOP"}</p>
+                <h1>{size ? `${size} Tyres in Pakistan` : "Automotive products, organised around your vehicle."}</h1>
+                <p className="hero-copy">{size ? `Explore available ${size} tyres, including product details, brands, prices and stock. Confirm your vehicle's required size before ordering.` : "Explore tyres, wheels, auto parts, batteries, accessories and car care from one focused catalogue."}</p>
+                <div className="hero-actions">
+                  <Link className="button button-light" href={size ? "/tyres" : "/shop"}>{size ? "Find another size" : "Browse catalogue"}</Link>
+                  <Link className="button button-outline-light" href="/contact">Need help?</Link>
+                </div>
+              </div>
+              <span className="category-hero-label">{size ? "TYRE SIZE" : "CATALOGUE"}</span>
+            </div>
           </div>
         </section>
         <section className="section">

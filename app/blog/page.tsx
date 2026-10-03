@@ -21,11 +21,8 @@ const posts = [
 export default function Blog(){
   return <><SiteHeader/>
     <main className="blog-page">
-      <section className="blog-hero"><div className="container blog-hero-inner"><div>
-        <p className="eyebrow">MOTEVRA JOURNAL · AUTOMOTIVE GUIDES</p><h1>Know your drive.</h1>
-        <p className="blog-hero-copy">Clear, practical automotive knowledge to help you understand tyres, maintenance and the products your vehicle needs.</p>
-      </div><div className="blog-hero-mark" aria-hidden="true">M</div></div></section>
-      <section className="section blog-section"><div className="container">
+      <section className="category-hero"><div className="container"><div className="category-hero-media"><img src="https://images.unsplash.com/photo-1578844251758-2f71da64c6e6?auto=format&fit=crop&w=1800&q=85" alt="Automotive tyre tread and tyre inspection" fetchPriority="high" /><div className="category-hero-scrim" /><div className="category-hero-content"><p className="eyebrow">MOTEVRA JOURNAL / AUTOMOTIVE GUIDES</p><h1>Know your drive.</h1><p className="hero-copy">Clear, practical automotive knowledge to help you understand tyres, maintenance and the products your vehicle needs.</p><div className="hero-actions"><Link className="button button-light" href="#latest-guides">Explore guides</Link><Link className="button button-outline-light" href="/tyres">Find tyres</Link></div></div><span className="category-hero-label">JOURNAL</span></div></div></section>
+      <section className="section blog-section" id="latest-guides"><div className="container">
         <AdSlot slot="BLOG_TOP_SLOT"/>
         <div className="blog-heading"><div><p className="eyebrow">LATEST GUIDES</p><h2>Practical information.<br/>No unnecessary jargon.</h2></div><p>From reading a tyre sidewall to checking pressure, start with the guide that matches your question.</p></div>
         <div className="blog-grid">{posts.map((post,index)=><article className={`blog-card blog-card-${index+1}`} key={post.slug}>

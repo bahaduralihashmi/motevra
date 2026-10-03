@@ -9,13 +9,7 @@ export default function ContactPage() {
     <>
       <SiteHeader />
       <main>
-        <section className="page-hero">
-          <div className="container narrow">
-            <p className="eyebrow">CONTACT</p>
-            <h1>Let&apos;s talk.</h1>
-            <p className="hero-copy">Have a question about MOTEVRA, a product, partnership or the marketplace? Send us a message and our team will get back to you.</p>
-          </div>
-        </section>
+        <section className="category-hero"><div className="container"><div className="category-hero-media"><img src="https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&w=1800&q=85" alt="Modern performance car representing automotive support" fetchPriority="high" /><div className="category-hero-scrim" /><div className="category-hero-content"><p className="eyebrow">MOTEVRA / CONTACT</p><h1>Let&apos;s talk.</h1><p className="hero-copy">Have a question about a product, fitment, partnership or your order? Send MOTEVRA a message and our team will help.</p></div><span className="category-hero-label">CONTACT</span></div></div></section>
         <section className="section contact-section">
           <div className="container contact-layout">
             <div>
