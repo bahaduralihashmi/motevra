@@ -177,8 +177,8 @@ export function SiteHeader() {
                 <span>{category.label}</span><span>→</span>
               </Link>
               <div className="mobile-category-links">
-                {category.groups.flatMap((group) => group.items.slice(0, category.label === "Tyres" ? 4 : 3)).map((item) => (
-                  <Link key={item} href={navItemHref(category.href, item)} onClick={() => setOpen(false)}>{item}</Link>
+                {category.groups.flatMap((group) => group.items.slice(0, category.label === "Tyres" ? 4 : 3).map((item) => ({item,group:group.title}))).map(({item,group}) => (
+                  <Link key={item} href={navItemHref(category.href, item, group)} onClick={() => setOpen(false)}>{item}</Link>
                 ))}
               </div>
             </div>
