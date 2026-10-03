@@ -61,7 +61,15 @@ const nav = [
   },
 ] as const;
 
-const navItemHref = (categoryHref: string, item: string) => item === "Autogrip" ? "/brands/autogrip" : item === "Chinese Tyre Brands" ? "/tyres/chinese-tyre-brands" : `${categoryHref}?filter=${encodeURIComponent(item)}`;
+const navItemHref = (categoryHref: string, item: string, groupTitle: string) => {
+  if(item === "Autogrip") return "/brands/autogrip";
+  if(item === "Chinese Tyre Brands") return "/tyres/chinese-tyre-brands";
+  const category = categoryHref.replace(/^\//,"");
+  const value = item.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
+  if(/brand/i.test(groupTitle)) return `/shop?category=${encodeURIComponent(category)}&brand=${encodeURIComponent(value)}`;
+  if(/size|capacity/i.test(groupTitle)) return `/shop?category=${encodeURIComponent(category)}&filter=${encodeURIComponent(value)}`;
+  return `/shop?category=${encodeURIComponent(category)}&subcategory=${encodeURIComponent(value)}`;
+};
 
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
@@ -126,7 +134,7 @@ export function SiteHeader() {
                     <div className="mega-group" key={group.title}>
                       <span>{group.title}</span>
                       {group.items.map((item) => (
-                        <Link key={item} href={navItemHref(category.href, item)} onClick={closeMenus}>
+                        <Link key={item} href={navItemHref(category.href, item, group.title)} onClick={closeMenus}>
                           {item}
                         </Link>
                       ))}
