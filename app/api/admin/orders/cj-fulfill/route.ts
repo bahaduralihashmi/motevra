@@ -61,6 +61,7 @@ async function getCJShipping(
   origin: string,
   destination: string,
   products: Array<{ vid: string; quantity: number }>,
+  selectedShippingName?: string | null,
 ) {
   const response = await fetch(
     "https://developers.cjdropshipping.com/api2.0/v1/logistic/freightCalculate",
@@ -95,7 +96,10 @@ async function getCJShipping(
     .sort((a: { price: number }, b: { price: number }) => a.price - b.price);
 
   if (!options.length) throw new Error("CJ returned no available shipping method.");
-  return options[0];
+  const selected = selectedShippingName
+    ? options.find((item: { name: string }) => item.name === selectedShippingName)
+    : null;
+  return selected || options[0];
 }
 
 export async function GET(req: NextRequest) {
@@ -398,6 +402,7 @@ export async function POST(req: NextRequest) {
         inventory.warehouse.countryCode.toUpperCase(),
         order.shippingCountry.toUpperCase(),
         [{ vid: variants[0].externalVariantId!, quantity: item.quantity }],
+        order.shippingMethod ? order.shippingMethod.split(" (")[0] : null,
       );
 
       cjLines.push({
