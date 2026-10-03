@@ -140,6 +140,7 @@ export function SiteHeader() {
 
         <div className="header-actions">
           <Link href="/shop" aria-label="Search products">⌕ <span className="header-action-label">Search</span></Link>
+          <Link className="header-journal" href="/blog">Journal</Link>
           <Link className="desktop-account" href="/account">Account</Link>
           <Link className="header-cart" href="/cart" aria-label="Shopping cart"><span className="header-cart-icon" aria-hidden="true">🛒</span><span className="header-action-label">Cart</span></Link>
           <div className="currency-picker" onMouseLeave={() => setCurrencyOpen(false)}>

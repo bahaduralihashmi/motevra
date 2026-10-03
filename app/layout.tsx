@@ -10,11 +10,11 @@ const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"]
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.motevra.com"),
   title: {
-    default: "MOTEVRA | Tyres, Wheels & Auto Parts in Pakistan",
+    default: "MOTEVRA | Tyres, Wheels, Auto Parts & Car Accessories",
     template: "%s | MOTEVRA",
   },
   description:
-    "Shop tyres, wheels, rims, auto parts, car batteries, car accessories and car care products in Pakistan with MOTEVRA.",
+    "Shop tyres, wheels, rims, auto parts, batteries and car accessories online with MOTEVRA. Find tyres by size, explore trusted automotive products and get clear product information before you buy.",
   keywords: [
     "tyres in Pakistan",
     "car tyres Pakistan",
@@ -32,12 +32,22 @@ export const metadata: Metadata = {
     "online auto parts store Pakistan",
   ],
   applicationName: "MOTEVRA",
+  category: "automotive",
+  creator: "MOTEVRA",
+  publisher: "MOTEVRA",
+  formatDetection: { telephone: false },
   openGraph: {
-    title: "MOTEVRA | Tyres, Wheels & Auto Parts in Pakistan",
+    title: "MOTEVRA | Tyres, Wheels, Auto Parts & Car Accessories",
     description: "Buy tyres, wheels, rims, auto parts, batteries and car accessories online in Pakistan with MOTEVRA.",
     url: "https://www.motevra.com",
     siteName: "MOTEVRA",
     type: "website",
+    locale: "en_PK",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "MOTEVRA | Tyres, Wheels & Auto Parts",
+    description: "A modern automotive marketplace for tyres, wheels, parts and accessories.",
   },
   robots: { index: true, follow: true, googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1, "max-video-preview": -1 } },
 };

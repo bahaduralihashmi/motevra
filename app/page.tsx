@@ -132,7 +132,47 @@ export default async function Home() {
     <section className="hero"><div className="container"><div className="hero-visual"><video className="hero-video" autoPlay muted loop playsInline preload="metadata" aria-label="MOTEVRA automotive marketplace hero video"><source src="/videos/Motevra_Homepage_Hero_15s_Clean.mp4" type="video/mp4" /></video><div className="hero-content"><p className="eyebrow">MOTEVRA · MODERN AUTOMOTIVE MARKETPLACE</p><h1>Everything your drive needs.</h1><p className="hero-copy">Shop tyres, wheels, parts and accessories in one focused automotive marketplace — built for simple discovery today and global expansion tomorrow.</p><div className="hero-actions"><Link className="button button-dark" href="/shop">Shop the range</Link><Link className="button button-light" href="/tyres">Find my tyres</Link></div></div></div></div></section>
     <section className="quick-shop-section" aria-label="Quick shop categories and hot selling products"><div className="quick-shop-track"><div className="quick-shop-loop">{[...quickShopItems,...quickShopItems].map((item,i)=><Link href={item.href} className="quick-shop-item" key={item.name+i}><span className="quick-shop-image"><Image unoptimized={item.image.startsWith("/api/")} src={item.image} alt="" fill sizes="62px" /></span><span><small>{item.type}</small><strong>{item.name}</strong></span><b>→</b></Link>)}</div></div></section>
 
+    <section className="trending-section" aria-labelledby="trending-title">
+      <div className="container">
+        <div className="trending-shell">
+          <div className="trending-intro">
+            <p className="eyebrow">TRENDING NOW</p>
+            <h2 id="trending-title">What drivers are exploring today.</h2>
+            <p>Fresh catalogue additions, popular products and high-interest categories are surfaced here automatically.</p>
+          </div>
+          <div className="trending-grid">
+            {(data.hotSelling.slice(0, 4).length ? data.hotSelling.slice(0, 4) : data.products.slice(0, 4)).map((item, index) => (
+              <Link href={item.href ?? "/shop"} className="trending-card" key={(item.id ?? item.name) + index}>
+                <span className="trending-number">0{index + 1}</span>
+                <span className="trending-card-type">{item.type}</span>
+                <strong>{item.name}</strong>
+                <span className="trending-card-link">Explore →</span>
+              </Link>
+            ))}
+            {data.hotSelling.length === 0 && data.products.length === 0 && (
+              <Link href="/shop" className="trending-card trending-card-wide">
+                <span className="trending-number">01</span>
+                <span className="trending-card-type">CATALOGUE</span>
+                <strong>Explore the latest MOTEVRA range</strong>
+                <span className="trending-card-link">Shop now →</span>
+              </Link>
+            )}
+          </div>
+        </div>
+      </div>
+    </section>
+
     <section className="section"><div className="container"><div className="section-heading"><div><p className="eyebrow">Shop by category</p><h2>Start with what your vehicle needs.</h2></div><Link href="/shop">View all →</Link></div><CategoryShuffleGrid items={data.categories.map(([name,href,description,image,image2]) => ({ name, href, description, image, image2 }))} /></div></section>
+
+    <section className="section discovery-strip" aria-label="MOTEVRA shopping shortcuts">
+      <div className="container">
+        <div className="discovery-grid">
+          <Link href="/tyres" className="discovery-card discovery-card-dark"><span>01 / FITMENT</span><strong>Find tyres by vehicle or size.</strong><b>Open tyre finder →</b></Link>
+          <Link href="/blog" className="discovery-card"><span>02 / JOURNAL</span><strong>Learn before you buy.</strong><b>Read automotive guides →</b></Link>
+          <Link href="/shop" className="discovery-card"><span>03 / SHOP</span><strong>Browse the full catalogue.</strong><b>Explore products →</b></Link>
+        </div>
+      </div>
+    </section>
 
     {data.newestProduct && <section className="section newest-product-section"><div className="newest-product-wrap"><div className="section-heading newest-product-heading"><div><p className="eyebrow">Just added</p><h2>Our newest product.</h2></div></div><div className="newest-product-card"><div className="newest-product-image"><Image unoptimized={data.newestProduct.image.startsWith("/api/")} src={data.newestProduct.image} alt={data.newestProduct.name} fill sizes="(max-width: 900px) 100vw, 58vw" />{data.newestProduct.image2 && <div className="newest-product-image-secondary"><Image unoptimized={data.newestProduct.image2?.startsWith("/api/")} src={data.newestProduct.image2} alt="" fill sizes="180px" /></div>}</div><div className="newest-product-copy"><span className="product-brand">NEW · MOTEVRA</span><h3>{data.newestProduct.name}</h3><p className="newest-product-description">{data.newestProduct.detail || "Newly added to the MOTEVRA collection. Explore the latest automotive product and its available options."}</p><div className="newest-product-meta"><span><small>Category</small><strong>{data.newestProduct.type}</strong></span><span><small>Variation</small><strong>{data.newestProduct.variation || "Standard"}</strong></span><span><small>Price</small><strong><CurrencyPrice amount={data.newestProduct.price} from={data.newestProduct.currency} /></strong></span></div><NewestProductActions productId={data.newestProduct.id} href={data.newestProduct.href ?? "/shop"} /></div></div></div></section>}
 

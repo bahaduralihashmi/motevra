@@ -17,6 +17,8 @@ const staticPaths = [
   "/brands/autogrip",
   "/contact",
   "/shipping",
+  "/returns",
+  "/faq",
   "/blog",
   "/blog/how-to-read-a-tyre-size",
   "/blog/when-to-replace-car-tyres",

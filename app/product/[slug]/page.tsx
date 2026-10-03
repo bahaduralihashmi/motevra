@@ -66,6 +66,8 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
       "@context":"https://schema.org","@type":"Product",name:product.name,description:product.description||undefined,sku:product.sku,
       image:product.images.length ? product.images.map(img=>img.url) : [image],
       brand:{"@type":"Brand",name:product.brand?.name||"MOTEVRA"},category:product.category?.name||product.productType,url:productUrl,
+      seller:{"@type":"Organization",name:"MOTEVRA",url:"https://www.motevra.com"},
+      itemCondition:"https://schema.org/NewCondition",
       offers:{"@type":"Offer",url:productUrl,priceCurrency:product.currency,price:price.toFixed(2),availability}
     };
     if (averageRating) structuredData.aggregateRating={"@type":"AggregateRating",ratingValue:averageRating.toFixed(1),reviewCount:approvedReviews.length};
