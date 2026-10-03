@@ -144,6 +144,7 @@ async function calculateCJShipping(
     shipping:convert(totalUSD,"USD",sourceCurrency,rates),
     configured,
     method:methods.join(" + "),
+    shippingOptions,
   };
 }
 
