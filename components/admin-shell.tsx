@@ -30,7 +30,7 @@ const groups: NavGroup[] = [
     items: [
       { label: "Suppliers", href: "/admin/suppliers", icon: "◈" },
       { label: "Supplier catalog", href: "/admin/supplier-catalog", icon: "▥" },
-      { label: "CJ imports", href: "/admin/cj", icon: "↥" },
+      { label: "CJ imports", href: "/admin/suppliers/cj", icon: "↥" },
     ],
   },
   {
