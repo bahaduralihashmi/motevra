@@ -98,7 +98,7 @@ export default function SuppliersClient() {
     try {
       const fields = Object.fromEntries(Object.entries(credentials).filter(([, value]) => String(value).trim()));
       if (!Object.keys(fields).length) throw new Error("Enter at least one credential.");
-      const body = { supplierId: connect.id, provider: connect.type, fields };
+      const body = connect.type === "CJ_DROPSHIPPING" ? { supplierId: connect.id, provider: connect.type, apiKey: fields.apiKey } : { supplierId: connect.id, provider: connect.type, fields };
       const r = await fetch("/api/admin/supplier-connections", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
