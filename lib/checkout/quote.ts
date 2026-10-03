@@ -30,6 +30,7 @@ type QuoteResult = {
   sourceSubtotal: number; sourceShipping: number; sourceTax: number; sourceTotal: number;
   sourceCurrency: string; displayCurrency: string; exchangeRate: number;
   shippingConfigured: boolean; taxConfigured: boolean; shippingMethod: string; shippingProvider: string;
+  shippingOptions: Array<{id:string;name:string;price:number;deliveryEstimate:string;provider:string}>;
 };
 
 const COUNTRY_CURRENCIES: Record<string, string> = {
@@ -75,11 +76,13 @@ async function calculateCJShipping(
   destination:string,
   sourceCurrency:string,
   rates:Record<string,number>,
+  selectedShippingMethod?: string,
 ) {
   const p=getPrisma();
   let totalUSD=0;
   let configured=true;
   const methods:string[]=[];
+  const shippingOptions:Array<{id:string;name:string;price:number;deliveryEstimate:string;provider:string}>=[];
 
   const groups=new Map<string,{supplierId:string;origin:string;products:{quantity:number;vid:string}[]}>();
   for(const item of items){
@@ -124,10 +127,17 @@ async function calculateCJShipping(
       }))
       .filter((x:{price:number})=>Number.isFinite(x.price)&&x.price>=0)
       .sort((a:{price:number},b:{price:number})=>a.price-b.price);
-    const selected=options[0];
-    if(!selected){configured=false;continue;}
-    totalUSD+=selected.price;
-    methods.push(selected.name+(selected.aging?" ("+selected.aging+" days)":""));
+    if(!options.length){configured=false;continue;}
+    for(const option of options){
+      const id=Buffer.from(JSON.stringify({name:option.name,price:option.price,aging:option.aging})).toString("base64url");
+      if(!shippingOptions.some(x=>x.id===id)) shippingOptions.push({id,name:option.name,price:convert(option.price,"USD",sourceCurrency,rates),deliveryEstimate:option.aging||"Estimated delivery unavailable",provider:"CJ_DROPSHIPPING"});
+    }
+    const selected=selectedShippingMethod
+      ? options.find((option:{name:string})=>Buffer.from(JSON.stringify({name:option.name,price:option.price,aging:option.aging})).toString("base64url")===selectedShippingMethod)
+      : options[0];
+    const effective=selected||options[0];
+    totalUSD+=effective.price;
+    methods.push(effective.name+(effective.aging?" ("+effective.aging+" days)":""));
   }
 
   return {
@@ -137,7 +147,7 @@ async function calculateCJShipping(
   };
 }
 
-export async function buildCheckoutQuote(items:QuoteItem[],countryCode:string,sourceCurrency:string):Promise<QuoteResult>{
+export async function buildCheckoutQuote(items:QuoteItem[],countryCode:string,sourceCurrency:string,selectedShippingMethod?:string):Promise<QuoteResult>{
   const p=getPrisma();
   const country=countryCode.toUpperCase();
   const dbCountry=await p.country.findUnique({where:{code:country},select:{id:true,currencyCode:true}});
@@ -147,7 +157,7 @@ export async function buildCheckoutQuote(items:QuoteItem[],countryCode:string,so
   const sourceSubtotal=items.reduce((sum,item)=>sum+Number(item.unitPrice)*item.quantity,0);
 
   let sourceShipping=0,shippingConfigured=true;
-  const cj=await calculateCJShipping(items,country,sourceCurrency,rates);
+  const cj=await calculateCJShipping(items,country,sourceCurrency,rates,selectedShippingMethod);
   sourceShipping+=cj.shipping;
   if(cj.method) {
     // CJ products are quoted directly from CJ; local products continue through MOTEVRA shipping rules below.
@@ -209,6 +219,7 @@ export async function buildCheckoutQuote(items:QuoteItem[],countryCode:string,so
   return {
     subtotal:sourceSubtotal*exchangeRate,shipping:sourceShipping*exchangeRate,tax:sourceTax*exchangeRate,total:sourceTotal*exchangeRate,
     sourceSubtotal,sourceShipping,sourceTax,sourceTotal,sourceCurrency,displayCurrency,exchangeRate,
-    shippingConfigured,taxConfigured,shippingMethod:methods.join(" + ")||"Shipping quote unavailable",shippingProvider:methods.length ? (cj.method ? "CJ_DROPSHIPPING" : "MOTEVRA") : "NONE"
+    shippingConfigured,taxConfigured,shippingMethod:methods.join(" + ")||"Shipping quote unavailable",shippingProvider:methods.length ? (cj.method ? "CJ_DROPSHIPPING" : "MOTEVRA") : "NONE",
+    shippingOptions: cj.shippingOptions.map(option=>({...option,price:option.price*exchangeRate}))
   };
 }
