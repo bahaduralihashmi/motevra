@@ -34,8 +34,8 @@ export async function GET(){
   try{
     if(!process.env.DATABASE_URL) return response({error:"Cart database is not configured"},503);
     const prisma=getPrisma(); await ensureCartVariantSchema(); const id=await getIdentity();
-    const cart=id.userId ? await prisma.cart.findFirst({where:{userId:id.userId,status:"ACTIVE"},include:{items:{include:{product:{include:{brand:true,tyre:{include:{size:true}}}}}}}})
-      : id.cartId ? await prisma.cart.findFirst({where:{id:id.cartId,userId:null,status:"ACTIVE"},include:{items:{include:{product:{include:{brand:true,tyre:{include:{size:true}}}}}}}}) : null;
+    const cart=id.userId ? await prisma.cart.findFirst({where:{userId:id.userId,status:"ACTIVE"},include:{items:{include:{product:{include:{brand:true,tyre:{include:{size:true}},variants:true,images:{orderBy:{position:"asc"}}}},variant:true}}})
+      : id.cartId ? await prisma.cart.findFirst({where:{id:id.cartId,userId:null,status:"ACTIVE"},include:{items:{include:{product:{include:{brand:true,tyre:{include:{size:true}},variants:true,images:{orderBy:{position:"asc"}}}},variant:true}}}) : null;
     return response({cart});
   }catch{return response({error:"Cart service temporarily unavailable"},503);}
 }
