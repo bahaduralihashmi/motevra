@@ -34,7 +34,7 @@ export async function GET(){
   try{
     if(!process.env.DATABASE_URL) return response({error:"Cart database is not configured"},503);
     const prisma=getPrisma(); await ensureCartVariantSchema(); const id=await getIdentity();
-    const cart=id.userId ? await prisma.cart.findFirst({where:{userId:id.userId,status:"ACTIVE"},include:{items:{include:{product:{include:{brand:true,tyre:{include:{size:true}},variants:true,images:{orderBy:{position:"asc"}}}},variant:true}}})
+    const cart=id.userId ? await prisma.cart.findFirst({where:{userId:id.userId,status:"ACTIVE"},include:{items:{include:{product:{include:{brand:true,tyre:{include:{size:true}},variants:true,images:{orderBy:{position:"asc"}}}},variant:true}}}) : id.cartId ? await prisma.cart.findFirst({where:{id:id.cartId,userId:null,status:"ACTIVE"},include:{items:{include:{product:{include:{brand:true,tyre:{include:{size:true}},variants:true,images:{orderBy:{position:"asc"}}}},variant:true}}}) : null;
       : id.cartId ? await prisma.cart.findFirst({where:{id:id.cartId,userId:null,status:"ACTIVE"},include:{items:{include:{product:{include:{brand:true,tyre:{include:{size:true}},variants:true,images:{orderBy:{position:"asc"}}}},variant:true}}}) : null;
     return response({cart});
   }catch{return response({error:"Cart service temporarily unavailable"},503);}
@@ -74,7 +74,7 @@ export async function DELETE(req:NextRequest){
   try{
     if(!process.env.DATABASE_URL) return response({error:"Cart database is not configured"},503);
     const {productId,variantId}=await req.json(); const prisma=getPrisma(); await ensureCartVariantSchema(); const id=await getIdentity();
-    const cart=id.userId ? await prisma.cart.findFirst({where:{userId:id.userId,status:"ACTIVE"}}) : id.cartId ? await prisma.cart.findFirst({where:{id:id.cartId,userId:null,status:"ACTIVE"}}) : null;
+    const cart=id.userId ? await prisma.cart.findFirst({where:{userId:id.userId,status:"ACTIVE"},include:{items:{include:{product:{include:{brand:true,tyre:{include:{size:true}},variants:true,images:{orderBy:{position:"asc"}}}},variant:true}}}) : id.cartId ? await prisma.cart.findFirst({where:{id:id.cartId,userId:null,status:"ACTIVE"},include:{items:{include:{product:{include:{brand:true,tyre:{include:{size:true}},variants:true,images:{orderBy:{position:"asc"}}}},variant:true}}}) : null;
     if(cart) await prisma.cartItem.deleteMany({where:{cartId:cart.id,productId,...(variantId?{variantId:String(variantId)}:{})}});
     return response({ok:true});
   }catch{return response({error:"Cart service temporarily unavailable"},503);}
