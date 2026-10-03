@@ -337,10 +337,14 @@ model Category {
   name String @unique
   slug String @unique
   imageUrl String?
+  parentId String?
+  parent Category? @relation("CategoryHierarchy", fields:[parentId], references:[id], onDelete:SetNull)
+  children Category[] @relation("CategoryHierarchy")
   products Product[]
   priceRules PriceRule[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  @@index([parentId])
 }
 
 model ProductVariant {
