@@ -18,11 +18,14 @@ function sizeLabelToSlug(label: string) {
   return label.toLowerCase().replace(/\s+/g, "").replace(/\//g, "-").replace(/r(?=\d)/, "-r");
 }
 
-export async function generateMetadata({ searchParams }: { searchParams: Promise<{ size?: string }> }) {
+export async function generateMetadata({ searchParams }: { searchParams: Promise<{ size?: string; category?: string; subcategory?: string; filter?: string; brand?: string }> }) {
   const params = await searchParams;
   const size = params.size ? sizeSlugToLabel(params.size) : null;
+  const category = params.category?.trim().toLowerCase() || null;
+  const subcategory = params.subcategory?.trim().toLowerCase() || null;
+  const filter = params.filter?.trim().toLowerCase() || null;
   return {
-    title: size ? `${size} Tyres in Pakistan | Prices & Options` : "Buy Tyres, Wheels & Auto Parts Online in Pakistan",
+    title: size ? `${size} Tyres in Pakistan | Prices & Options` : subcategory ? `${subcategory.replace(/-/g," ")} | MOTEVRA` : filter ? `${filter.replace(/-/g," ")} | MOTEVRA` : "Buy Tyres, Wheels & Auto Parts Online in Pakistan",
     description: size ? `Shop ${size} tyres in Pakistan at MOTEVRA. See available products, brands, prices and stock for this exact tyre size.` : "Shop tyres, wheels, auto parts, batteries, accessories and car care products from MOTEVRA.",
     alternates: { canonical: size ? `/shop?size=${sizeLabelToSlug(size)}` : "/shop" },
   };
@@ -38,12 +41,15 @@ const fallbackImages: Record<string, string> = {
   OTHER: "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1000&q=85",
 };
 
-export default async function ShopPage({ searchParams }: { searchParams: Promise<{ size?: string; category?: string }> }) {
+export default async function ShopPage({ searchParams }: { searchParams: Promise<{ size?: string; category?: string; subcategory?: string; filter?: string; brand?: string }> }) {
   const params = await searchParams;
   const size = params.size ? sizeSlugToLabel(params.size) : null;
   const category = params.category?.trim().toLowerCase() || null;
   const categoryTypeMap: Record<string, string> = { tyres: "TYRE", wheels: "WHEEL", accessories: "ACCESSORY", "auto-parts": "AUTO_PART", batteries: "BATTERY", "car-care": "CAR_CARE" };
   const expectedProductType = category ? categoryTypeMap[category] : null;
+  const subcategory = params.subcategory?.trim().toLowerCase() || null;
+  const filter = params.filter?.trim().toLowerCase() || null;
+  const brand = params.brand?.trim().toLowerCase() || null;
   let products: any[] = [];
   let databaseError = false;
 
@@ -51,7 +57,11 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
     if (!process.env.DATABASE_URL) databaseError = true;
     else {
       products = await getPrisma().product.findMany({
-        where: { status: "ACTIVE", ...(category ? { category: { slug: category }, ...(expectedProductType ? { productType: expectedProductType as never } : {}) } : {}), ...(size ? { tyre: { size: { label: size } } } : {}) },
+        where: { status: "ACTIVE",
+          ...(category ? { category: subcategory ? { slug: subcategory, parent: { slug: category } } : { parent: { slug: category } }, ...(expectedProductType ? { productType: expectedProductType as never } : {}) } : {}),
+          ...(brand ? { brand: { slug: brand } } : {}),
+          ...(filter ? { OR: [{ category: { slug: filter } }, { category: { name: { contains: filter.replace(/-/g," "), mode: "insensitive" } } }, { brand: { slug: filter } }, { brand: { name: { contains: filter.replace(/-/g," "), mode: "insensitive" } } }, { name: { contains: filter.replace(/-/g," "), mode: "insensitive" } }, { tyre: { size: { label: { contains: filter.replace(/-/g," "), mode: "insensitive" } } } }] } : {}),
+          ...(size ? { tyre: { size: { label: size } } } : {}) },
         include: { brand: true, category: true, images: { orderBy: { position: "asc" } }, tyre: { include: { size: true } } },
         orderBy: { createdAt: "desc" },
         take: 48,
@@ -77,8 +87,8 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
       <main>
         <section className="page-hero">
           <div className="container narrow">
-            <p className="eyebrow">{size ? "TYRE SIZE" : "MOTEVRA SHOP"}</p>
-            <h1>{size ? `${size} Tyres in Pakistan` : "Automotive products, beautifully presented."}</h1>
+            <p className="eyebrow">{size ? "TYRE SIZE" : subcategory ? "SUBCATEGORY" : category ? "CATEGORY" : "MOTEVRA SHOP"}</p>
+            <h1>{size ? `${size} Tyres in Pakistan` : subcategory ? subcategory.replace(/-/g," ") : filter ? filter.replace(/-/g," ") : category ? category.replace(/-/g," ") : "Automotive products, beautifully presented."}</h1>
             <p className="hero-copy">
               {size ? `Explore available ${size} tyres, including product details, brands, prices and stock. Confirm your vehicle's required size before ordering.` : "Explore tyres, wheels, parts and accessories from one international-ready automotive catalogue."}
             </p>
