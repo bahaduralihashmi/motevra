@@ -48,7 +48,7 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
     if (!process.env.DATABASE_URL) databaseError = true;
     else {
       products = await getPrisma().product.findMany({
-        where: { status: "ACTIVE", ...(size ? { tyre: { size: { label: size } } } : {}) },
+        where: { status: "ACTIVE", ...(category ? { category: { slug: category }, ...(expectedProductType ? { productType: expectedProductType as never } : {}) } : {}), ...(size ? { tyre: { size: { label: size } } } : {}) },
         include: { brand: true, category: true, images: { orderBy: { position: "asc" } }, tyre: { include: { size: true } } },
         orderBy: { createdAt: "desc" },
         take: 48,
