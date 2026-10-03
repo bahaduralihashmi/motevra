@@ -29,7 +29,7 @@ type QuoteResult = {
   subtotal: number; shipping: number; tax: number; total: number;
   sourceSubtotal: number; sourceShipping: number; sourceTax: number; sourceTotal: number;
   sourceCurrency: string; displayCurrency: string; exchangeRate: number;
-  shippingConfigured: boolean; taxConfigured: boolean; shippingMethod: string;
+  shippingConfigured: boolean; taxConfigured: boolean; shippingMethod: string; shippingProvider: string;
 };
 
 const COUNTRY_CURRENCIES: Record<string, string> = {
@@ -156,6 +156,7 @@ export async function buildCheckoutQuote(items:QuoteItem[],countryCode:string,so
     shippingConfigured=false;
   }
 
+  const hasCJItems=items.some(i=>i.product.supplierProducts?.some(s=>s.active&&s.supplier?.type==="CJ_DROPSHIPPING"));
   const localItems=items.filter(i=>!i.product.supplierProducts?.some(s=>s.active&&s.supplier?.type==="CJ_DROPSHIPPING"));
   if(localItems.length){
     if(dbCountry){

@@ -89,6 +89,10 @@ export async function POST(req:NextRequest){
       cart.currency||"USD",
     );
 
+    const hasCJItems=cart.items.some(i=>i.product.supplierProducts.some(sp=>sp.supplier?.type==="CJ_DROPSHIPPING" && sp.active));
+    if(hasCJItems && !quote.shippingConfigured){
+      return NextResponse.json({error:"CJ shipping is currently unavailable for this destination. Please try again or choose another destination."},{status:409});
+    }
     const orderNumber="MOT-"+Date.now().toString(36).toUpperCase();
     const order=await p.$transaction(async tx=>{
       const created=await tx.order.create({
