@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
   const products = await getPrisma().product.findMany({
     where: {
       status: "ACTIVE",
-      ...(category ? { category: subcategory ? { slug: subcategory, parent: { slug: category.toLowerCase() } } : { OR: [{ slug: category.toLowerCase() }, { parent: { slug: category.toLowerCase() } }] }, ...(expectedProductType ? { productType: expectedProductType as never } : {}) } : {}),
+      ...(category ? (subcategory ? { category: { slug: subcategory, parent: { slug: category.toLowerCase() } }, ...(expectedProductType ? { productType: expectedProductType as never } : {}) } : { OR: [{ category: { slug: category.toLowerCase() } }, { category: { parent: { slug: category.toLowerCase() } } }], ...(expectedProductType ? { productType: expectedProductType as never } : {}) }) : {}),
       ...((q || filter) ? { AND: [
         ...(q ? [{ OR: [{ name: { contains: q, mode: "insensitive" } }, { sku: { contains: q, mode: "insensitive" } }] }] : []),
         ...(filter ? [{ OR: [{ category: { slug: filter } }, { category: { name: { contains: filter.replace(/-/g," "), mode:"insensitive" } } }, { brand: { slug: filter } }, { brand: { name: { contains: filter.replace(/-/g," "), mode:"insensitive" } } }, { name: { contains: filter.replace(/-/g," "), mode:"insensitive" } }, { tyre: { size: { label: { contains: filter.replace(/-/g," "), mode:"insensitive" } } } }] }] : []),
