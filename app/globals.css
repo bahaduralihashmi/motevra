@@ -1178,3 +1178,29 @@ pre,code{max-width:100%;overflow-x:auto}
   .page-hero .hero-actions{margin-top:14px}
   .page-hero+.section{padding-top:22px}
 }
+
+
+/* Global storefront spacing pass — compact every inner page without changing the homepage hero. */
+@supports selector(main:has(*)){
+  main:not(:has(.hero))>section:first-child{padding-top:94px}
+  main:not(:has(.hero))>section:first-child.page-hero{padding-top:94px;padding-bottom:22px}
+  main:not(:has(.hero)) .section{padding-top:34px;padding-bottom:34px}
+  main:not(:has(.hero)) .section-heading{margin-bottom:20px}
+  main:not(:has(.hero)) .section-heading h2{margin-bottom:6px}
+  main:not(:has(.hero)) .hero-copy{margin-bottom:0}
+  main:not(:has(.hero)) .page-hero+.section{padding-top:24px}
+  main:not(:has(.hero)) .container{scroll-margin-top:90px}
+  main:not(:has(.hero)) .product-grid,
+  main:not(:has(.hero)) .product-rail-wrap,
+  main:not(:has(.hero)) .catalog-grid,
+  main:not(:has(.hero)) .shop-grid{margin-top:0}
+}
+@media(max-width:640px){
+  @supports selector(main:has(*)){
+    main:not(:has(.hero))>section:first-child{padding-top:76px}
+    main:not(:has(.hero))>section:first-child.page-hero{padding-top:76px;padding-bottom:18px}
+    main:not(:has(.hero)) .section{padding-top:26px;padding-bottom:26px}
+    main:not(:has(.hero)) .section-heading{margin-bottom:16px}
+    main:not(:has(.hero)) .page-hero+.section{padding-top:18px}
+  }
+}
