@@ -33,11 +33,43 @@ async function response(data:any,status=200,cartId?:string){
 export async function GET(){
   try{
     if(!process.env.DATABASE_URL) return response({error:"Cart database is not configured"},503);
-    const prisma=getPrisma(); await ensureCartVariantSchema(); const id=await getIdentity();
-    const cart=id.userId ? await prisma.cart.findFirst({where:{userId:id.userId,status:"ACTIVE"},include:{items:{include:{product:{include:{brand:true,tyre:{include:{size:true}},variants:true,images:{orderBy:{position:"asc"}}}},variant:true}}}) : id.cartId ? await prisma.cart.findFirst({where:{id:id.cartId,userId:null,status:"ACTIVE"},include:{items:{include:{product:{include:{brand:true,tyre:{include:{size:true}},variants:true,images:{orderBy:{position:"asc"}}}},variant:true}}}) : null;
-      : id.cartId ? await prisma.cart.findFirst({where:{id:id.cartId,userId:null,status:"ACTIVE"},include:{items:{include:{product:{include:{brand:true,tyre:{include:{size:true}},variants:true,images:{orderBy:{position:"asc"}}}},variant:true}}}) : null;
+    const prisma=getPrisma();
+    await ensureCartVariantSchema();
+    const id=await getIdentity();
+
+    const include={
+      items:{
+        include:{
+          product:{
+            include:{
+              brand:true,
+              tyre:{include:{size:true}},
+              variants:true,
+              images:{orderBy:{position:"asc" as const}},
+            },
+          },
+          variant:true,
+        },
+      },
+    };
+
+    let cart=null;
+    if(id.userId){
+      cart=await prisma.cart.findFirst({
+        where:{userId:id.userId,status:"ACTIVE"},
+        include,
+      });
+    }else if(id.cartId){
+      cart=await prisma.cart.findFirst({
+        where:{id:id.cartId,userId:null,status:"ACTIVE"},
+        include,
+      });
+    }
+
     return response({cart});
-  }catch{return response({error:"Cart service temporarily unavailable"},503);}
+  }catch{
+    return response({error:"Cart service temporarily unavailable"},503);
+  }
 }
 export async function POST(req:NextRequest){
   try{
@@ -73,9 +105,52 @@ export async function POST(req:NextRequest){
 export async function DELETE(req:NextRequest){
   try{
     if(!process.env.DATABASE_URL) return response({error:"Cart database is not configured"},503);
-    const {productId,variantId}=await req.json(); const prisma=getPrisma(); await ensureCartVariantSchema(); const id=await getIdentity();
-    const cart=id.userId ? await prisma.cart.findFirst({where:{userId:id.userId,status:"ACTIVE"},include:{items:{include:{product:{include:{brand:true,tyre:{include:{size:true}},variants:true,images:{orderBy:{position:"asc"}}}},variant:true}}}) : id.cartId ? await prisma.cart.findFirst({where:{id:id.cartId,userId:null,status:"ACTIVE"},include:{items:{include:{product:{include:{brand:true,tyre:{include:{size:true}},variants:true,images:{orderBy:{position:"asc"}}}},variant:true}}}) : null;
-    if(cart) await prisma.cartItem.deleteMany({where:{cartId:cart.id,productId,...(variantId?{variantId:String(variantId)}:{})}});
+    const {productId,variantId}=await req.json();
+    const prisma=getPrisma();
+    await ensureCartVariantSchema();
+    const id=await getIdentity();
+
+    let cart=null;
+    const include={
+      items:{
+        include:{
+          product:{
+            include:{
+              brand:true,
+              tyre:{include:{size:true}},
+              variants:true,
+              images:{orderBy:{position:"asc" as const}},
+            },
+          },
+          variant:true,
+        },
+      },
+    };
+
+    if(id.userId){
+      cart=await prisma.cart.findFirst({
+        where:{userId:id.userId,status:"ACTIVE"},
+        include,
+      });
+    }else if(id.cartId){
+      cart=await prisma.cart.findFirst({
+        where:{id:id.cartId,userId:null,status:"ACTIVE"},
+        include,
+      });
+    }
+
+    if(cart){
+      await prisma.cartItem.deleteMany({
+        where:{
+          cartId:cart.id,
+          productId,
+          ...(variantId?{variantId:String(variantId)}:{variantId:null}),
+        },
+      });
+    }
+
     return response({ok:true});
-  }catch{return response({error:"Cart service temporarily unavailable"},503);}
+  }catch{
+    return response({error:"Cart service temporarily unavailable"},503);
+  }
 }
