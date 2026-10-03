@@ -940,6 +940,8 @@ model Order {
   exchangeRate Decimal? @db.Decimal(20,10)
   subtotal Decimal @db.Decimal(12,2)
   shippingTotal Decimal @db.Decimal(12,2) @default(0)
+  shippingMethod String?
+  shippingProvider String?
   taxTotal Decimal @db.Decimal(12,2) @default(0)
   total Decimal @db.Decimal(12,2)
   baseSubtotal Decimal? @db.Decimal(12,2)
