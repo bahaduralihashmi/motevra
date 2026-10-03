@@ -209,6 +209,6 @@ export async function buildCheckoutQuote(items:QuoteItem[],countryCode:string,so
   return {
     subtotal:sourceSubtotal*exchangeRate,shipping:sourceShipping*exchangeRate,tax:sourceTax*exchangeRate,total:sourceTotal*exchangeRate,
     sourceSubtotal,sourceShipping,sourceTax,sourceTotal,sourceCurrency,displayCurrency,exchangeRate,
-    shippingConfigured,taxConfigured,shippingMethod:methods.join(" + ")||"Shipping quote unavailable"
+    shippingConfigured,taxConfigured,shippingMethod:methods.join(" + ")||"Shipping quote unavailable",shippingProvider:methods.length ? (cj.method ? "CJ_DROPSHIPPING" : "MOTEVRA") : "NONE"
   };
 }
